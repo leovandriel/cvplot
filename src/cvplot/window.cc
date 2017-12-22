@@ -1,4 +1,5 @@
 #include "cvplot/window.h"
+#include "internal.h"
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -9,80 +10,117 @@ namespace {
 Window shared_window;
 }
 
-void Window::View::resize(Rect rect) { rect_ = rect; }
+Window::View &Window::View::resize(Rect rect) {
+  rect_ = rect;
+  return *this;
+}
 
-void Window::View::size(Size size) {
+Window::View &Window::View::size(Size size) {
   rect_.width = size.width;
   rect_.height = size.height;
+  return *this;
 }
 
-void Window::View::offset(Offset offset) {
+Window::View &Window::View::offset(Offset offset) {
   rect_.x = offset.x;
   rect_.y = offset.y;
+  return *this;
 }
 
-void Window::View::autosize() { size({0, 0}); }
+Window::View &Window::View::autosize() {
+  size({0, 0});
+  return *this;
+}
 
-void Window::View::title(const std::string &title) { title_ = title; }
+Window::View &Window::View::title(const std::string &title) {
+  title_ = title;
+  return *this;
+}
 
-void Window::View::drawText(const std::string &text, Offset offset) const {
+Window::View &Window::View::alpha(int alpha) {
+  background_color_ = background_color_.alpha(alpha);
+  frame_color_ = frame_color_.alpha(alpha);
+  text_color_ = text_color_.alpha(alpha);
+  return *this;
+}
+
+Window::View &Window::View::backgroundColor(Color color) {
+  background_color_ = color;
+  return *this;
+}
+
+Window::View &Window::View::frameColor(Color color) {
+  frame_color_ = color;
+  return *this;
+}
+
+Window::View &Window::View::textColor(Color color) {
+  text_color_ = color;
+  return *this;
+}
+
+Color Window::View::backgroundColor() { return background_color_; }
+
+Color Window::View::frameColor() { return frame_color_; }
+
+Color Window::View::textColor() { return text_color_; }
+
+void Window::View::drawText(const std::string &text, Offset offset,
+                            Color color) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
   auto scale = 0.5;
   auto thickness = 1.0;
   int baseline;
   cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
-  auto &buffer = *(cv::Mat *)window_.buffer_;
-  cv::rectangle(buffer, org + cv::Point(-1, 2),
-                org + cv::Point(size.width + 1, -size.height - 1),
-                cv::Scalar::all(224), -1);
-  cv::putText(buffer, text.c_str(), org, face, scale, cv::Scalar::all(32),
-              thickness);
+  Trans trans(window_.buffer_);
+  cv::putText(trans.with(color), text.c_str(), org, face, scale,
+              color2scalar(color), thickness);
 }
 
-void Window::View::drawFrame(const std::string &title, Color foreground,
-                             Color background, Color text) const {
-  auto &buffer = *(cv::Mat *)window_.buffer_;
-  cv::rectangle(buffer, {rect_.x, rect_.y},
+void Window::View::drawFrame(const std::string &title) const {
+  Trans trans(window_.buffer_);
+  cv::rectangle(trans.with(background_color_), {rect_.x, rect_.y},
                 {rect_.x + rect_.width - 1, rect_.y + rect_.height - 1},
-                cv::Scalar(background.b, background.g, background.r), 1);
-  cv::rectangle(buffer, {rect_.x + 1, rect_.y + 1},
+                color2scalar(background_color_), 1);
+  cv::rectangle(trans.with(frame_color_), {rect_.x + 1, rect_.y + 1},
                 {rect_.x + rect_.width - 2, rect_.y + rect_.height - 2},
-                cv::Scalar(foreground.b, foreground.g, foreground.r), 1);
-  cv::rectangle(buffer, {rect_.x + 2, rect_.y + 2},
+                color2scalar(frame_color_), 1);
+  cv::rectangle(trans.with(frame_color_), {rect_.x + 2, rect_.y + 2},
                 {rect_.x + rect_.width - 3, rect_.y + 16},
-                cv::Scalar(foreground.b, foreground.g, foreground.r), -1);
+                color2scalar(frame_color_), -1);
   int baseline;
   cv::Size size =
       getTextSize(title.c_str(), cv::FONT_HERSHEY_PLAIN, 1.0, 1.0, &baseline);
-  cv::putText(buffer, title.c_str(),
+  cv::putText(trans.with(text_color_), title.c_str(),
               {rect_.x + 2 + (rect_.width - size.width) / 2, rect_.y + 14},
-              cv::FONT_HERSHEY_PLAIN, 1.0, cv::Scalar(text.b, text.g, text.r),
-              1.0);
+              cv::FONT_HERSHEY_PLAIN, 1.0, color2scalar(text_color_), 1.0);
 }
 
-void Window::View::drawImage(const void *image) {
+void Window::View::drawImage(const void *image, int alpha) {
   auto &img = *(cv::Mat *)image;
   if (rect_.width == 0 && rect_.height == 0) {
     rect_.width = img.cols;
     rect_.height = img.rows;
   }
   window_.ensure(rect_, false);
-  auto &buffer = *(cv::Mat *)window_.buffer_;
+  Trans trans(window_.buffer_);
   if (img.cols != rect_.width || img.rows != rect_.height) {
     cv::Mat resized;
     cv::resize(img, resized, {rect_.width, rect_.height});
-    resized.copyTo(buffer({rect_.x, rect_.y, rect_.width, rect_.height}));
+    resized.copyTo(
+        trans.with(alpha)({rect_.x, rect_.y, rect_.width, rect_.height}));
   } else {
-    img.copyTo(buffer({rect_.x, rect_.y, rect_.width, rect_.height}));
+    img.copyTo(
+        trans.with(alpha)({rect_.x, rect_.y, rect_.width, rect_.height}));
   }
 }
 
 void Window::View::drawFill(Color color) {
-  auto &buffer = *(cv::Mat *)window_.buffer_;
-  cv::rectangle(buffer, {rect_.x, rect_.y},
+  Trans trans(window_.buffer_);
+  cv::rectangle(trans.with(color), {rect_.x, rect_.y},
                 {rect_.x + rect_.width - 1, rect_.y + rect_.height - 1},
-                cv::Scalar(color.b, color.g, color.r), -1);
+                color2scalar(color), -1);
 }
 
 void *Window::View::buffer(Rect &rect) {
@@ -98,14 +136,15 @@ void Window::View::show(bool flush) const {
   window_.show(flush);
 }
 
-void Window::resize(Rect rect, bool flush) {
+Window &Window::resize(Rect rect, bool flush) {
   offset({rect.x, rect.y});
   size({rect.width, rect.height}, flush);
+  return *this;
 }
 
-void Window::size(Size size, bool flush) {
-  auto &buffer =
-      *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3, 0.0));
+Window &Window::size(Size size, bool flush) {
+  auto &buffer = *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3,
+                               cv::Scalar::all(128.0)));
   if (buffer_ != NULL) {
     auto &current = *(cv::Mat *)buffer_;
     if (current.cols > 0 && current.rows > 0 && size.width > 0 &&
@@ -118,15 +157,22 @@ void Window::size(Size size, bool flush) {
   }
   buffer_ = &buffer;
   show(flush);
+  return *this;
 }
 
-void Window::offset(Offset offset) {
+Window &Window::offset(Offset offset) {
   offset_ = offset;
   cv::namedWindow(title_, cv::WINDOW_AUTOSIZE);
   cv::moveWindow(title_, offset.x, offset.y);
+  return *this;
 }
 
-void Window::ensure(Rect rect, bool flush) {
+Window &Window::title(const std::string &title) {
+  title_ = title;
+  return *this;
+}
+
+Window &Window::ensure(Rect rect, bool flush) {
   if (buffer_ == NULL) {
     size({rect.x + rect.width, rect.y + rect.height}, flush);
   } else {
@@ -137,9 +183,8 @@ void Window::ensure(Rect rect, bool flush) {
            flush);
     }
   }
+  return *this;
 }
-
-void Window::title(const std::string &title) { title_ = title; }
 
 void Window::show(bool flush) const {
   if (buffer_ != NULL) {

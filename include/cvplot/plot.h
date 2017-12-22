@@ -107,6 +107,15 @@ class Plot {
     Figure &square(bool square);
     Figure &border(int size);
     Figure &window(const std::string &window);
+    Figure &alpha(int alpha);
+    Figure &backgroundColor(Color color);
+    Figure &axisColor(Color color);
+    Figure &subaxisColor(Color color);
+    Figure &textColor(Color color);
+    Color backgroundColor();
+    Color axisColor();
+    Color subaxisColor();
+    Color textColor();
 
     void draw(void *b, float x_min, float x_max, float y_min, float y_max,
               int n_max, int p_max) const;
