@@ -160,11 +160,12 @@ void run() {
     cvplot::move(name, 900, 0);
     cvplot::resize(name, 300, 300);
     auto &figure = cvplot::figure(name);
+    figure.series("color")
+        .dynamicColor(true)
+        .type(cvplot::Plot::Vistogram)
+        .legend(false);
     for (auto i = 0; i < 16; i++) {
-      figure.series(std::to_string(i))
-          .set(2, i + 1)
-          .type(cvplot::Plot::Vistogram)
-          .color(cvplot::Color::index(i));
+      figure.series("color").addValue(6, cvplot::Color::index(i).hue());
     }
     figure.show(false);
   }
@@ -181,12 +182,10 @@ void run() {
     figure.series("apples_range")
         .type(cvplot::Plot::Range)
         .color(cvplot::Orange.alpha(128))
-        .depth(2)
         .legend(false);
     figure.series("pears_range")
         .type(cvplot::Plot::Range)
         .color(cvplot::Sky.alpha(128))
-        .depth(2)
         .legend(false);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
@@ -211,12 +210,10 @@ void run() {
     auto &figure = cvplot::figure(name);
     figure.series("purple")
         .type(cvplot::Plot::Circle)
-        .color(cvplot::Purple.alpha(128))
-        .depth(2);
+        .color(cvplot::Purple.alpha(128));
     figure.series("yellow")
         .type(cvplot::Plot::Circle)
-        .color(cvplot::Yellow.alpha(200))
-        .depth(2);
+        .color(cvplot::Yellow.alpha(200));
     for (auto i = 0; i <= 20; i++) {
       figure.series("purple").add(
           (rand() % 100) / 10.f, {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
@@ -250,14 +247,14 @@ void run() {
     figure.origin(false, false);
     srand(clock());
     auto x = 0.f, y = 0.f, dx = 1.f, dy = 0.f, f = 0.f, df = 0.f;
+    figure.series("random").dynamicColor(true).legend(false);
     for (int i = 0; i < 2000; i++) {
       auto l = sqrt((dx * dx + dy * dy) * (f * f + 1)) * 10;
       dx = (dx + f * dy) / l;
       dy = (dy - f * dx) / l;
       f = (f + df) * 0.8f;
       df = (df + rand() % 11 / 100.f - .05f) * 0.8f;
-      figure.series("random").add(x += dx, y += dy);
-      figure.series("random").color(cvplot::Color::index(i));
+      figure.series("random").add(x += dx, {y += dy, i / 10.f});
       figure.show();
       cvWaitKey(10);
     }
