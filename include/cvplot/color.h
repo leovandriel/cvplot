@@ -14,6 +14,7 @@ struct Color {
   Color() : Color(0, 0, 0) {}
 
   Color alpha(uint8_t alpha) const;
+  float hue() const;
 
   static Color gray(uint8_t v);
   static Color hue(float hue);

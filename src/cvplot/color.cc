@@ -70,4 +70,24 @@ Color Color::cos(float hue) {
                (std::cos((hue - 4) * 1.047) + 1) * 127.9);
 }
 
+float Color::hue() const {
+  auto min = std::min({r, g, b});
+  auto max = std::max({r, g, b});
+  if (min == max) {
+    return 0;
+  }
+  auto hue = 0.f;
+  if (r == max) {
+    hue = (g - b) / (float)(max - min);
+  } else if (g == max) {
+    hue = 2.f + (b - r) / (float)(max - min);
+  } else {
+    hue = 4.f + (r - g) / (float)(max - min);
+  }
+  if (hue < 0) {
+    hue += 6;
+  }
+  return hue;
+}
+
 }  // namespace cvplot

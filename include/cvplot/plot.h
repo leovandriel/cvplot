@@ -35,12 +35,12 @@ class Plot {
           color_(color),
           dims_(0),
           depth_(0),
-          legend_(true) {}
+          legend_(true),
+          dynamic_color_(false) {}
 
     Series &type(enum Type type);
     Series &color(Color color);
-    Series &dims(int dims);
-    Series &depth(int depth);
+    Series &dynamicColor(bool dynamic_color);
     Series &legend(bool legend);
     Series &add(const std::vector<std::pair<float, float>> &data);
     Series &add(const std::vector<std::pair<float, Point2>> &data);
@@ -63,14 +63,18 @@ class Plot {
     const std::string &label() const;
     bool legend() const;
     Color color() const;
-    bool collides() const;
-    void ensure(int dims, int depth);
-    void bounds(float &x_min, float &x_max, float &y_min, float &y_max,
-                int &n_max, int &p_max) const;
-    void dot(void *b, int x, int y, int r) const;
     void draw(void *buffer, float x_min, float x_max, float y_min, float y_max,
               float x_axis, float xs, float xd, float ys, float yd,
               float y_axis, int unit, float offset) const;
+    bool collides() const;
+    void dot(void *b, int x, int y, int r) const;
+    void bounds(float &x_min, float &x_max, float &y_min, float &y_max,
+                int &n_max, int &p_max) const;
+    void verifyParams() const;
+
+   protected:
+    void ensureDimsDepth(int dims, int depth);
+    bool flipAxis() const;
 
    protected:
     std::vector<int> entries_;
@@ -81,6 +85,7 @@ class Plot {
     int dims_;
     int depth_;
     bool legend_;
+    bool dynamic_color_;
   };
 
   class Figure {

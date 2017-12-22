@@ -17,10 +17,6 @@
     }                                                                          \
   } while (0)
 
-#define EXPECT_DIMS_DEPTH(dims__, depth__) \
-  EXPECT_EQ(dims_, dims__);                \
-  EXPECT_EQ(depth_, depth__);
-
 namespace cvplot {
 
 cv::Scalar color2scalar(const Color &color) {
@@ -37,39 +33,59 @@ namespace {
 Plot shared_plot;
 }
 
+void Plot::Series::verifyParams() const {
+  auto dims = 1;
+  auto depth = 0;
+  switch (type_) {
+    case Line:
+    case DotLine:
+    case Dots:
+    case Vistogram:
+    case Histogram:
+    case Horizontal:
+    case Vertical: {
+      depth = 1;
+      break;
+    }
+    case Range:
+    case Circle: {
+      depth = 2;
+      break;
+    }
+  }
+  if (dynamic_color_) {
+    depth += 1;
+  }
+  EXPECT_EQ(dims_, dims);
+  EXPECT_EQ(depth_, depth);
+}
+
 Plot::Figure &Plot::shared(const std::string &window) {
   return shared_plot.figure(window);
 }
 
-Plot::Series &Plot::Series::dims(int dims) {
+void Plot::Series::ensureDimsDepth(int dims, int depth) {
   if (dims_ != dims) {
-    EXPECT_EQ(dims_, 0);
+    if (dims_ != 0) {
+      std::cerr << "incorrect dims (input dimensions), was " << dims_ << " now "
+                << dims << std::endl;
+    }
     dims_ = dims;
   }
-  return *this;
-}
-
-Plot::Series &Plot::Series::depth(int depth) {
   if (depth_ != depth) {
-    EXPECT_EQ(depth_, 0);
+    if (depth_ != 0) {
+      std::cerr << "incorrect depth (output dimensions), was " << depth_
+                << " now " << depth << std::endl;
+    }
     depth_ = depth;
   }
-  return *this;
-}
-
-void Plot::Series::ensure(int dims, int depth) {
-  if (dims_ == 0) {
-    dims_ = dims;
-  }
-  if (depth_ == 0) {
-    depth_ = depth;
-  }
-  EXPECT_DIMS_DEPTH(dims, depth);
 }
 
 Plot::Series &Plot::Series::clear() {
   entries_.clear();
   data_.clear();
+  dims_ = 0;
+  depth_ = 0;
   return *this;
 }
 
@@ -83,6 +99,11 @@ Plot::Series &Plot::Series::color(Color color) {
   return *this;
 }
 
+Plot::Series &Plot::Series::dynamicColor(bool dynamic_color) {
+  dynamic_color_ = dynamic_color;
+  return *this;
+}
+
 Plot::Series &Plot::Series::legend(bool legend) {
   legend_ = legend;
   return *this;
@@ -90,7 +111,7 @@ Plot::Series &Plot::Series::legend(bool legend) {
 
 Plot::Series &Plot::Series::add(
     const std::vector<std::pair<float, float>> &data) {
-  ensure(1, 1);
+  ensureDimsDepth(1, 1);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
     data_.push_back(d.first);
@@ -101,7 +122,7 @@ Plot::Series &Plot::Series::add(
 
 Plot::Series &Plot::Series::add(
     const std::vector<std::pair<float, Point2>> &data) {
-  ensure(1, 2);
+  ensureDimsDepth(1, 2);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
     data_.push_back(d.first);
@@ -149,14 +170,12 @@ Plot::Series &Plot::Series::addValue(float value_a, float value_b) {
 
 Plot::Series &Plot::Series::set(
     const std::vector<std::pair<float, float>> &data) {
-  dims(1).depth(1);
   clear();
   return add(data);
 }
 
 Plot::Series &Plot::Series::set(
     const std::vector<std::pair<float, Point2>> &data) {
-  dims(1).depth(2);
   clear();
   return add(data);
 }
@@ -199,17 +218,24 @@ Plot::Series &Plot::Series::setValue(float value_a, float value_b) {
 }
 
 const std::string &Plot::Series::label() const { return label_; }
+
 bool Plot::Series::legend() const { return legend_; }
+
 Color Plot::Series::color() const { return color_; }
+
 bool Plot::Series::collides() const {
   return type_ == Histogram || type_ == Vistogram;
+}
+
+bool Plot::Series::flipAxis() const {
+  return type_ == Vertical || type_ == Vistogram;
 }
 
 void Plot::Series::bounds(float &x_min, float &x_max, float &y_min,
                           float &y_max, int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
     auto xe = e, xd = dims_, ye = e + dims_, yd = (type_ == Range ? 2 : 1);
-    if (type_ == Vertical || type_ == Vistogram) {
+    if (flipAxis()) {
       auto s = xe;
       xe = ye;
       ye = s;
@@ -217,7 +243,7 @@ void Plot::Series::bounds(float &x_min, float &x_max, float &y_min,
       xd = yd;
       yd = s;
     }
-    if (type_ != Horizontal) {
+    if (type_ != Horizontal) {  // TODO: check Horizontal/Vertical logic
       EXPECT_EQ(xd, 1);
       const auto &x = data_[xe];
       if (x_min > x) {
@@ -270,11 +296,13 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
     case Line:
     case DotLine:
     case Dots: {
-      EXPECT_DIMS_DEPTH(1, 1);
       bool has_last = false;
       float last_x, last_y;
       for (const auto &e : entries_) {
         auto x = data_[e], y = data_[e + dims_];
+        if (dynamic_color_) {
+          color = color2scalar(Color::cos(data_[e + dims_ + 1]));
+        }
         cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
         if (has_last) {
           if (type_ == DotLine || type_ == Line) {
@@ -293,11 +321,13 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
     } break;
     case Vistogram:
     case Histogram: {
-      EXPECT_DIMS_DEPTH(1, 1);
       auto u = 2 * unit;
       auto o = (int)(2 * u * offset);
       for (const auto &e : entries_) {
         auto x = data_[e], y = data_[e + dims_];
+        if (dynamic_color_) {
+          color = color2scalar(Color::cos(data_[e + dims_ + 1]));
+        }
         if (type_ == Histogram) {
           cv::rectangle(*buffer,
                         {(int)(x * xs + xd) - u + o, (int)(y_axis * ys + yd)},
@@ -314,9 +344,11 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
     } break;
     case Horizontal:
     case Vertical: {
-      EXPECT_DIMS_DEPTH(1, 1);
       for (const auto &e : entries_) {
         auto y = data_[e + dims_];
+        if (dynamic_color_) {
+          color = color2scalar(Color::cos(data_[e + dims_ + 1]));
+        }
         if (type_ == Horizontal) {
           cv::line(*buffer, {(int)(x_min * xs + xd), (int)(y * ys + yd)},
                    {(int)(x_max * xs + xd), (int)(y * ys + yd)}, color, 1,
@@ -329,11 +361,13 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
       }
     } break;
     case Range: {
-      EXPECT_DIMS_DEPTH(1, 2);
       bool has_last = false;
       cv::Point last_a, last_b;
       for (const auto &e : entries_) {
         auto x = data_[e], y_a = data_[e + dims_], y_b = data_[e + dims_ + 1];
+        if (dynamic_color_) {
+          color = color2scalar(Color::cos(data_[e + dims_ + 2]));
+        }
         cv::Point point_a((int)(x * xs + xd), (int)(y_a * ys + yd));
         cv::Point point_b((int)(x * xs + xd), (int)(y_b * ys + yd));
         if (has_last) {
@@ -348,9 +382,11 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
       }
     } break;
     case Circle: {
-      EXPECT_DIMS_DEPTH(1, 2);
       for (const auto &e : entries_) {
         auto x = data_[e], y = data_[e + dims_], r = data_[e + dims_ + 1];
+        if (dynamic_color_) {
+          color = color2scalar(Color::cos(data_[e + dims_ + 2]));
+        }
         cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
         cv::circle(*buffer, point, r, color, -1, CV_AA);
       }
@@ -550,6 +586,7 @@ void Plot::Figure::show(bool flush) const {
 
   // find value bounds
   for (const auto &s : series_) {
+    s.verifyParams();
     s.bounds(x_min, x_max, y_min, y_max, n_max, p_max);
   }
 
