@@ -1,36 +1,17 @@
 #include "cvplot/plot.h"
-
 #include "cvplot/window.h"
+#include "internal.h"
 
-#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
-#include <iomanip>
-#include <iostream>
-
-#define EXPECT_EQ(a__, b__)                                                    \
-  do {                                                                         \
-    if ((a__) != (b__)) {                                                      \
-      std::cerr << "Incorrect " << #a__ << " (" << (a__) << "), should equal " \
-                << (b__) << std::endl;                                         \
-      exit(-1);                                                                \
-    }                                                                          \
-  } while (0)
 
 namespace cvplot {
 
-cv::Scalar color2scalar(const Color &color) {
-  return cv::Scalar(color.b, color.g, color.r);
-}
-
-float value2snap(float value) {
-  return std::max({pow(10, floor(log10(value))),
-                   pow(10, floor(log10(value / 2))) * 2,
-                   pow(10, floor(log10(value / 5))) * 5});
-}
-
 namespace {
 Plot shared_plot;
+}
+
+Plot::Figure &Plot::shared(const std::string &window) {
+  return shared_plot.figure(window);
 }
 
 void Plot::Series::verifyParams() const {
@@ -58,10 +39,6 @@ void Plot::Series::verifyParams() const {
   }
   EXPECT_EQ(dims_, dims);
   EXPECT_EQ(depth_, depth);
-}
-
-Plot::Figure &Plot::shared(const std::string &window) {
-  return shared_plot.figure(window);
 }
 
 void Plot::Series::ensureDimsDepth(int dims, int depth) {
@@ -274,8 +251,8 @@ void Plot::Series::bounds(float &x_min, float &x_max, float &y_min,
 }
 
 void Plot::Series::dot(void *b, int x, int y, int r) const {
-  auto &buffer = *(cv::Mat *)b;
-  cv::circle(buffer, {x, y}, r, color2scalar(color_), -1, CV_AA);
+  Trans trans(b);
+  cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1, CV_AA);
 }
 
 void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
@@ -285,12 +262,7 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
   if (dims_ == 0 || depth_ == 0) {
     return;
   }
-  auto buffer = (cv::Mat *)b;
-  cv::Mat alpha_buffer;
-  if (color_.a != 255) {
-    buffer->copyTo(alpha_buffer);
-    buffer = &alpha_buffer;
-  }
+  Trans trans(*(cv::Mat *)b);
   auto color = color2scalar(color_);
   switch (type_) {
     case Line:
@@ -306,7 +278,7 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
         cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
         if (has_last) {
           if (type_ == DotLine || type_ == Line) {
-            cv::line(*buffer,
+            cv::line(trans.with(color_),
                      {(int)(last_x * xs + xd), (int)(last_y * ys + yd)}, point,
                      color, 1, CV_AA);
           }
@@ -314,7 +286,7 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
           has_last = true;
         }
         if (type_ == DotLine || type_ == Dots) {
-          cv::circle(*buffer, point, 2, color, 1, CV_AA);
+          cv::circle(trans.with(color_), point, 2, color, 1, CV_AA);
         }
         last_x = x, last_y = y;
       }
@@ -329,12 +301,12 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
         if (type_ == Histogram) {
-          cv::rectangle(*buffer,
+          cv::rectangle(trans.with(color_),
                         {(int)(x * xs + xd) - u + o, (int)(y_axis * ys + yd)},
                         {(int)(x * xs + xd) + u + o, (int)(y * ys + yd)}, color,
                         -1, CV_AA);
         } else if (type_ == Vistogram) {
-          cv::rectangle(*buffer,
+          cv::rectangle(trans.with(color_),
                         {(int)(x_axis * xs + xd), (int)(x * ys + yd) - u + o},
                         {(int)(y * xs + xd), (int)(x * ys + yd) + u + o}, color,
                         -1, CV_AA);
@@ -350,13 +322,13 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
         if (type_ == Horizontal) {
-          cv::line(*buffer, {(int)(x_min * xs + xd), (int)(y * ys + yd)},
-                   {(int)(x_max * xs + xd), (int)(y * ys + yd)}, color, 1,
-                   CV_AA);
+          cv::line(
+              trans.with(color_), {(int)(x_min * xs + xd), (int)(y * ys + yd)},
+              {(int)(x_max * xs + xd), (int)(y * ys + yd)}, color, 1, CV_AA);
         } else if (type_ == Vertical) {
-          cv::line(*buffer, {(int)(y * xs + xd), (int)(y_min * ys + yd)},
-                   {(int)(y * xs + xd), (int)(y_max * ys + yd)}, color, 1,
-                   CV_AA);
+          cv::line(
+              trans.with(color_), {(int)(y * xs + xd), (int)(y_min * ys + yd)},
+              {(int)(y * xs + xd), (int)(y_max * ys + yd)}, color, 1, CV_AA);
         }
       }
     } break;
@@ -374,7 +346,7 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
           cv::Point points[4] = {point_a, point_b, last_b, last_a};
           const cv::Point *p = points;
           auto count = 4;
-          cv::fillPoly(*buffer, &p, &count, 1, color, CV_AA);
+          cv::fillPoly(trans.with(color_), &p, &count, 1, color, CV_AA);
         } else {
           has_last = true;
         }
@@ -388,13 +360,9 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
           color = color2scalar(Color::cos(data_[e + dims_ + 2]));
         }
         cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
-        cv::circle(*buffer, point, r, color, -1, CV_AA);
+        cv::circle(trans.with(color_), point, r, color, -1, CV_AA);
       }
     } break;
-  }
-  if (color_.a != 255) {
-    addWeighted(*buffer, color_.a / 255.f, *(cv::Mat *)b, 1 - color_.a / 255.f,
-                0, *(cv::Mat *)b);
   }
 }
 
@@ -423,6 +391,42 @@ Plot::Figure &Plot::Figure::window(const std::string &window) {
   return *this;
 }
 
+Plot::Figure &Plot::Figure::alpha(int alpha) {
+  background_color_ = background_color_.alpha(alpha);
+  axis_color_ = axis_color_.alpha(alpha);
+  sub_axis_color_ = sub_axis_color_.alpha(alpha);
+  text_color_ = text_color_.alpha(alpha);
+  return *this;
+}
+
+Plot::Figure &Plot::Figure::backgroundColor(Color color) {
+  background_color_ = color;
+  return *this;
+}
+
+Plot::Figure &Plot::Figure::axisColor(Color color) {
+  axis_color_ = color;
+  return *this;
+}
+
+Plot::Figure &Plot::Figure::subaxisColor(Color color) {
+  sub_axis_color_ = color;
+  return *this;
+}
+
+Plot::Figure &Plot::Figure::textColor(Color color) {
+  text_color_ = color;
+  return *this;
+}
+
+Color Plot::Figure::backgroundColor() { return background_color_; }
+
+Color Plot::Figure::axisColor() { return axis_color_; }
+
+Color Plot::Figure::subaxisColor() { return sub_axis_color_; }
+
+Color Plot::Figure::textColor() { return text_color_; }
+
 Plot::Series &Plot::Figure::series(const std::string &label) {
   for (auto &s : series_) {
     if (s.label() == label) {
@@ -437,11 +441,13 @@ Plot::Series &Plot::Figure::series(const std::string &label) {
 void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
                         float y_max, int n_max, int p_max) const {
   auto &buffer = *(cv::Mat *)b;
+  Trans trans(b);
 
   // draw background and sub axis square
-  cv::rectangle(buffer, {0, 0}, {buffer.cols, buffer.rows},
-                color2scalar(background_color_), -1, CV_AA);
-  cv::rectangle(buffer, {border_size_, border_size_},
+  cv::rectangle(trans.with(background_color_), {0, 0},
+                {buffer.cols, buffer.rows}, color2scalar(background_color_), -1,
+                CV_AA);
+  cv::rectangle(trans.with(sub_axis_color_), {border_size_, border_size_},
                 {buffer.cols - border_size_, buffer.rows - border_size_},
                 color2scalar(sub_axis_color_), 1, CV_AA);
 
@@ -499,9 +505,16 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
 
   // draw sub axis
   for (auto x = ceil(x_min / x_grid) * x_grid; x <= x_max; x += x_grid) {
-    cv::line(buffer, {(int)(x * xs + xd), border_size_},
+    cv::line(trans.with(sub_axis_color_), {(int)(x * xs + xd), border_size_},
              {(int)(x * xs + xd), buffer.rows - border_size_},
              color2scalar(sub_axis_color_), 1, CV_AA);
+  }
+  for (auto y = ceil(y_min / y_grid) * y_grid; y <= y_max; y += y_grid) {
+    cv::line(trans.with(sub_axis_color_), {border_size_, (int)(y * ys + yd)},
+             {buffer.cols - border_size_, (int)(y * ys + yd)},
+             color2scalar(sub_axis_color_), 1, CV_AA);
+  }
+  for (auto x = ceil(x_min / x_grid) * x_grid; x <= x_max; x += x_grid) {
     std::ostringstream out;
     out << std::setprecision(4) << (x == 0 ? 0 : x);
     int baseline;
@@ -509,30 +522,27 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
         getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1.0, &baseline);
     cv::Point org(x * xs + xd - size.width / 2,
                   buffer.rows - border_size_ + 5 + size.height);
-    cv::putText(buffer, out.str().c_str(), org, cv::FONT_HERSHEY_SIMPLEX, 0.3,
-                color2scalar(text_color_), 1.0);
+    cv::putText(trans.with(text_color_), out.str().c_str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.0);
   }
   for (auto y = ceil(y_min / y_grid) * y_grid; y <= y_max; y += y_grid) {
-    cv::line(buffer, {border_size_, (int)(y * ys + yd)},
-             {buffer.cols - border_size_, (int)(y * ys + yd)},
-             color2scalar(sub_axis_color_), 1, CV_AA);
     std::ostringstream out;
     out << std::setprecision(4) << (y == 0 ? 0 : y);
     int baseline;
     cv::Size size =
         getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1.0, &baseline);
     cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
-    cv::putText(buffer, out.str().c_str(), org, cv::FONT_HERSHEY_SIMPLEX, 0.3,
-                color2scalar(text_color_), 1.0);
+    cv::putText(trans.with(text_color_), out.str().c_str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.0);
   }
 
   // draw axis
-  cv::line(buffer, {(int)(x_axis * xs + xd), border_size_},
-           {(int)(x_axis * xs + xd), buffer.rows - border_size_},
-           color2scalar(axis_color_), 1, CV_AA);
-  cv::line(buffer, {border_size_, (int)(y_axis * ys + yd)},
+  cv::line(trans.with(text_color_), {border_size_, (int)(y_axis * ys + yd)},
            {buffer.cols - border_size_, (int)(y_axis * ys + yd)},
            color2scalar(text_color_), 1, CV_AA);
+  cv::line(trans.with(axis_color_), {(int)(x_axis * xs + xd), border_size_},
+           {(int)(x_axis * xs + xd), buffer.rows - border_size_},
+           color2scalar(axis_color_), 1, CV_AA);
 
   // draw plot
   auto index = 0;
@@ -546,8 +556,8 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
     if (s->collides()) {
       index--;
     }
-    s->draw(&buffer, x_min, x_max, y_min, y_max, xs, xd, ys, yd, x_axis, y_axis,
-            unit, (float)index / series_.size());
+    s->draw(&trans.with(s->color()), x_min, x_max, y_min, y_max, xs, xd, ys, yd,
+            x_axis, y_axis, unit, (float)index / series_.size());
   }
 
   // draw label names
@@ -563,15 +573,17 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
     cv::Point org(buffer.cols - border_size_ - size.width - 17,
                   border_size_ + 15 * index + 15);
     auto shadow = true;
-    cv::putText(buffer, name.c_str(),
+    cv::putText(trans.with(background_color_), name.c_str(),
                 {org.x + (shadow ? 1 : 0), org.y + (shadow ? 1 : 0)},
                 cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(background_color_),
                 (shadow ? 1.0 : 2.0));
-    cv::putText(buffer, name.c_str(), org, cv::FONT_HERSHEY_SIMPLEX, 0.4,
-                color2scalar(text_color_), 1.0);
-    cv::circle(buffer, {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
+    cv::circle(trans.with(background_color_),
+               {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
                color2scalar(background_color_), -1, CV_AA);
-    s.dot(&buffer, buffer.cols - border_size_ - 10, org.y - 3, 3);
+    cv::putText(trans.with(text_color_), name.c_str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(text_color_), 1.0);
+    s.dot(&trans.with(s.color()), buffer.cols - border_size_ - 10, org.y - 3,
+          3);
     index++;
   }
 }

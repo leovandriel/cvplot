@@ -7,15 +7,14 @@ namespace demo {
 void example() {
   cvplot::figure("myplot").series("myline").setValue({1.f, 3.f, 2.f, 5.f, 4.f});
   cvplot::figure("myplot").show();
-  cvWaitKey(0);
 }
 
-void run() {
+void demo() {
   std::vector<std::pair<float, float>> data;
   std::vector<float> values;
 
   cvplot::window("cvplot demo");
-  cvplot::move(30, 50);
+  cvplot::move(60, 100);
 
   {
     auto name = "simple";
@@ -185,7 +184,7 @@ void run() {
         .legend(false);
     figure.series("pears_range")
         .type(cvplot::Plot::Range)
-        .color(cvplot::Sky.alpha(128))
+        .color(cvplot::Sky.alpha(129))
         .legend(false);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
@@ -210,10 +209,10 @@ void run() {
     auto &figure = cvplot::figure(name);
     figure.series("purple")
         .type(cvplot::Plot::Circle)
-        .color(cvplot::Purple.alpha(128));
+        .color(cvplot::Purple.alpha(130));
     figure.series("yellow")
         .type(cvplot::Plot::Circle)
-        .color(cvplot::Yellow.alpha(200));
+        .color(cvplot::Yellow.alpha(199));
     for (auto i = 0; i <= 20; i++) {
       figure.series("purple").add(
           (rand() % 100) / 10.f, {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
@@ -229,11 +228,10 @@ void run() {
     cvplot::move(name, 900, 600);
     cvplot::resize(name, 300, 300);
     auto &view = cvplot::window().view(name);
-    view.drawFill();
     auto image = cv::imread("res/demo.jpg");
     cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
     view.drawImage(&image);
-    view.drawText("..and text", {13, 273});
+    view.drawText("..and text", {13, 273}, cvplot::Black.alpha(127));
     view.show(false);
   }
 
@@ -261,10 +259,49 @@ void run() {
   }
 }
 
+void transparency() {
+  std::vector<std::pair<float, float>> data;
+  std::vector<float> values;
+
+  cvplot::window("cvplot transparency");
+  cvplot::move(30, 70);
+
+  {
+    auto name = "simple";
+    cvplot::title(name, "opaque");
+    cvplot::move(name, 0, 0);
+    cvplot::resize(name, 300, 300);
+    auto &figure = cvplot::figure(name);
+    figure.series("histogram")
+        .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
+        .type(cvplot::Plot::Histogram)
+        .color(cvplot::Red)
+        .legend(false);
+    figure.show(false);
+  }
+
+  {
+    auto name = "transparent";
+    auto alpha = 200;
+    cvplot::title(name, "transparent");
+    cvplot::move(name, 100, 100);
+    cvplot::resize(name, 300, 300);
+    cvplot::window().view(name).alpha(alpha);
+    auto &figure = cvplot::figure(name);
+    figure.series("histogram")
+        .setValue({5.f, 4.f, 3.f, 2.f, 1.f})
+        .type(cvplot::Plot::Histogram)
+        .color(cvplot::Blue.alpha(alpha))
+        .legend(false);
+    figure.alpha(alpha).show(true);
+  }
+}
+
 }  // namespace demo
 
 int main(int argc, char **argv) {
-  // demo::example();
-  demo::run();
+  demo::example();
+  demo::transparency();
+  demo::demo();
   return 0;
 }
