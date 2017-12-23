@@ -25,6 +25,10 @@ void Plot::Series::verifyParams() const {
       depth = 1;
       break;
     }
+    case RangeLine: {
+      depth = 3;
+      break;
+    }
     case Range:
     case Circle: {
       depth = 2;
@@ -106,6 +110,19 @@ Plot::Series &Plot::Series::add(
   return *this;
 }
 
+Plot::Series &Plot::Series::add(
+    const std::vector<std::pair<float, Point3>> &data) {
+  ensureDimsDepth(1, 3);
+  for (const auto &d : data) {
+    entries_.push_back(data_.size());
+    data_.push_back(d.first);
+    data_.push_back(d.second.x);
+    data_.push_back(d.second.y);
+    data_.push_back(d.second.z);
+  }
+  return *this;
+}
+
 Plot::Series &Plot::Series::addValue(const std::vector<float> &values) {
   std::vector<std::pair<float, float>> data(values.size());
   auto i = 0;
@@ -126,12 +143,26 @@ Plot::Series &Plot::Series::addValue(const std::vector<Point2> &values) {
   return add(data);
 }
 
+Plot::Series &Plot::Series::addValue(const std::vector<Point3> &values) {
+  std::vector<std::pair<float, Point3>> data(values.size());
+  auto i = 0;
+  for (auto &d : data) {
+    d.first = i + entries_.size();
+    d.second = values[i++];
+  }
+  return add(data);
+}
+
 Plot::Series &Plot::Series::add(float key, float value) {
   return add(std::vector<std::pair<float, float>>({{key, value}}));
 }
 
 Plot::Series &Plot::Series::add(float key, Point2 value) {
   return add(std::vector<std::pair<float, Point2>>({{key, value}}));
+}
+
+Plot::Series &Plot::Series::add(float key, Point3 value) {
+  return add(std::vector<std::pair<float, Point3>>({{key, value}}));
 }
 
 Plot::Series &Plot::Series::addValue(float value) {
@@ -142,6 +173,11 @@ Plot::Series &Plot::Series::addValue(float value_a, float value_b) {
   return addValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
+Plot::Series &Plot::Series::addValue(float value_a, float value_b,
+                                     float value_c) {
+  return addValue(std::vector<Point3>({{value_a, value_b, value_c}}));
+}
+
 Plot::Series &Plot::Series::set(
     const std::vector<std::pair<float, float>> &data) {
   clear();
@@ -150,6 +186,12 @@ Plot::Series &Plot::Series::set(
 
 Plot::Series &Plot::Series::set(
     const std::vector<std::pair<float, Point2>> &data) {
+  clear();
+  return add(data);
+}
+
+Plot::Series &Plot::Series::set(
+    const std::vector<std::pair<float, Point3>> &data) {
   clear();
   return add(data);
 }
@@ -174,6 +216,16 @@ Plot::Series &Plot::Series::setValue(const std::vector<Point2> &values) {
   return set(data);
 }
 
+Plot::Series &Plot::Series::setValue(const std::vector<Point3> &values) {
+  std::vector<std::pair<float, Point3>> data(values.size());
+  auto i = 0;
+  for (auto &d : data) {
+    d.first = i;
+    d.second = values[i++];
+  }
+  return set(data);
+}
+
 Plot::Series &Plot::Series::set(float key, float value) {
   return set(std::vector<std::pair<float, float>>({{key, value}}));
 }
@@ -183,12 +235,23 @@ Plot::Series &Plot::Series::set(float key, float value_a, float value_b) {
       std::vector<std::pair<float, Point2>>({{key, {value_a, value_b}}}));
 }
 
+Plot::Series &Plot::Series::set(float key, float value_a, float value_b,
+                                float value_c) {
+  return set(std::vector<std::pair<float, Point3>>(
+      {{key, {value_a, value_b, value_c}}}));
+}
+
 Plot::Series &Plot::Series::setValue(float value) {
   return setValue(std::vector<float>({value}));
 }
 
 Plot::Series &Plot::Series::setValue(float value_a, float value_b) {
   return setValue(std::vector<Point2>({{value_a, value_b}}));
+}
+
+Plot::Series &Plot::Series::setValue(float value_a, float value_b,
+                                     float value_c) {
+  return setValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
 const std::string &Plot::Series::label() const { return label_; }
@@ -208,7 +271,11 @@ bool Plot::Series::flipAxis() const {
 void Plot::Series::bounds(float &x_min, float &x_max, float &y_min,
                           float &y_max, int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
-    auto xe = e, xd = dims_, ye = e + dims_, yd = (type_ == Range ? 2 : 1);
+    auto xe = e, xd = dims_, ye = e + dims_,
+         yd = depth_ - (dynamic_color_ ? 1 : 0);
+    if (type_ == Circle) {
+      yd = 1;
+    }
     if (flipAxis()) {
       auto s = xe;
       xe = ye;
@@ -265,7 +332,55 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
     case Line:
     case DotLine:
     case Dots:
-    case FillLine: {
+    case FillLine:
+    case RangeLine: {
+      if (type_ == FillLine) {
+        bool has_last = false;
+        float last_x, last_y;
+        for (const auto &e : entries_) {
+          auto x = data_[e], y = data_[e + dims_];
+          if (dynamic_color_) {
+            color = color2scalar(Color::cos(data_[e + dims_ + 1]));
+          }
+          cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
+          if (has_last) {
+            cv::Point points[4] = {
+                point,
+                {point.x, (int)(y_axis * ys + yd)},
+                {(int)(last_x * xs + xd), (int)(y_axis * ys + yd)},
+                {(int)(last_x * xs + xd), (int)(last_y * ys + yd)},
+            };
+            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+                               CV_AA);
+          } else {
+            has_last = true;
+          }
+          last_x = x, last_y = y;
+        }
+      } else if (type_ == RangeLine) {
+        bool has_last = false;
+        float last_x, last_y1, last_y2;
+        for (const auto &e : entries_) {
+          auto x = data_[e], y1 = data_[e + dims_ + 1],
+               y2 = data_[e + dims_ + 2];
+          if (dynamic_color_) {
+            color = color2scalar(Color::cos(data_[e + dims_ + 1]));
+          }
+          if (has_last) {
+            cv::Point points[4] = {
+                {(int)(x * xs + xd), (int)(y1 * ys + yd)},
+                {(int)(x * xs + xd), (int)(y2 * ys + yd)},
+                {(int)(last_x * xs + xd), (int)(last_y2 * ys + yd)},
+                {(int)(last_x * xs + xd), (int)(last_y1 * ys + yd)},
+            };
+            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+                               CV_AA);
+          } else {
+            has_last = true;
+          }
+          last_x = x, last_y1 = y1, last_y2 = y2;
+        }
+      }
       bool has_last = false;
       float last_x, last_y;
       for (const auto &e : entries_) {
@@ -275,30 +390,8 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
         }
         cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
         if (has_last) {
-          if (type_ == FillLine) {
-            cv::Point points[4] = {
-                point,
-                {point.x, (int)(y_axis * ys + yd)},
-                {(int)(last_x * xs + xd), (int)(y_axis * ys + yd)},
-                {(int)(last_x * xs + xd), (int)(last_y * ys + yd)},
-            };
-            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
-                               CV_AA);
-          }
-        } else {
-          has_last = true;
-        }
-        last_x = x, last_y = y;
-      }
-      has_last = false;
-      for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_];
-        if (dynamic_color_) {
-          color = color2scalar(Color::cos(data_[e + dims_ + 1]));
-        }
-        cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
-        if (has_last) {
-          if (type_ == DotLine || type_ == Line || type_ == FillLine) {
+          if (type_ == DotLine || type_ == Line || type_ == FillLine ||
+              type_ == RangeLine) {
             cv::line(trans.with(color_),
                      {(int)(last_x * xs + xd), (int)(last_y * ys + yd)}, point,
                      color, 1, CV_AA);

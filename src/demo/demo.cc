@@ -194,27 +194,17 @@ void demo() {
     cvplot::resize(name, 300, 300);
     auto &figure = cvplot::figure(name);
     values.clear();
-    figure.series("apples").type(cvplot::Plot::Line).color(cvplot::Orange);
-    figure.series("pears").type(cvplot::Plot::Line).color(cvplot::Sky);
-    figure.series("apples_range")
-        .type(cvplot::Plot::Range)
-        .color(cvplot::Orange.alpha(128))
-        .legend(false);
-    figure.series("pears_range")
-        .type(cvplot::Plot::Range)
-        .color(cvplot::Sky.alpha(129))
-        .legend(false);
+    figure.series("apples").type(cvplot::Plot::RangeLine).color(cvplot::Orange);
+    figure.series("pears").type(cvplot::Plot::RangeLine).color(cvplot::Sky);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
-      figure.series("apples_range")
-          .addValue(v + 5.f * rand() / RAND_MAX,
-                    v + 20.f + 5.f * rand() / RAND_MAX);
-      figure.series("apples").addValue(v + 10.f + 5.f * rand() / RAND_MAX);
+      figure.series("apples").addValue(v + 10.f + 5.f * rand() / RAND_MAX,
+                                       v + 5.f * rand() / RAND_MAX,
+                                       v + 20.f + 5.f * rand() / RAND_MAX);
       v = -(i - 6) * (i - 6) + 30;
-      figure.series("pears_range")
-          .addValue(v + 5.f * rand() / RAND_MAX,
-                    v + 20.f + 5.f * rand() / RAND_MAX);
-      figure.series("pears").addValue(v + 10.f + 5.f * rand() / RAND_MAX);
+      figure.series("pears").addValue(v + 10.f + 5.f * rand() / RAND_MAX,
+                                      v + 5.f * rand() / RAND_MAX,
+                                      v + 20.f + 5.f * rand() / RAND_MAX);
     }
     figure.show(false);
   }

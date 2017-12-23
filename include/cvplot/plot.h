@@ -11,6 +11,14 @@ namespace cvplot {
 
 struct Point2 {
   float x, y;
+  Point2() : Point2(0, 0) {}
+  Point2(float x, float y) : x(x), y(y) {}
+};
+
+struct Point3 {
+  float x, y, z;
+  Point3() : Point3(0, 0, 0) {}
+  Point3(float x, float y, float z) : x(x), y(y), z(z) {}
 };
 
 class Plot {
@@ -20,6 +28,7 @@ class Plot {
     DotLine,
     Dots,
     FillLine,
+    RangeLine,
     Histogram,
     Vistogram,
     Horizontal,
@@ -45,20 +54,28 @@ class Plot {
     Series &legend(bool legend);
     Series &add(const std::vector<std::pair<float, float>> &data);
     Series &add(const std::vector<std::pair<float, Point2>> &data);
+    Series &add(const std::vector<std::pair<float, Point3>> &data);
     Series &addValue(const std::vector<float> &values);
     Series &addValue(const std::vector<Point2> &values);
+    Series &addValue(const std::vector<Point3> &values);
     Series &add(float key, float value);
     Series &add(float key, Point2 value);
+    Series &add(float key, Point3 value);
     Series &addValue(float value);
     Series &addValue(float value_a, float value_b);
+    Series &addValue(float value_a, float value_b, float value_c);
     Series &set(const std::vector<std::pair<float, float>> &data);
     Series &set(const std::vector<std::pair<float, Point2>> &data);
+    Series &set(const std::vector<std::pair<float, Point3>> &data);
     Series &setValue(const std::vector<float> &values);
     Series &setValue(const std::vector<Point2> &values);
+    Series &setValue(const std::vector<Point3> &values);
     Series &set(float key, float value);
     Series &set(float key, float value_a, float value_b);
+    Series &set(float key, float value_a, float value_b, float value_c);
     Series &setValue(float value);
     Series &setValue(float value_a, float value_b);
+    Series &setValue(float value_a, float value_b, float value_c);
     Series &clear();
 
     const std::string &label() const;
