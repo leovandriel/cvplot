@@ -39,10 +39,10 @@ static const Color Purple = Color::hue(4.5f);
 static const Color Magenta = Color::hue(5.f);
 static const Color Pink = Color::hue(5.5f);
 static const Color Black = Color::gray(paleness);
-static const Color Dark = Color::gray(paleness * 2);
+static const Color Dark = Color::gray(paleness + 32);
 static const Color Gray = Color::gray(128);
-static const Color Light = Color::gray(256 - paleness * 2);
-static const Color White = Color::gray(256 - paleness);
+static const Color Light = Color::gray(255 - paleness - 32);
+static const Color White = Color::gray(255 - paleness);
 
 }  // namespace cvplot
 

@@ -68,8 +68,8 @@ Color Window::View::textColor() { return text_color_; }
 void Window::View::drawText(const std::string &text, Offset offset,
                             Color color) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
-  auto scale = 0.5;
-  auto thickness = 1.0;
+  auto scale = 0.4f;
+  auto thickness = 1.f;
   int baseline;
   cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
@@ -91,10 +91,10 @@ void Window::View::drawFrame(const std::string &title) const {
                 color2scalar(frame_color_), -1);
   int baseline;
   cv::Size size =
-      getTextSize(title.c_str(), cv::FONT_HERSHEY_PLAIN, 1.0, 1.0, &baseline);
+      getTextSize(title.c_str(), cv::FONT_HERSHEY_PLAIN, 1.f, 1.f, &baseline);
   cv::putText(trans.with(text_color_), title.c_str(),
               {rect_.x + 2 + (rect_.width - size.width) / 2, rect_.y + 14},
-              cv::FONT_HERSHEY_PLAIN, 1.0, color2scalar(text_color_), 1.0);
+              cv::FONT_HERSHEY_PLAIN, 1.f, color2scalar(text_color_), 1.f);
 }
 
 void Window::View::drawImage(const void *image, int alpha) {
@@ -144,7 +144,7 @@ Window &Window::resize(Rect rect, bool flush) {
 
 Window &Window::size(Size size, bool flush) {
   auto &buffer = *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3,
-                               cv::Scalar::all(128.0)));
+                               cv::Scalar::all(128.f)));
   if (buffer_ != NULL) {
     auto &current = *(cv::Mat *)buffer_;
     if (current.cols > 0 && current.rows > 0 && size.width > 0 &&

@@ -27,47 +27,47 @@ Color Color::hash(const std::string &seed) {
 Color Color::hue(float hue) {
   Color color;
   auto i = (int)hue;
-  auto f = (hue - i) * (256 - paleness * 2) + paleness;
+  auto f = (hue - i) * (255 - paleness * 2) + paleness;
   switch (i) {
     case 0:
-      color.r = 256 - paleness;
+      color.r = 255 - paleness;
       color.g = f;
       color.b = paleness;
       break;
     case 1:
-      color.r = 256 - f;
-      color.g = 256 - paleness;
+      color.r = 255 - f;
+      color.g = 255 - paleness;
       color.b = paleness;
       break;
     case 2:
       color.r = paleness;
-      color.g = 256 - paleness;
+      color.g = 255 - paleness;
       color.b = f;
       break;
     case 3:
       color.r = paleness;
-      color.g = 256 - f;
-      color.b = 256 - paleness;
+      color.g = 255 - f;
+      color.b = 255 - paleness;
       break;
     case 4:
       color.r = f;
       color.g = paleness;
-      color.b = 256 - paleness;
+      color.b = 255 - paleness;
       break;
     case 5:
     default:
-      color.r = 256 - paleness;
+      color.r = 255 - paleness;
       color.g = paleness;
-      color.b = 256 - f;
+      color.b = 255 - f;
       break;
   }
   return color;
 }
 
 Color Color::cos(float hue) {
-  return Color((std::cos(hue * 1.047) + 1) * 127.9,
-               (std::cos((hue - 2) * 1.047) + 1) * 127.9,
-               (std::cos((hue - 4) * 1.047) + 1) * 127.9);
+  return Color((std::cos(hue * 1.047f) + 1) * 127.9f,
+               (std::cos((hue - 2) * 1.047f) + 1) * 127.9f,
+               (std::cos((hue - 4) * 1.047f) + 1) * 127.9f);
 }
 
 float Color::hue() const {
