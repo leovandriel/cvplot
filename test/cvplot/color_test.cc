@@ -49,8 +49,8 @@ TEST(ColorTest, Gray) {
 TEST(ColorTest, Hue) {
   Color c = Color::hue(3);
   EXPECT_EQ(c.r, 32);
-  EXPECT_EQ(c.g, 224);
-  EXPECT_EQ(c.b, 224);
+  EXPECT_EQ(c.g, 223);
+  EXPECT_EQ(c.b, 223);
   EXPECT_EQ(c.a, 255);
 }
 
@@ -79,7 +79,7 @@ TEST(ColorTest, Hash) {
 }
 
 TEST(ColorTest, Red) {
-  EXPECT_EQ(Red.r, 224);
+  EXPECT_EQ(Red.r, 223);
   EXPECT_EQ(Red.g, 32);
   EXPECT_EQ(Red.b, 32);
   EXPECT_EQ(Red.a, 255);
@@ -87,7 +87,7 @@ TEST(ColorTest, Red) {
 
 TEST(ColorTest, Green) {
   EXPECT_EQ(Green.r, 32);
-  EXPECT_EQ(Green.g, 224);
+  EXPECT_EQ(Green.g, 223);
   EXPECT_EQ(Green.b, 32);
   EXPECT_EQ(Green.a, 255);
 }
@@ -95,7 +95,7 @@ TEST(ColorTest, Green) {
 TEST(ColorTest, Blue) {
   EXPECT_EQ(Blue.r, 32);
   EXPECT_EQ(Blue.g, 32);
-  EXPECT_EQ(Blue.b, 224);
+  EXPECT_EQ(Blue.b, 223);
   EXPECT_EQ(Blue.a, 255);
 }
 

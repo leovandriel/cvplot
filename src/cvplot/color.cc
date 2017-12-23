@@ -5,6 +5,10 @@
 namespace cvplot {
 
 Color Color::alpha(uint8_t alpha) const { return Color(r, g, b, alpha); }
+Color Color::gamma(float gamma) const {
+  return Color(pow(r / 255.f, 1 / gamma) * 255, pow(g / 255.f, 1 / gamma) * 255,
+               pow(b / 255.f, 1 / gamma) * 255, a);
+}
 
 Color Color::gray(uint8_t v) { return Color(v, v, v); }
 

@@ -86,7 +86,7 @@ void demo() {
     figure.series("exponential")
         .set(data)
         .type(cvplot::Plot::Dots)
-        .color(cvplot::Sky);
+        .color(cvplot::Magenta);
     figure.show(false);
   }
 
@@ -165,6 +165,24 @@ void demo() {
         .legend(false);
     for (auto i = 0; i < 16; i++) {
       figure.series("color").addValue(6, cvplot::Color::index(i).hue());
+    }
+    figure.show(false);
+  }
+
+  {
+    auto name = "fill";
+    cvplot::title(name, "filled line");
+    cvplot::move(name, 900, 0);
+    cvplot::resize(name, 300, 300);
+    auto &figure = cvplot::figure(name);
+    figure.gridSize(20);
+    figure.series("fossil").type(cvplot::Plot::FillLine).color(cvplot::Orange);
+    figure.series("electric")
+        .type(cvplot::Plot::FillLine)
+        .color(cvplot::Green.gamma(.5f));
+    for (auto i = 0; i < 16; i++) {
+      figure.series("fossil").addValue(10 - i + 10.f * rand() / RAND_MAX);
+      figure.series("electric").addValue(i - 10 + 10.f * rand() / RAND_MAX);
     }
     figure.show(false);
   }

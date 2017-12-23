@@ -17,6 +17,7 @@ void Plot::Series::verifyParams() const {
     case Line:
     case DotLine:
     case Dots:
+    case FillLine:
     case Vistogram:
     case Histogram:
     case Horizontal:
@@ -263,7 +264,8 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
   switch (type_) {
     case Line:
     case DotLine:
-    case Dots: {
+    case Dots:
+    case FillLine: {
       bool has_last = false;
       float last_x, last_y;
       for (const auto &e : entries_) {
@@ -273,7 +275,30 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
         }
         cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
         if (has_last) {
-          if (type_ == DotLine || type_ == Line) {
+          if (type_ == FillLine) {
+            cv::Point points[4] = {
+                point,
+                {point.x, (int)(y_axis * ys + yd)},
+                {(int)(last_x * xs + xd), (int)(y_axis * ys + yd)},
+                {(int)(last_x * xs + xd), (int)(last_y * ys + yd)},
+            };
+            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+                               CV_AA);
+          }
+        } else {
+          has_last = true;
+        }
+        last_x = x, last_y = y;
+      }
+      has_last = false;
+      for (const auto &e : entries_) {
+        auto x = data_[e], y = data_[e + dims_];
+        if (dynamic_color_) {
+          color = color2scalar(Color::cos(data_[e + dims_ + 1]));
+        }
+        cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
+        if (has_last) {
+          if (type_ == DotLine || type_ == Line || type_ == FillLine) {
             cv::line(trans.with(color_),
                      {(int)(last_x * xs + xd), (int)(last_y * ys + yd)}, point,
                      color, 1, CV_AA);
@@ -340,9 +365,7 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
         cv::Point point_b((int)(x * xs + xd), (int)(y_b * ys + yd));
         if (has_last) {
           cv::Point points[4] = {point_a, point_b, last_b, last_a};
-          const cv::Point *p = points;
-          auto count = 4;
-          cv::fillPoly(trans.with(color_), &p, &count, 1, color, CV_AA);
+          cv::fillConvexPoly(trans.with(color_), points, 4, color, CV_AA);
         } else {
           has_last = true;
         }
@@ -392,6 +415,11 @@ Plot::Figure &Plot::Figure::alpha(int alpha) {
   axis_color_ = axis_color_.alpha(alpha);
   sub_axis_color_ = sub_axis_color_.alpha(alpha);
   text_color_ = text_color_.alpha(alpha);
+  return *this;
+}
+
+Plot::Figure &Plot::Figure::gridSize(int size) {
+  grid_size_ = size;
   return *this;
 }
 
@@ -510,6 +538,9 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
              {buffer.cols - border_size_, (int)(y * ys + yd)},
              color2scalar(sub_axis_color_), 1, CV_AA);
   }
+  if (abs(x_grid * xs) < 30) {
+    x_grid *= ceil(30.f / abs(x_grid * xs));
+  }
   for (auto x = ceil(x_min / x_grid) * x_grid; x <= x_max; x += x_grid) {
     std::ostringstream out;
     out << std::setprecision(4) << (x == 0 ? 0 : x);
@@ -520,6 +551,9 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
                   buffer.rows - border_size_ + 5 + size.height);
     cv::putText(trans.with(text_color_), out.str().c_str(), org,
                 cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
+  }
+  if (abs(y_grid * ys) < 20) {
+    y_grid *= ceil(20.f / abs(y_grid * ys));
   }
   for (auto y = ceil(y_min / y_grid) * y_grid; y <= y_max; y += y_grid) {
     std::ostringstream out;

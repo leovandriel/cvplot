@@ -3,6 +3,9 @@ Change Log
 
 ### master (untagged)
 
+* Add transparency demo
+* Add fill line type
+
 ### 0.0.1 (2017-12-22)
 
 * Add dynamic color

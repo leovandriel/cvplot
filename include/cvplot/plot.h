@@ -19,6 +19,7 @@ class Plot {
     Line,
     DotLine,
     Dots,
+    FillLine,
     Histogram,
     Vistogram,
     Horizontal,
@@ -108,6 +109,7 @@ class Plot {
     Figure &border(int size);
     Figure &window(const std::string &window);
     Figure &alpha(int alpha);
+    Figure &gridSize(int size);
     Figure &backgroundColor(Color color);
     Figure &axisColor(Color color);
     Figure &subaxisColor(Color color);
