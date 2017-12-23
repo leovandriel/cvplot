@@ -99,15 +99,15 @@ void demo() {
     figure.series("1")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
         .type(cvplot::Plot::Histogram)
-        .color(cvplot::Blue);
+        .color(cvplot::Blue.alpha(201));
     figure.series("2")
         .setValue({6.f, 5.f, 4.f, 3.f, 2.f, 1.f})
         .type(cvplot::Plot::Histogram)
-        .color(cvplot::Green);
+        .color(cvplot::Green.alpha(201));
     figure.series("3")
         .setValue({3.f, 1.f, -1.f, 1.f, 3.f, 7.f})
         .type(cvplot::Plot::Histogram)
-        .color(cvplot::Red);
+        .color(cvplot::Red.alpha(201));
     figure.show(false);
   }
 
@@ -209,15 +209,15 @@ void demo() {
     auto &figure = cvplot::figure(name);
     figure.series("purple")
         .type(cvplot::Plot::Circle)
-        .color(cvplot::Purple.alpha(130));
-    figure.series("yellow")
+        .color(cvplot::Purple.alpha(192));
+    figure.series("aqua")
         .type(cvplot::Plot::Circle)
-        .color(cvplot::Yellow.alpha(199));
+        .color(cvplot::Aqua.alpha(193));
     for (auto i = 0; i <= 20; i++) {
       figure.series("purple").add(
           (rand() % 100) / 10.f, {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
-      figure.series("yellow").add(
-          (rand() % 100) / 10.f, {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
+      figure.series("aqua").add((rand() % 100) / 10.f,
+                                {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
     }
     figure.show(false);
   }
@@ -240,21 +240,28 @@ void demo() {
     cvplot::title(name, "dynamic plotting");
     cvplot::move(name, 300, 300);
     cvplot::resize(name, 600, 300);
+    auto &view = cvplot::window().view(name);
     auto &figure = cvplot::figure(name);
     figure.square(true);
     figure.origin(false, false);
     srand(clock());
     auto x = 0.f, y = 0.f, dx = 1.f, dy = 0.f, f = 0.f, df = 0.f;
     figure.series("random").dynamicColor(true).legend(false);
-    for (int i = 0; i < 2000; i++) {
+    clock_t time = 0;
+    for (int i = 0; i < 1000; i++) {
+      auto fps = CLOCKS_PER_SEC / (float)(clock() - time);
+      time = clock();
       auto l = sqrt((dx * dx + dy * dy) * (f * f + 1)) * 10;
       dx = (dx + f * dy) / l;
       dy = (dy - f * dx) / l;
       f = (f + df) * 0.8f;
       df = (df + rand() % 11 / 100.f - .05f) * 0.8f;
       figure.series("random").add(x += dx, {y += dy, i / 10.f});
-      figure.show();
-      cvWaitKey(10);
+      figure.show(false);
+      auto string = std::to_string(fps).substr(0, 4) + " fps  " +
+                    std::to_string(i / 10.f).substr(0, 4) + "%";
+      view.drawText(string, {480, 277}, cvplot::Gray);
+      view.show();
     }
   }
 }
@@ -267,10 +274,11 @@ void transparency() {
   cvplot::move(30, 70);
 
   {
-    auto name = "simple";
+    auto name = "opaque";
     cvplot::title(name, "opaque");
     cvplot::move(name, 0, 0);
     cvplot::resize(name, 300, 300);
+    cvplot::window().view(name).frameColor(cvplot::Sky);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
@@ -286,6 +294,7 @@ void transparency() {
     cvplot::title(name, "transparent");
     cvplot::move(name, 100, 100);
     cvplot::resize(name, 300, 300);
+    cvplot::window().view(name).frameColor(cvplot::Sky);
     cvplot::window().view(name).alpha(alpha);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")

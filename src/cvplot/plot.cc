@@ -10,10 +10,6 @@ namespace {
 Plot shared_plot;
 }
 
-Plot::Figure &Plot::shared(const std::string &window) {
-  return shared_plot.figure(window);
-}
-
 void Plot::Series::verifyParams() const {
   auto dims = 1;
   auto depth = 0;
@@ -519,21 +515,21 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
     out << std::setprecision(4) << (x == 0 ? 0 : x);
     int baseline;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1.0, &baseline);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
     cv::Point org(x * xs + xd - size.width / 2,
                   buffer.rows - border_size_ + 5 + size.height);
     cv::putText(trans.with(text_color_), out.str().c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.0);
+                cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
   }
   for (auto y = ceil(y_min / y_grid) * y_grid; y <= y_max; y += y_grid) {
     std::ostringstream out;
     out << std::setprecision(4) << (y == 0 ? 0 : y);
     int baseline;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1.0, &baseline);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
     cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
     cv::putText(trans.with(text_color_), out.str().c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.0);
+                cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
   }
 
   // draw axis
@@ -569,19 +565,19 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
     auto name = s.label();
     int baseline;
     cv::Size size =
-        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4, 1.0, &baseline);
+        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4f, 1.f, &baseline);
     cv::Point org(buffer.cols - border_size_ - size.width - 17,
                   border_size_ + 15 * index + 15);
     auto shadow = true;
     cv::putText(trans.with(background_color_), name.c_str(),
                 {org.x + (shadow ? 1 : 0), org.y + (shadow ? 1 : 0)},
-                cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(background_color_),
-                (shadow ? 1.0 : 2.0));
+                cv::FONT_HERSHEY_SIMPLEX, 0.4f, color2scalar(background_color_),
+                (shadow ? 1.f : 2.f));
     cv::circle(trans.with(background_color_),
                {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
                color2scalar(background_color_), -1, CV_AA);
     cv::putText(trans.with(text_color_), name.c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(text_color_), 1.0);
+                cv::FONT_HERSHEY_SIMPLEX, 0.4f, color2scalar(text_color_), 1.f);
     s.dot(&trans.with(s.color()), buffer.cols - border_size_ - 10, org.y - 3,
           3);
     index++;
@@ -622,6 +618,8 @@ Plot::Figure &Plot::figure(const std::string &window) {
   return figures_[window];
 }
 
-Plot::Figure &figure(const std::string &window) { return Plot::shared(window); }
+Plot::Figure &figure(const std::string &window) {
+  return shared_plot.figure(window);
+}
 
 }  // namespace cvplot
