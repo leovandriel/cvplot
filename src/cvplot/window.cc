@@ -10,76 +10,75 @@ namespace {
 Window shared_window;
 }
 
-Window::View &Window::View::resize(Rect rect) {
+View &View::resize(Rect rect) {
   rect_ = rect;
   return *this;
 }
 
-Window::View &Window::View::size(Size size) {
+View &View::size(Size size) {
   rect_.width = size.width;
   rect_.height = size.height;
   return *this;
 }
 
-Window::View &Window::View::offset(Offset offset) {
+View &View::offset(Offset offset) {
   rect_.x = offset.x;
   rect_.y = offset.y;
   return *this;
 }
 
-Window::View &Window::View::autosize() {
+View &View::autosize() {
   size({0, 0});
   return *this;
 }
 
-Window::View &Window::View::title(const std::string &title) {
+View &View::title(const std::string &title) {
   title_ = title;
   return *this;
 }
 
-Window::View &Window::View::alpha(int alpha) {
+View &View::alpha(int alpha) {
   background_color_ = background_color_.alpha(alpha);
   frame_color_ = frame_color_.alpha(alpha);
   text_color_ = text_color_.alpha(alpha);
   return *this;
 }
 
-Window::View &Window::View::backgroundColor(Color color) {
+View &View::backgroundColor(Color color) {
   background_color_ = color;
   return *this;
 }
 
-Window::View &Window::View::frameColor(Color color) {
+View &View::frameColor(Color color) {
   frame_color_ = color;
   return *this;
 }
 
-Window::View &Window::View::textColor(Color color) {
+View &View::textColor(Color color) {
   text_color_ = color;
   return *this;
 }
 
-Color Window::View::backgroundColor() { return background_color_; }
+Color View::backgroundColor() { return background_color_; }
 
-Color Window::View::frameColor() { return frame_color_; }
+Color View::frameColor() { return frame_color_; }
 
-Color Window::View::textColor() { return text_color_; }
+Color View::textColor() { return text_color_; }
 
-void Window::View::drawText(const std::string &text, Offset offset,
-                            Color color) const {
+void View::drawText(const std::string &text, Offset offset, Color color) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
   auto scale = 0.4f;
   auto thickness = 1.f;
   int baseline;
   cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
-  Trans trans(window_.buffer_);
+  Trans trans(window_.buffer());
   cv::putText(trans.with(color), text.c_str(), org, face, scale,
               color2scalar(color), thickness);
 }
 
-void Window::View::drawFrame(const std::string &title) const {
-  Trans trans(window_.buffer_);
+void View::drawFrame(const std::string &title) const {
+  Trans trans(window_.buffer());
   cv::rectangle(trans.with(background_color_), {rect_.x, rect_.y},
                 {rect_.x + rect_.width - 1, rect_.y + rect_.height - 1},
                 color2scalar(background_color_), 1);
@@ -97,14 +96,14 @@ void Window::View::drawFrame(const std::string &title) const {
               cv::FONT_HERSHEY_PLAIN, 1.f, color2scalar(text_color_), 1.f);
 }
 
-void Window::View::drawImage(const void *image, int alpha) {
+void View::drawImage(const void *image, int alpha) {
   auto &img = *(cv::Mat *)image;
   if (rect_.width == 0 && rect_.height == 0) {
     rect_.width = img.cols;
     rect_.height = img.rows;
   }
   window_.ensure(rect_, false);
-  Trans trans(window_.buffer_);
+  Trans trans(window_.buffer());
   if (img.cols != rect_.width || img.rows != rect_.height) {
     cv::Mat resized;
     cv::resize(img, resized, {rect_.width, rect_.height});
@@ -116,25 +115,27 @@ void Window::View::drawImage(const void *image, int alpha) {
   }
 }
 
-void Window::View::drawFill(Color color) {
-  Trans trans(window_.buffer_);
+void View::drawFill(Color color) {
+  Trans trans(window_.buffer());
   cv::rectangle(trans.with(color), {rect_.x, rect_.y},
                 {rect_.x + rect_.width - 1, rect_.y + rect_.height - 1},
                 color2scalar(color), -1);
 }
 
-void *Window::View::buffer(Rect &rect) {
+void *View::buffer(Rect &rect) {
   window_.ensure(rect_, false);
   rect = rect_;
-  return window_.buffer_;
+  return window_.buffer();
 }
 
-void Window::View::show(bool flush) const {
+void View::show(bool flush) const {
   if (!frameless_) {
     drawFrame(title_);
   }
   window_.show(flush);
 }
+
+void *Window::buffer() { return buffer_; }
 
 Window &Window::resize(Rect rect, bool flush) {
   offset({rect.x, rect.y});
@@ -197,7 +198,7 @@ void Window::show(bool flush) const {
   }
 }
 
-Window::View &Window::view(const std::string &name, Size size) {
+View &Window::view(const std::string &name, Size size) {
   if (views_.count(name) == 0) {
     views_.insert(
         std::map<std::string, View>::value_type(name, View(*this, name, size)));
