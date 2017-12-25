@@ -23,47 +23,49 @@ struct Offset {
   Offset(int x, int y) : x(x), y(y) {}
 };
 
+class Window;
+
+class View {
+ public:
+  View(Window &window, const std::string &title, Size size)
+      : window_(window),
+        title_(title),
+        rect_(0, 0, size.width, size.height),
+        frameless_(false),
+        background_color_(Black),
+        frame_color_(Green),
+        text_color_(Black) {}
+  View &resize(Rect rect);
+  View &size(Size size);
+  View &offset(Offset offset);
+  View &autosize();
+  View &title(const std::string &title);
+  View &alpha(int alpha);
+  View &backgroundColor(Color color);
+  View &frameColor(Color color);
+  View &textColor(Color color);
+  Color backgroundColor();
+  Color frameColor();
+  Color textColor();
+
+  void drawFill(Color background = White);
+  void drawImage(const void *image, int alpha = 255);
+  void drawText(const std::string &text, Offset offset, Color color) const;
+  void drawFrame(const std::string &title) const;
+  void *buffer(Rect &rect);
+  void show(bool flush = true) const;
+
+ protected:
+  Rect rect_;
+  std::string title_;
+  bool frameless_;
+  Window &window_;
+  Color background_color_;
+  Color frame_color_;
+  Color text_color_;
+};
+
 class Window {
-  class View {
-   public:
-    View(Window &window, const std::string &title, Size size)
-        : window_(window),
-          title_(title),
-          rect_(0, 0, size.width, size.height),
-          frameless_(false),
-          background_color_(Black),
-          frame_color_(Green),
-          text_color_(Black) {}
-    View &resize(Rect rect);
-    View &size(Size size);
-    View &offset(Offset offset);
-    View &autosize();
-    View &title(const std::string &title);
-    View &alpha(int alpha);
-    View &backgroundColor(Color color);
-    View &frameColor(Color color);
-    View &textColor(Color color);
-    Color backgroundColor();
-    Color frameColor();
-    Color textColor();
-
-    void drawFill(Color background = White);
-    void drawImage(const void *image, int alpha = 255);
-    void drawText(const std::string &text, Offset offset, Color color) const;
-    void drawFrame(const std::string &title) const;
-    void *buffer(Rect &rect);
-    void show(bool flush = true) const;
-
-   protected:
-    Rect rect_;
-    std::string title_;
-    bool frameless_;
-    Window &window_;
-    Color background_color_;
-    Color frame_color_;
-    Color text_color_;
-  };
-
  public:
   Window() : offset_(0, 0), buffer_(NULL) {}
   Window &resize(Rect rect, bool flush = true);
@@ -72,6 +74,7 @@ class Window {
   Window &title(const std::string &title);
   Window &ensure(Rect rect, bool flush = true);
   void show(bool flush = true) const;
+  void *buffer();
   View &view(const std::string &name, Size size = {300, 300});
 
  protected:

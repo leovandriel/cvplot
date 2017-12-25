@@ -87,8 +87,7 @@ Series &Series::legend(bool legend) {
   return *this;
 }
 
-Series &Series::add(
-    const std::vector<std::pair<float, float>> &data) {
+Series &Series::add(const std::vector<std::pair<float, float>> &data) {
   ensureDimsDepth(1, 1);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -98,8 +97,7 @@ Series &Series::add(
   return *this;
 }
 
-Series &Series::add(
-    const std::vector<std::pair<float, Point2>> &data) {
+Series &Series::add(const std::vector<std::pair<float, Point2>> &data) {
   ensureDimsDepth(1, 2);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -110,8 +108,7 @@ Series &Series::add(
   return *this;
 }
 
-Series &Series::add(
-    const std::vector<std::pair<float, Point3>> &data) {
+Series &Series::add(const std::vector<std::pair<float, Point3>> &data) {
   ensureDimsDepth(1, 3);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -173,25 +170,21 @@ Series &Series::addValue(float value_a, float value_b) {
   return addValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-Series &Series::addValue(float value_a, float value_b,
-                                     float value_c) {
+Series &Series::addValue(float value_a, float value_b, float value_c) {
   return addValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-Series &Series::set(
-    const std::vector<std::pair<float, float>> &data) {
+Series &Series::set(const std::vector<std::pair<float, float>> &data) {
   clear();
   return add(data);
 }
 
-Series &Series::set(
-    const std::vector<std::pair<float, Point2>> &data) {
+Series &Series::set(const std::vector<std::pair<float, Point2>> &data) {
   clear();
   return add(data);
 }
 
-Series &Series::set(
-    const std::vector<std::pair<float, Point3>> &data) {
+Series &Series::set(const std::vector<std::pair<float, Point3>> &data) {
   clear();
   return add(data);
 }
@@ -235,8 +228,7 @@ Series &Series::set(float key, float value_a, float value_b) {
       std::vector<std::pair<float, Point2>>({{key, {value_a, value_b}}}));
 }
 
-Series &Series::set(float key, float value_a, float value_b,
-                                float value_c) {
+Series &Series::set(float key, float value_a, float value_b, float value_c) {
   return set(std::vector<std::pair<float, Point3>>(
       {{key, {value_a, value_b, value_c}}}));
 }
@@ -249,8 +241,7 @@ Series &Series::setValue(float value_a, float value_b) {
   return setValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-Series &Series::setValue(float value_a, float value_b,
-                                     float value_c) {
+Series &Series::setValue(float value_a, float value_b, float value_c) {
   return setValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
@@ -268,8 +259,8 @@ bool Series::flipAxis() const {
   return type_ == Vertical || type_ == Vistogram;
 }
 
-void Series::bounds(float &x_min, float &x_max, float &y_min,
-                          float &y_max, int &n_max, int &p_max) const {
+void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
+                    int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
     auto xe = e, xd = dims_, ye = e + dims_,
          yd = depth_ - (dynamic_color_ ? 1 : 0);
@@ -319,10 +310,9 @@ void Series::dot(void *b, int x, int y, int r) const {
   cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1, CV_AA);
 }
 
-void Series::draw(void *b, float x_min, float x_max, float y_min,
-                        float y_max, float xs, float xd, float ys, float yd,
-                        float x_axis, float y_axis, int unit,
-                        float offset) const {
+void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
+                  float xs, float xd, float ys, float yd, float x_axis,
+                  float y_axis, int unit, float offset) const {
   if (dims_ == 0 || depth_ == 0) {
     return;
   }
@@ -555,8 +545,8 @@ Series &Figure::series(const std::string &label) {
   return series_.back();
 }
 
-void Figure::draw(void *b, float x_min, float x_max, float y_min,
-                        float y_max, int n_max, int p_max) const {
+void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
+                  int n_max, int p_max) const {
   auto &buffer = *(cv::Mat *)b;
   Trans trans(b);
 

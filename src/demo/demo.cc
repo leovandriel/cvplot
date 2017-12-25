@@ -74,10 +74,7 @@ void demo() {
     for (auto i = 0; i <= 100; i++) {
       data.push_back({(rand() % 100) / 10.f, (rand() % 100) / 10.f});
     }
-    figure.series("uniform")
-        .set(data)
-        .type(cvplot::Dots)
-        .color(cvplot::Orange);
+    figure.series("uniform").set(data).type(cvplot::Dots).color(cvplot::Orange);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
       data.push_back(
@@ -218,9 +215,7 @@ void demo() {
     figure.series("purple")
         .type(cvplot::Circle)
         .color(cvplot::Purple.alpha(192));
-    figure.series("aqua")
-        .type(cvplot::Circle)
-        .color(cvplot::Aqua.alpha(193));
+    figure.series("aqua").type(cvplot::Circle).color(cvplot::Aqua.alpha(193));
     for (auto i = 0; i <= 20; i++) {
       figure.series("purple").add(
           (rand() % 100) / 10.f, {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
