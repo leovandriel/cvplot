@@ -144,7 +144,7 @@ Window &Window::resize(Rect rect, bool flush) {
 
 Window &Window::size(Size size, bool flush) {
   auto &buffer = *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3,
-                               cv::Scalar::all(128.f)));
+                               color2scalar(Gray)));
   if (buffer_ != NULL) {
     auto &current = *(cv::Mat *)buffer_;
     if (current.cols > 0 && current.rows > 0 && size.width > 0 &&
