@@ -1,5 +1,5 @@
-#ifndef CVPLOT_PLOT_H
-#define CVPLOT_PLOT_H
+#ifndef CVPLOT_FIGURE_H
+#define CVPLOT_FIGURE_H
 
 #include "color.h"
 
@@ -21,8 +21,6 @@ struct Point3 {
   Point3(float x, float y, float z) : x(x), y(y), z(z) {}
 };
 
-class Plot {
- public:
   enum Type {
     Line,
     DotLine,
@@ -156,15 +154,8 @@ class Plot {
     int grid_padding_;
   };
 
-  Figure &figure(const std::string &window);
-  static Figure &shared(const std::string &window);
-
- protected:
-  std::map<std::string, Figure> figures_;
-};
-
-Plot::Figure &figure(const std::string &window);
+Figure &figure(const std::string &window);
 
 }  // namespace cvplot
 
-#endif  // CVPLOT_PLOT_H
+#endif  // CVPLOT_FIGURE_H
