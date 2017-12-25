@@ -17,8 +17,15 @@
 
 namespace cvplot {
 
+static const int paleness = 32;
+
+static uint8_t channel2pale(uint8_t c) {
+  return c * (255 - 2 * paleness) / 255 + paleness;
+}
+
 static cv::Scalar color2scalar(const Color &color) {
-  return cv::Scalar(color.b, color.g, color.r);
+  return cv::Scalar(channel2pale(color.b), channel2pale(color.g),
+                    channel2pale(color.r));
 }
 
 static float value2snap(float value) {

@@ -5,6 +5,7 @@
 namespace cvplot {
 
 Color Color::alpha(uint8_t alpha) const { return Color(r, g, b, alpha); }
+
 Color Color::gamma(float gamma) const {
   return Color(pow(r / 255.f, 1 / gamma) * 255, pow(g / 255.f, 1 / gamma) * 255,
                pow(b / 255.f, 1 / gamma) * 255, a);
@@ -12,7 +13,7 @@ Color Color::gamma(float gamma) const {
 
 Color Color::gray(uint8_t v) { return Color(v, v, v); }
 
-Color Color::index(uint32_t index, uint32_t density, float avoid,
+Color Color::index(uint8_t index, uint8_t density, float avoid,
                    float range) {  // avoid greens by default
   if (avoid > 0) {
     auto step = density / (6 - range);
@@ -31,41 +32,22 @@ Color Color::hash(const std::string &seed) {
 Color Color::hue(float hue) {
   Color color;
   auto i = (int)hue;
-  auto f = (hue - i) * (255 - paleness * 2) + paleness;
-  switch (i) {
+  auto f = (hue - i) * 255;
+  switch (i % 6) {
     case 0:
-      color.r = 255 - paleness;
-      color.g = f;
-      color.b = paleness;
-      break;
+      return Color(255, f, 0);
     case 1:
-      color.r = 255 - f;
-      color.g = 255 - paleness;
-      color.b = paleness;
-      break;
+      return Color(255 - f, 255, 0);
     case 2:
-      color.r = paleness;
-      color.g = 255 - paleness;
-      color.b = f;
-      break;
+      return Color(0, 255, f);
     case 3:
-      color.r = paleness;
-      color.g = 255 - f;
-      color.b = 255 - paleness;
-      break;
+      return Color(0, 255 - f, 255);
     case 4:
-      color.r = f;
-      color.g = paleness;
-      color.b = 255 - paleness;
-      break;
+      return Color(f, 0, 255);
     case 5:
-    default:
-      color.r = 255 - paleness;
-      color.g = paleness;
-      color.b = 255 - f;
-      break;
+      return Color(255, 0, 255 - f);
   }
-  return color;
+  return Color();
 }
 
 Color Color::cos(float hue) {
