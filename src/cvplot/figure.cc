@@ -1,4 +1,4 @@
-#include "cvplot/plot.h"
+#include "cvplot/figure.h"
 #include "cvplot/window.h"
 #include "internal.h"
 
@@ -7,10 +7,10 @@
 namespace cvplot {
 
 namespace {
-Plot shared_plot;
+std::map<std::string, Figure> shared_figures_;
 }
 
-void Plot::Series::verifyParams() const {
+void Series::verifyParams() const {
   auto dims = 1;
   auto depth = 0;
   switch (type_) {
@@ -42,7 +42,7 @@ void Plot::Series::verifyParams() const {
   EXPECT_EQ(depth_, depth);
 }
 
-void Plot::Series::ensureDimsDepth(int dims, int depth) {
+void Series::ensureDimsDepth(int dims, int depth) {
   if (dims_ != dims) {
     if (dims_ != 0) {
       std::cerr << "incorrect dims (input dimensions), was " << dims_ << " now "
@@ -59,7 +59,7 @@ void Plot::Series::ensureDimsDepth(int dims, int depth) {
   }
 }
 
-Plot::Series &Plot::Series::clear() {
+Series &Series::clear() {
   entries_.clear();
   data_.clear();
   dims_ = 0;
@@ -67,27 +67,27 @@ Plot::Series &Plot::Series::clear() {
   return *this;
 }
 
-Plot::Series &Plot::Series::type(enum Type type) {
+Series &Series::type(enum Type type) {
   type_ = type;
   return *this;
 }
 
-Plot::Series &Plot::Series::color(Color color) {
+Series &Series::color(Color color) {
   color_ = color;
   return *this;
 }
 
-Plot::Series &Plot::Series::dynamicColor(bool dynamic_color) {
+Series &Series::dynamicColor(bool dynamic_color) {
   dynamic_color_ = dynamic_color;
   return *this;
 }
 
-Plot::Series &Plot::Series::legend(bool legend) {
+Series &Series::legend(bool legend) {
   legend_ = legend;
   return *this;
 }
 
-Plot::Series &Plot::Series::add(
+Series &Series::add(
     const std::vector<std::pair<float, float>> &data) {
   ensureDimsDepth(1, 1);
   for (const auto &d : data) {
@@ -98,7 +98,7 @@ Plot::Series &Plot::Series::add(
   return *this;
 }
 
-Plot::Series &Plot::Series::add(
+Series &Series::add(
     const std::vector<std::pair<float, Point2>> &data) {
   ensureDimsDepth(1, 2);
   for (const auto &d : data) {
@@ -110,7 +110,7 @@ Plot::Series &Plot::Series::add(
   return *this;
 }
 
-Plot::Series &Plot::Series::add(
+Series &Series::add(
     const std::vector<std::pair<float, Point3>> &data) {
   ensureDimsDepth(1, 3);
   for (const auto &d : data) {
@@ -123,7 +123,7 @@ Plot::Series &Plot::Series::add(
   return *this;
 }
 
-Plot::Series &Plot::Series::addValue(const std::vector<float> &values) {
+Series &Series::addValue(const std::vector<float> &values) {
   std::vector<std::pair<float, float>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
@@ -133,7 +133,7 @@ Plot::Series &Plot::Series::addValue(const std::vector<float> &values) {
   return add(data);
 }
 
-Plot::Series &Plot::Series::addValue(const std::vector<Point2> &values) {
+Series &Series::addValue(const std::vector<Point2> &values) {
   std::vector<std::pair<float, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
@@ -143,7 +143,7 @@ Plot::Series &Plot::Series::addValue(const std::vector<Point2> &values) {
   return add(data);
 }
 
-Plot::Series &Plot::Series::addValue(const std::vector<Point3> &values) {
+Series &Series::addValue(const std::vector<Point3> &values) {
   std::vector<std::pair<float, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
@@ -153,50 +153,50 @@ Plot::Series &Plot::Series::addValue(const std::vector<Point3> &values) {
   return add(data);
 }
 
-Plot::Series &Plot::Series::add(float key, float value) {
+Series &Series::add(float key, float value) {
   return add(std::vector<std::pair<float, float>>({{key, value}}));
 }
 
-Plot::Series &Plot::Series::add(float key, Point2 value) {
+Series &Series::add(float key, Point2 value) {
   return add(std::vector<std::pair<float, Point2>>({{key, value}}));
 }
 
-Plot::Series &Plot::Series::add(float key, Point3 value) {
+Series &Series::add(float key, Point3 value) {
   return add(std::vector<std::pair<float, Point3>>({{key, value}}));
 }
 
-Plot::Series &Plot::Series::addValue(float value) {
+Series &Series::addValue(float value) {
   return addValue(std::vector<float>({value}));
 }
 
-Plot::Series &Plot::Series::addValue(float value_a, float value_b) {
+Series &Series::addValue(float value_a, float value_b) {
   return addValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-Plot::Series &Plot::Series::addValue(float value_a, float value_b,
+Series &Series::addValue(float value_a, float value_b,
                                      float value_c) {
   return addValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-Plot::Series &Plot::Series::set(
+Series &Series::set(
     const std::vector<std::pair<float, float>> &data) {
   clear();
   return add(data);
 }
 
-Plot::Series &Plot::Series::set(
+Series &Series::set(
     const std::vector<std::pair<float, Point2>> &data) {
   clear();
   return add(data);
 }
 
-Plot::Series &Plot::Series::set(
+Series &Series::set(
     const std::vector<std::pair<float, Point3>> &data) {
   clear();
   return add(data);
 }
 
-Plot::Series &Plot::Series::setValue(const std::vector<float> &values) {
+Series &Series::setValue(const std::vector<float> &values) {
   std::vector<std::pair<float, float>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
@@ -206,7 +206,7 @@ Plot::Series &Plot::Series::setValue(const std::vector<float> &values) {
   return set(data);
 }
 
-Plot::Series &Plot::Series::setValue(const std::vector<Point2> &values) {
+Series &Series::setValue(const std::vector<Point2> &values) {
   std::vector<std::pair<float, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
@@ -216,7 +216,7 @@ Plot::Series &Plot::Series::setValue(const std::vector<Point2> &values) {
   return set(data);
 }
 
-Plot::Series &Plot::Series::setValue(const std::vector<Point3> &values) {
+Series &Series::setValue(const std::vector<Point3> &values) {
   std::vector<std::pair<float, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
@@ -226,49 +226,49 @@ Plot::Series &Plot::Series::setValue(const std::vector<Point3> &values) {
   return set(data);
 }
 
-Plot::Series &Plot::Series::set(float key, float value) {
+Series &Series::set(float key, float value) {
   return set(std::vector<std::pair<float, float>>({{key, value}}));
 }
 
-Plot::Series &Plot::Series::set(float key, float value_a, float value_b) {
+Series &Series::set(float key, float value_a, float value_b) {
   return set(
       std::vector<std::pair<float, Point2>>({{key, {value_a, value_b}}}));
 }
 
-Plot::Series &Plot::Series::set(float key, float value_a, float value_b,
+Series &Series::set(float key, float value_a, float value_b,
                                 float value_c) {
   return set(std::vector<std::pair<float, Point3>>(
       {{key, {value_a, value_b, value_c}}}));
 }
 
-Plot::Series &Plot::Series::setValue(float value) {
+Series &Series::setValue(float value) {
   return setValue(std::vector<float>({value}));
 }
 
-Plot::Series &Plot::Series::setValue(float value_a, float value_b) {
+Series &Series::setValue(float value_a, float value_b) {
   return setValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-Plot::Series &Plot::Series::setValue(float value_a, float value_b,
+Series &Series::setValue(float value_a, float value_b,
                                      float value_c) {
   return setValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-const std::string &Plot::Series::label() const { return label_; }
+const std::string &Series::label() const { return label_; }
 
-bool Plot::Series::legend() const { return legend_; }
+bool Series::legend() const { return legend_; }
 
-Color Plot::Series::color() const { return color_; }
+Color Series::color() const { return color_; }
 
-bool Plot::Series::collides() const {
+bool Series::collides() const {
   return type_ == Histogram || type_ == Vistogram;
 }
 
-bool Plot::Series::flipAxis() const {
+bool Series::flipAxis() const {
   return type_ == Vertical || type_ == Vistogram;
 }
 
-void Plot::Series::bounds(float &x_min, float &x_max, float &y_min,
+void Series::bounds(float &x_min, float &x_max, float &y_min,
                           float &y_max, int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
     auto xe = e, xd = dims_, ye = e + dims_,
@@ -314,12 +314,12 @@ void Plot::Series::bounds(float &x_min, float &x_max, float &y_min,
   }
 }
 
-void Plot::Series::dot(void *b, int x, int y, int r) const {
+void Series::dot(void *b, int x, int y, int r) const {
   Trans trans(b);
   cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1, CV_AA);
 }
 
-void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
+void Series::draw(void *b, float x_min, float x_max, float y_min,
                         float y_max, float xs, float xd, float ys, float yd,
                         float x_axis, float y_axis, int unit,
                         float offset) const {
@@ -478,32 +478,32 @@ void Plot::Series::draw(void *b, float x_min, float x_max, float y_min,
   }
 }
 
-Plot::Figure &Plot::Figure::clear() {
+Figure &Figure::clear() {
   series_.clear();
   return *this;
 }
 
-Plot::Figure &Plot::Figure::origin(bool x, bool y) {
+Figure &Figure::origin(bool x, bool y) {
   include_zero_x_ = x, include_zero_y_ = y;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::square(bool square) {
+Figure &Figure::square(bool square) {
   aspect_square_ = square;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::border(int size) {
+Figure &Figure::border(int size) {
   border_size_ = size;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::window(const std::string &window) {
+Figure &Figure::window(const std::string &window) {
   window_ = window;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::alpha(int alpha) {
+Figure &Figure::alpha(int alpha) {
   background_color_ = background_color_.alpha(alpha);
   axis_color_ = axis_color_.alpha(alpha);
   sub_axis_color_ = sub_axis_color_.alpha(alpha);
@@ -511,40 +511,40 @@ Plot::Figure &Plot::Figure::alpha(int alpha) {
   return *this;
 }
 
-Plot::Figure &Plot::Figure::gridSize(int size) {
+Figure &Figure::gridSize(int size) {
   grid_size_ = size;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::backgroundColor(Color color) {
+Figure &Figure::backgroundColor(Color color) {
   background_color_ = color;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::axisColor(Color color) {
+Figure &Figure::axisColor(Color color) {
   axis_color_ = color;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::subaxisColor(Color color) {
+Figure &Figure::subaxisColor(Color color) {
   sub_axis_color_ = color;
   return *this;
 }
 
-Plot::Figure &Plot::Figure::textColor(Color color) {
+Figure &Figure::textColor(Color color) {
   text_color_ = color;
   return *this;
 }
 
-Color Plot::Figure::backgroundColor() { return background_color_; }
+Color Figure::backgroundColor() { return background_color_; }
 
-Color Plot::Figure::axisColor() { return axis_color_; }
+Color Figure::axisColor() { return axis_color_; }
 
-Color Plot::Figure::subaxisColor() { return sub_axis_color_; }
+Color Figure::subaxisColor() { return sub_axis_color_; }
 
-Color Plot::Figure::textColor() { return text_color_; }
+Color Figure::textColor() { return text_color_; }
 
-Plot::Series &Plot::Figure::series(const std::string &label) {
+Series &Figure::series(const std::string &label) {
   for (auto &s : series_) {
     if (s.label() == label) {
       return s;
@@ -555,7 +555,7 @@ Plot::Series &Plot::Figure::series(const std::string &label) {
   return series_.back();
 }
 
-void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
+void Figure::draw(void *b, float x_min, float x_max, float y_min,
                         float y_max, int n_max, int p_max) const {
   auto &buffer = *(cv::Mat *)b;
   Trans trans(b);
@@ -711,7 +711,7 @@ void Plot::Figure::draw(void *b, float x_min, float x_max, float y_min,
   }
 }
 
-void Plot::Figure::show(bool flush) const {
+void Figure::show(bool flush) const {
   auto x_min = (include_zero_x_ ? 0.f : FLT_MAX);
   auto x_max = (include_zero_x_ ? 0.f : FLT_MIN);
   auto y_min = (include_zero_y_ ? 0.f : FLT_MAX);
@@ -736,17 +736,13 @@ void Plot::Figure::show(bool flush) const {
   }
 }
 
-Plot::Figure &Plot::figure(const std::string &window) {
-  if (figures_.count(window) == 0) {
+Figure &figure(const std::string &window) {
+  if (shared_figures_.count(window) == 0) {
     Figure figure;
     figure.window(window);
-    figures_[window] = figure;
+    shared_figures_[window] = figure;
   }
-  return figures_[window];
-}
-
-Plot::Figure &figure(const std::string &window) {
-  return shared_plot.figure(window);
+  return shared_figures_[window];
 }
 
 }  // namespace cvplot

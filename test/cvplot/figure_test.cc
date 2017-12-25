@@ -1,10 +1,10 @@
-#include "cvplot/plot.h"
+#include "cvplot/figure.h"
 
 #include <gtest/gtest.h>
 
 namespace cvplot {
 
-TEST(PlotTest, Init) { class Plot p; }
+TEST(FigureTest, Init) { class Figure f; }
 
 }  // namespace cvplot
 

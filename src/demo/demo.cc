@@ -24,11 +24,11 @@ void demo() {
     auto &figure = cvplot::figure(name);
     figure.series("line")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
-        .type(cvplot::Plot::DotLine)
+        .type(cvplot::DotLine)
         .color(cvplot::Blue);
     figure.series("histogram")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
-        .type(cvplot::Plot::Histogram)
+        .type(cvplot::Histogram)
         .color(cvplot::Red);
     figure.show(false);
   }
@@ -45,7 +45,7 @@ void demo() {
     }
     figure.series("parabola")
         .setValue(values)
-        .type(cvplot::Plot::DotLine)
+        .type(cvplot::DotLine)
         .color(cvplot::Green);
     values.clear();
     for (auto i = 0; i <= 10; i++) {
@@ -53,13 +53,13 @@ void demo() {
     }
     figure.series("sine")
         .setValue(values)
-        .type(cvplot::Plot::DotLine)
+        .type(cvplot::DotLine)
         .color(cvplot::Blue);
     values.clear();
     values.push_back(15);
     figure.series("threshold")
         .setValue(values)
-        .type(cvplot::Plot::Horizontal)
+        .type(cvplot::Horizontal)
         .color(cvplot::Red);
     figure.show(false);
   }
@@ -76,7 +76,7 @@ void demo() {
     }
     figure.series("uniform")
         .set(data)
-        .type(cvplot::Plot::Dots)
+        .type(cvplot::Dots)
         .color(cvplot::Orange);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
@@ -85,7 +85,7 @@ void demo() {
     }
     figure.series("exponential")
         .set(data)
-        .type(cvplot::Plot::Dots)
+        .type(cvplot::Dots)
         .color(cvplot::Magenta);
     figure.show(false);
   }
@@ -98,15 +98,15 @@ void demo() {
     auto &figure = cvplot::figure(name);
     figure.series("1")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
-        .type(cvplot::Plot::Histogram)
+        .type(cvplot::Histogram)
         .color(cvplot::Blue.alpha(201));
     figure.series("2")
         .setValue({6.f, 5.f, 4.f, 3.f, 2.f, 1.f})
-        .type(cvplot::Plot::Histogram)
+        .type(cvplot::Histogram)
         .color(cvplot::Green.alpha(201));
     figure.series("3")
         .setValue({3.f, 1.f, -1.f, 1.f, 3.f, 7.f})
-        .type(cvplot::Plot::Histogram)
+        .type(cvplot::Histogram)
         .color(cvplot::Red.alpha(201));
     figure.show(false);
   }
@@ -140,15 +140,15 @@ void demo() {
     figure.origin(false, false);
     figure.series("histogram")
         .setValue({4.f, 5.f, 7.f, 6.f})
-        .type(cvplot::Plot::Vistogram)
+        .type(cvplot::Vistogram)
         .color(cvplot::Blue);
     figure.series("min")
         .setValue(4.f)
-        .type(cvplot::Plot::Vertical)
+        .type(cvplot::Vertical)
         .color(cvplot::Pink);
     figure.series("max")
         .setValue(7.f)
-        .type(cvplot::Plot::Vertical)
+        .type(cvplot::Vertical)
         .color(cvplot::Purple);
     figure.show(false);
   }
@@ -161,7 +161,7 @@ void demo() {
     auto &figure = cvplot::figure(name);
     figure.series("color")
         .dynamicColor(true)
-        .type(cvplot::Plot::Vistogram)
+        .type(cvplot::Vistogram)
         .legend(false);
     for (auto i = 0; i < 16; i++) {
       figure.series("color").addValue(6, cvplot::Color::index(i).hue());
@@ -176,9 +176,9 @@ void demo() {
     cvplot::resize(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.gridSize(20);
-    figure.series("fossil").type(cvplot::Plot::FillLine).color(cvplot::Orange);
+    figure.series("fossil").type(cvplot::FillLine).color(cvplot::Orange);
     figure.series("electric")
-        .type(cvplot::Plot::FillLine)
+        .type(cvplot::FillLine)
         .color(cvplot::Green.gamma(.5f));
     for (auto i = 0; i < 16; i++) {
       figure.series("fossil").addValue(10 - i + 10.f * rand() / RAND_MAX);
@@ -194,8 +194,8 @@ void demo() {
     cvplot::resize(name, 300, 300);
     auto &figure = cvplot::figure(name);
     values.clear();
-    figure.series("apples").type(cvplot::Plot::RangeLine).color(cvplot::Orange);
-    figure.series("pears").type(cvplot::Plot::RangeLine).color(cvplot::Sky);
+    figure.series("apples").type(cvplot::RangeLine).color(cvplot::Orange);
+    figure.series("pears").type(cvplot::RangeLine).color(cvplot::Sky);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
       figure.series("apples").addValue(v + 10.f + 5.f * rand() / RAND_MAX,
@@ -216,10 +216,10 @@ void demo() {
     cvplot::resize(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("purple")
-        .type(cvplot::Plot::Circle)
+        .type(cvplot::Circle)
         .color(cvplot::Purple.alpha(192));
     figure.series("aqua")
-        .type(cvplot::Plot::Circle)
+        .type(cvplot::Circle)
         .color(cvplot::Aqua.alpha(193));
     for (auto i = 0; i <= 20; i++) {
       figure.series("purple").add(
@@ -290,7 +290,7 @@ void transparency() {
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
-        .type(cvplot::Plot::Histogram)
+        .type(cvplot::Histogram)
         .color(cvplot::Red)
         .legend(false);
     figure.show(false);
@@ -307,7 +307,7 @@ void transparency() {
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
         .setValue({5.f, 4.f, 3.f, 2.f, 1.f})
-        .type(cvplot::Plot::Histogram)
+        .type(cvplot::Histogram)
         .color(cvplot::Blue.alpha(alpha))
         .legend(false);
     figure.alpha(alpha).show(true);
