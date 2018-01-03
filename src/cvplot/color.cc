@@ -57,8 +57,8 @@ Color Color::cos(float hue) {
 }
 
 float Color::hue() const {
-  auto min = std::min({r, g, b});
-  auto max = std::max({r, g, b});
+  auto min = std::min(std::min(r, g), b);
+  auto max = std::max(std::max(r, g), b);
   if (min == max) {
     return 0;
   }
