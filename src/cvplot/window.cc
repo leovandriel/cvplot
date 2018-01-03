@@ -199,7 +199,9 @@ void Window::show(bool flush) const {
     auto &b = *(cv::Mat *)buffer_;
     if (flush && b.cols > 0 && b.rows > 0) {
       cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
+#if CV_MAJOR_VERSION > 2
       cv::setWindowTitle(name_, title_);
+#endif
       cv::imshow(name_.c_str(), b);
       cvWaitKey(1);
     }

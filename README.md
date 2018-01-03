@@ -44,10 +44,10 @@ To draw a simple line graph:
 
 - Graphs: line, histogram, scatter
 - Time series, parametric, range
-- Auto color, dynamic color
+- Automatic and dynamic coloring
 - Transparency
 - Image and text drawing
-- Sub-windows or views
+- Sub-windows (views)
 - Window and view layout
 - Green view frame
 - OpenCV-like API
