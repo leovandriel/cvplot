@@ -2,6 +2,7 @@
 #define CVPLOT_FIGURE_H
 
 #include "color.h"
+#include "window.h"
 
 #include <map>
 #include <string>
@@ -106,8 +107,9 @@ class Series {
 
 class Figure {
  public:
-  Figure()
-      : border_size_(50),
+  Figure(View &view)
+      : view_(view),
+        border_size_(50),
         background_color_(White),
         axis_color_(Black),
         sub_axis_color_(Light),
@@ -122,7 +124,6 @@ class Figure {
   Figure &origin(bool x, bool y);
   Figure &square(bool square);
   Figure &border(int size);
-  Figure &window(const std::string &window);
   Figure &alpha(int alpha);
   Figure &gridSize(int size);
   Figure &backgroundColor(Color color);
@@ -140,7 +141,7 @@ class Figure {
   Series &series(const std::string &label);
 
  protected:
-  std::string window_;
+  View &view_;
   std::vector<Series> series_;
   int border_size_;
   Color background_color_;
@@ -154,7 +155,7 @@ class Figure {
   int grid_padding_;
 };
 
-Figure &figure(const std::string &window);
+Figure &figure(const std::string &view);
 
 }  // namespace cvplot
 

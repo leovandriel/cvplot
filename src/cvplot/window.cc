@@ -8,7 +8,14 @@ namespace cvplot {
 
 namespace {
 Window shared_window;
-}
+int shared_index = 0;
+}  // namespace
+
+Window::Window(const std::string &title)
+    : offset_(0, 0),
+      buffer_(NULL),
+      title_(title),
+      name_("cvplot_" + std::to_string(shared_index++)) {}
 
 View &View::resize(Rect rect) {
   rect_ = rect;
@@ -163,8 +170,8 @@ Window &Window::size(Size size, bool flush) {
 
 Window &Window::offset(Offset offset) {
   offset_ = offset;
-  cv::namedWindow(title_, cv::WINDOW_AUTOSIZE);
-  cv::moveWindow(title_, offset.x, offset.y);
+  cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
+  cv::moveWindow(name_, offset.x, offset.y);
   return *this;
 }
 
@@ -191,8 +198,9 @@ void Window::show(bool flush) const {
   if (buffer_ != NULL) {
     auto &b = *(cv::Mat *)buffer_;
     if (flush && b.cols > 0 && b.rows > 0) {
-      cv::namedWindow(title_, cv::WINDOW_AUTOSIZE);
-      cv::imshow(title_.c_str(), b);
+      cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
+      cv::setWindowTitle(name_, title_);
+      cv::imshow(name_.c_str(), b);
       cvWaitKey(1);
     }
   }
@@ -207,10 +215,11 @@ View &Window::view(const std::string &name, Size size) {
 }
 
 void window(const char *title, int width, int height, bool flush) {
-  shared_window.title(title);
+  shared_window = Window(title);
   shared_window.size({width, height}, flush);
 }
 
+View &view(const char *name) { return shared_window.view(name); }
 void move(int x, int y) { shared_window.offset({x, y}); }
 
 void move(const char *name, int x, int y) {
