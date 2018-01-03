@@ -27,7 +27,7 @@ class Window;
 
 class View {
  public:
-  View(Window &window, const std::string &title, Size size)
+  View(Window &window, const std::string &title = "", Size size = {300, 300})
       : window_(window),
         title_(title),
         rect_(0, 0, size.width, size.height),
@@ -67,7 +67,7 @@ class View {
 
 class Window {
  public:
-  Window() : offset_(0, 0), buffer_(NULL) {}
+  Window(const std::string &title = "");
   Window &resize(Rect rect, bool flush = true);
   Window &size(Size size, bool flush = true);
   Window &offset(Offset offset);
@@ -81,11 +81,13 @@ class Window {
   Offset offset_;
   void *buffer_;
   std::string title_;
+  std::string name_;
   std::map<std::string, View> views_;
 };
 
 void window(const char *title, int width = 0, int height = 0,
             bool flush = false);
+View &view(const char *name);
 void move(int x, int y);
 void move(const char *name, int x, int y);
 void resize(const char *name, int width, int height);

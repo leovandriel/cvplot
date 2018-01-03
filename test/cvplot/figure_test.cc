@@ -4,7 +4,11 @@
 
 namespace cvplot {
 
-TEST(FigureTest, Init) { class Figure f; }
+TEST(FigureTest, Init) {
+  Window w;
+  View v(w);
+  Figure f(v);
+}
 
 }  // namespace cvplot
 

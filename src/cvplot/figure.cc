@@ -488,11 +488,6 @@ Figure &Figure::border(int size) {
   return *this;
 }
 
-Figure &Figure::window(const std::string &window) {
-  window_ = window;
-  return *this;
-}
-
 Figure &Figure::alpha(int alpha) {
   background_color_ = background_color_.alpha(alpha);
   axis_color_ = axis_color_.alpha(alpha);
@@ -717,22 +712,21 @@ void Figure::show(bool flush) const {
 
   if (n_max) {
     Rect rect(0, 0, 0, 0);
-    auto &buffer = *(cv::Mat *)cvplot::buffer(window_.c_str(), rect.x, rect.y,
-                                              rect.width, rect.height);
+    auto &buffer = *(cv::Mat *)view_.buffer(rect);
     auto sub = buffer({rect.x, rect.y, rect.width, rect.height});
     draw(&sub, x_min, x_max, y_min, y_max, n_max, p_max);
-    cvplot::show(window_.c_str(), flush);
+    view_.show(flush);
     // cvWaitKey(1);
   }
 }
 
-Figure &figure(const std::string &window) {
-  if (shared_figures_.count(window) == 0) {
-    Figure figure;
-    figure.window(window);
-    shared_figures_[window] = figure;
+Figure &figure(const std::string &name) {
+  if (shared_figures_.count(name) == 0) {
+    auto &view = cvplot::view(name.c_str());
+    shared_figures_.insert(
+        std::map<std::string, Figure>::value_type(name, Figure(view)));
   }
-  return shared_figures_[window];
+  return shared_figures_.at(name);
 }
 
 }  // namespace cvplot
