@@ -235,7 +235,7 @@ void demo() {
     cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
     view.drawImage(&image);
     view.drawText("..and text", {13, 273}, cvplot::Black.alpha(127));
-    view.show(false);
+    view.finish();
   }
 
   {
@@ -264,7 +264,8 @@ void demo() {
       auto string = std::to_string(fps).substr(0, 4) + " fps  " +
                     std::to_string(i / 10.f).substr(0, 4) + "%";
       view.drawText(string, {480, 277}, cvplot::Gray);
-      view.show();
+      view.finish();
+      view.flush();
     }
   }
 }

@@ -4,6 +4,7 @@
 #include "color.h"
 
 #include <map>
+#include <string>
 
 namespace cvplot {
 
@@ -53,7 +54,8 @@ class View {
   void drawText(const std::string &text, Offset offset, Color color) const;
   void drawFrame(const std::string &title) const;
   void *buffer(Rect &rect);
-  void show(bool flush = true) const;
+  void finish();
+  void flush();
 
  protected:
   Rect rect_;
@@ -68,14 +70,18 @@ class View {
 class Window {
  public:
   Window(const std::string &title = "");
-  Window &resize(Rect rect, bool flush = true);
-  Window &size(Size size, bool flush = true);
+  Window &resize(Rect rect);
+  Window &size(Size size);
   Window &offset(Offset offset);
   Window &title(const std::string &title);
-  Window &ensure(Rect rect, bool flush = true);
-  void show(bool flush = true) const;
+  Window &fps(float fps);
+  Window &ensure(Rect rect);
   void *buffer();
+  void flush(bool force = false);
   View &view(const std::string &name, Size size = {300, 300});
+  void dirty();
+  void tick();
+  void sleep(float seconds);
 
  protected:
   Offset offset_;
@@ -83,21 +89,23 @@ class Window {
   std::string title_;
   std::string name_;
   std::map<std::string, View> views_;
+  bool dirty_;
+  float flush_time_;
+  float fps_;
 };
 
-void window(const char *title, int width = 0, int height = 0,
-            bool flush = false);
+void window(const char *title, int width = 0, int height = 0);
 View &view(const char *name);
 void move(int x, int y);
 void move(const char *name, int x, int y);
 void resize(const char *name, int width, int height);
-void clear(const char *name, bool flush = false);
+void clear(const char *name);
 void autosize(const char *name);
 void title(const char *name, const char *title);
-void imshow(const char *name, const void *image, bool flush = true);
+void imshow(const char *name, const void *image);
 void *buffer(const char *name, int &x, int &y, int &width, int &height);
-void show(const char *name, bool flush = true);
-void show(bool flush = true);
+void show(const char *name);
+void show();
 Window &window();
 
 }  // namespace cvplot
