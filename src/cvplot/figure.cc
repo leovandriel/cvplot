@@ -717,8 +717,10 @@ void Figure::show(bool flush) const {
     auto &buffer = *(cv::Mat *)view_.buffer(rect);
     auto sub = buffer({rect.x, rect.y, rect.width, rect.height});
     draw(&sub, x_min, x_max, y_min, y_max, n_max, p_max);
-    view_.show(flush);
-    // cvWaitKey(1);
+    view_.finish();
+    if (flush) {
+      view_.flush();
+    }
   }
 }
 
