@@ -270,18 +270,46 @@ void demo() {
   }
 }
 
+void mouse_callback(int event, int x, int y, int flags, void *param) {
+  auto &view = *(cvplot::View *)param;
+  std::ostringstream stream;
+  if (event == cv::EVENT_MOUSEMOVE) stream << "mousemove";
+  if (event == cv::EVENT_LBUTTONDOWN) stream << "lbuttondown";
+  if (event == cv::EVENT_RBUTTONDOWN) stream << "rbuttondown";
+  if (event == cv::EVENT_MBUTTONDOWN) stream << "mbuttondown";
+  if (event == cv::EVENT_LBUTTONUP) stream << "lbuttonup";
+  if (event == cv::EVENT_RBUTTONUP) stream << "rbuttonup";
+  if (event == cv::EVENT_MBUTTONUP) stream << "mbuttonup";
+  if (event == cv::EVENT_LBUTTONDBLCLK) stream << "lbuttondblclk";
+  if (event == cv::EVENT_RBUTTONDBLCLK) stream << "rbuttondblclk";
+  if (event == cv::EVENT_MBUTTONDBLCLK) stream << "mbuttondblclk";
+  if (event == cv::EVENT_MOUSEWHEEL) stream << "mousewheel";
+  if (event == cv::EVENT_MOUSEHWHEEL) stream << "mousehwheel";
+  if (flags & cv::EVENT_FLAG_LBUTTON) stream << " lbutton";
+  if (flags & cv::EVENT_FLAG_RBUTTON) stream << " rbutton";
+  if (flags & cv::EVENT_FLAG_MBUTTON) stream << " mbutton";
+  if (flags & cv::EVENT_FLAG_CTRLKEY) stream << " ctrlkey";
+  if (flags & cv::EVENT_FLAG_SHIFTKEY) stream << " shiftkey";
+  if (flags & cv::EVENT_FLAG_ALTKEY) stream << " altkey";
+  stream << "  " << x << "," << y;
+  view.drawRect({10, 24, 280, 12}, cvplot::Light);
+  view.drawText(stream.str(), {10, 25}, cvplot::Black);
+}
+
 void transparency() {
   std::vector<std::pair<float, float>> data;
   std::vector<float> values;
 
   cvplot::window("cvplot transparency");
   cvplot::move(30, 70);
+  cvplot::window().cursor(true);
 
   {
     auto name = "opaque";
     cvplot::title(name, "opaque");
     cvplot::move(name, 0, 0);
     cvplot::resize(name, 300, 300);
+    cvplot::window().view(name).mouse(mouse_callback);
     cvplot::window().view(name).frameColor(cvplot::Sky);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
@@ -298,6 +326,7 @@ void transparency() {
     cvplot::title(name, "transparent");
     cvplot::move(name, 100, 100);
     cvplot::resize(name, 300, 300);
+    cvplot::window().view(name).mouse(mouse_callback);
     cvplot::window().view(name).frameColor(cvplot::Sky);
     cvplot::window().view(name).alpha(alpha);
     auto &figure = cvplot::figure(name);

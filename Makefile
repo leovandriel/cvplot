@@ -5,6 +5,9 @@
 all:
 	@mkdir -p build && cd build && cmake .. && make
 
+debug:
+	@rm -rf build && mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Debug .. && make
+
 clean:
 	@rm -rf build bin
 

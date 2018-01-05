@@ -9,12 +9,16 @@
 namespace cvplot {
 
 namespace {
-Window shared_window;
+Window *shared_window = NULL;
 int shared_index = 0;
 clock_t shared_time = clock();
 }  // namespace
 
 float runtime() { return (float)(clock() - shared_time) / CLOCKS_PER_SEC; }
+
+void mouse_callback(int event, int x, int y, int flags, void *window) {
+  ((Window *)window)->onmouse(event, x, y, flags);
+}
 
 // View
 
@@ -75,11 +79,26 @@ View &View::textColor(Color color) {
   return *this;
 }
 
+View &View::mouse(MouseCallback callback, void *param) {
+  mouse_callback_ = callback;
+  mouse_param_ = (param == NULL ? this : param);
+  return *this;
+}
+
 Color View::backgroundColor() { return background_color_; }
 
 Color View::frameColor() { return frame_color_; }
 
 Color View::textColor() { return text_color_; }
+std::string &View::title() { return title_; }
+
+void View::drawRect(Rect rect, Color color) {
+  Trans trans(window_.buffer());
+  cv::rectangle(trans.with(color), {rect_.x + rect.x, rect_.y + rect.y},
+                {rect_.x + rect.x + rect.width, rect_.y + rect.y + rect.height},
+                color2scalar(color), -1);
+  window_.dirty();
+}
 
 void View::drawText(const std::string &text, Offset offset, Color color) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
@@ -157,6 +176,17 @@ void View::finish() {
 
 void View::flush() { window_.flush(); }
 
+bool View::has(Offset offset) {
+  return offset.x >= rect_.x && offset.y >= rect_.y &&
+         offset.x < rect_.x + rect_.width && offset.y < rect_.y + rect_.height;
+}
+
+void View::onmouse(int event, int x, int y, int flags) {
+  if (mouse_callback_ != NULL) {
+    mouse_callback_(event, x, y, flags, mouse_param_);
+  }
+}
+
 // Window
 
 Window::Window(const std::string &title)
@@ -166,6 +196,9 @@ Window::Window(const std::string &title)
       dirty_(false),
       flush_time_(0),
       fps_(1),
+      hidden_(false),
+      show_cursor_(false),
+      cursor_(-10, -10),
       name_("cvplot_" + std::to_string(shared_index++)) {}
 
 void *Window::buffer() { return buffer_; }
@@ -211,6 +244,11 @@ Window &Window::fps(float fps) {
   return *this;
 }
 
+Window &Window::cursor(bool cursor) {
+  show_cursor_ = cursor;
+  return *this;
+}
+
 Window &Window::ensure(Rect rect) {
   if (buffer_ == NULL) {
     size({rect.x + rect.width, rect.y + rect.height});
@@ -224,15 +262,44 @@ Window &Window::ensure(Rect rect) {
   return *this;
 }
 
-void Window::flush(bool force) {
-  if ((dirty_ || force) && buffer_ != NULL) {
-    auto &b = *(cv::Mat *)buffer_;
-    if (b.cols > 0 && b.rows > 0) {
+void Window::onmouse(int event, int x, int y, int flags) {
+  for (auto &pair : views_) {
+    auto &view = pair.second;
+    if (view.has({x, y})) {
+      view.onmouse(event, x, y, flags);
+      break;
+    }
+  }
+  cursor_ = {x, y};
+  if (show_cursor_) {
+    dirty();
+    flush();
+  }
+}
+
+void Window::flush() {
+  if (dirty_ && buffer_ != NULL) {
+    auto b = (cv::Mat *)buffer_;
+    if (b->cols > 0 && b->rows > 0) {
+      cv::Mat mat;
+      if (show_cursor_) {
+        b->copyTo(mat);
+        cv::line(mat, {cursor_.x - 4, cursor_.y + 1},
+                 {cursor_.x + 6, cursor_.y + 1}, color2scalar(White), 1);
+        cv::line(mat, {cursor_.x + 1, cursor_.y - 4},
+                 {cursor_.x + 1, cursor_.y + 6}, color2scalar(White), 1);
+        cv::line(mat, {cursor_.x - 5, cursor_.y}, {cursor_.x + 5, cursor_.y},
+                 color2scalar(Black), 1);
+        cv::line(mat, {cursor_.x, cursor_.y - 5}, {cursor_.x, cursor_.y + 5},
+                 color2scalar(Black), 1);
+        b = &mat;
+      }
       cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
 #if CV_MAJOR_VERSION > 2
       cv::setWindowTitle(name_, title_);
 #endif
-      cv::imshow(name_.c_str(), b);
+      cv::imshow(name_.c_str(), *b);
+      cv::setMouseCallback(name_.c_str(), mouse_callback, this);
       sleep(0);
     }
   }
@@ -260,38 +327,50 @@ void Window::sleep(float seconds) {
   cvWaitKey(std::max(1, (int)(seconds * 1000)));
 }
 
+void Window::hide(bool hidden) {
+  if (hidden_ != hidden) {
+    hidden_ = hidden;
+    if (hidden) {
+      cv::destroyWindow(name_.c_str());
+    } else {
+      dirty();
+      flush();
+    }
+  }
+}
+
 // Static
 
 void window(const char *title, int width, int height) {
-  shared_window = Window(title);
-  shared_window.size({width, height});
+  shared_window = new Window(title);
+  window().size({width, height});
 }
 
-View &view(const char *name) { return shared_window.view(name); }
-void move(int x, int y) { shared_window.offset({x, y}); }
+View &view(const char *name) { return window().view(name); }
+void move(int x, int y) { window().offset({x, y}); }
 
 void move(const char *name, int x, int y) {
-  shared_window.view(name).offset({x, y});
+  window().view(name).offset({x, y});
 }
 
 void resize(const char *name, int width, int height) {
-  shared_window.view(name).size({width, height});
+  window().view(name).size({width, height});
 }
 
-void autosize(const char *name) { shared_window.view(name).autosize(); }
+void autosize(const char *name) { window().view(name).autosize(); }
 
 void title(const char *name, const char *title) {
-  shared_window.view(name).title(title);
+  window().view(name).title(title);
 }
 
 void imshow(const char *name, const void *image) {
-  shared_window.view(name).drawImage(image);
-  shared_window.view(name).finish();
+  window().view(name).drawImage(image);
+  window().view(name).finish();
 }
 
 void *buffer(const char *name, int &x, int &y, int &width, int &height) {
   Rect rect(0, 0, 0, 0);
-  auto buffer = shared_window.view(name).buffer(rect);
+  auto buffer = window().view(name).buffer(rect);
   x = rect.x;
   y = rect.y;
   width = rect.width;
@@ -300,17 +379,22 @@ void *buffer(const char *name, int &x, int &y, int &width, int &height) {
 }
 
 void show(const char *name) {
-  shared_window.view(name).finish();
-  shared_window.flush();
+  window().view(name).finish();
+  window().flush();
 }
 
 void clear(const char *name) {
-  shared_window.view(name).drawFill();
-  shared_window.view(name).finish();
+  window().view(name).drawFill();
+  window().view(name).finish();
 }
 
-void flush() { shared_window.flush(); }
+void flush() { window().flush(); }
 
-Window &window() { return shared_window; }
+Window &window() {
+  if (shared_window == NULL) {
+    window("");
+  }
+  return *(Window *)shared_window;
+}
 
 }  // namespace cvplot
