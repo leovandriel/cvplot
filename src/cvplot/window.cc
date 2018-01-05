@@ -187,6 +187,13 @@ void View::onmouse(int event, int x, int y, int flags) {
   }
 }
 
+void View::hide(bool hidden) {
+  if (hidden_ != hidden) {
+    hidden_ = hidden;
+    drawFill();
+  }
+}
+
 // Window
 
 Window::Window(const std::string &title)
@@ -300,7 +307,7 @@ void Window::flush() {
 #endif
       cv::imshow(name_.c_str(), *b);
       cv::setMouseCallback(name_.c_str(), mouse_callback, this);
-      sleep(0);
+      Util::sleep();
     }
   }
   dirty_ = false;
@@ -323,10 +330,6 @@ void Window::tick() {
 
 void Window::dirty() { dirty_ = true; }
 
-void Window::sleep(float seconds) {
-  cvWaitKey(std::max(1, (int)(seconds * 1000)));
-}
-
 void Window::hide(bool hidden) {
   if (hidden_ != hidden) {
     hidden_ = hidden;
@@ -339,62 +342,52 @@ void Window::hide(bool hidden) {
   }
 }
 
-// Static
-
-void window(const char *title, int width, int height) {
-  shared_window = new Window(title);
-  window().size({width, height});
-}
-
-View &view(const char *name) { return window().view(name); }
-void move(int x, int y) { window().offset({x, y}); }
-
-void move(const char *name, int x, int y) {
-  window().view(name).offset({x, y});
-}
-
-void resize(const char *name, int width, int height) {
-  window().view(name).size({width, height});
-}
-
-void autosize(const char *name) { window().view(name).autosize(); }
-
-void title(const char *name, const char *title) {
-  window().view(name).title(title);
-}
-
-void imshow(const char *name, const void *image) {
-  window().view(name).drawImage(image);
-  window().view(name).finish();
-}
-
-void *buffer(const char *name, int &x, int &y, int &width, int &height) {
-  Rect rect(0, 0, 0, 0);
-  auto buffer = window().view(name).buffer(rect);
-  x = rect.x;
-  y = rect.y;
-  width = rect.width;
-  height = rect.height;
-  return buffer;
-}
-
-void show(const char *name) {
-  window().view(name).finish();
-  window().flush();
-}
-
-void clear(const char *name) {
-  window().view(name).drawFill();
-  window().view(name).finish();
-}
-
-void flush() { window().flush(); }
-
-Window &window() {
+Window &Window::current() {
   if (shared_window == NULL) {
-    window("");
+    shared_window = new Window("");
   }
   return *(Window *)shared_window;
+}
+
+Window &Window::current(const std::string &title) {
+  shared_window = new Window(title);
+  return *(Window *)shared_window;
+}
+
+void Window::current(Window &window) { shared_window = &window; }
+
+// Util
+
+void Util::sleep(float seconds) {
+  cvWaitKey(std::max(1, (int)(seconds * 1000)));
+}
+
+char Util::key(float timeout) {
+  return cvWaitKey(std::max(0, (int)(timeout * 1000)));
+}
+
+std::string Util::line(float timeout) {
+  std::stringstream stream;
+  auto ms = (timeout > 0 ? std::max(1, (int)(timeout * 1000)) : -1);
+  while (ms != 0) {
+    auto key = cvWaitKey(1);
+    if (key == -1) {
+      ms--;
+      continue;
+    }
+    if (key == '\r' || key <= '\n') {
+      break;
+    } else if (key == '\b' || key == 127) {
+      auto s = stream.str();
+      stream = std::stringstream();
+      if (s.length() > 0) {
+        stream << s.substr(0, s.length() - 1);
+      }
+    } else {
+      stream << (char)key;
+    }
+  }
+  return stream.str();
 }
 
 }  // namespace cvplot

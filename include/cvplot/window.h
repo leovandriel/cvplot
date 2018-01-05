@@ -25,6 +25,7 @@ struct Offset {
 };
 
 typedef void (*MouseCallback)(int event, int x, int y, int flags, void *param);
+typedef void (*TrackbarCallback)(int pos, void *param);
 
 class Window;
 
@@ -66,6 +67,7 @@ class View {
   void *buffer(Rect &rect);
   void finish();
   void flush();
+  void hide(bool hidden = true);
 
   View &operator=(const View &) = delete;
 
@@ -79,6 +81,7 @@ class View {
   Color text_color_;
   MouseCallback mouse_callback_;
   void *mouse_param_;
+  bool hidden_;
 };
 
 class Window {
@@ -96,11 +99,14 @@ class Window {
   View &view(const std::string &name, Size size = {300, 300});
   void dirty();
   void tick();
-  void sleep(float seconds);
   void hide(bool hidden = true);
   void onmouse(int event, int x, int y, int flags);
 
   Window &operator=(const Window &) = delete;
+
+  static Window &current();
+  static void current(Window &window);
+  static Window &current(const std::string &title);
 
  protected:
   Offset offset_;
@@ -116,19 +122,12 @@ class Window {
   Offset cursor_;
 };
 
-void window(const char *title, int width = 0, int height = 0);
-View &view(const char *name);
-void move(int x, int y);
-void move(const char *name, int x, int y);
-void resize(const char *name, int width, int height);
-void clear(const char *name);
-void autosize(const char *name);
-void title(const char *name, const char *title);
-void imshow(const char *name, const void *image);
-void *buffer(const char *name, int &x, int &y, int &width, int &height);
-void show(const char *name);
-void show();
-Window &window();
+class Util {
+ public:
+  static void sleep(float seconds = 0);
+  static char key(float timeout = 0);
+  static std::string line(float timeout = 0);
+};
 
 }  // namespace cvplot
 

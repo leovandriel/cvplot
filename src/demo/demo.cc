@@ -5,7 +5,7 @@
 namespace demo {
 
 void example() {
-  cvplot::figure("myplot").series("myline").setValue({1.f, 3.f, 2.f, 5.f, 4.f});
+  cvplot::figure("myplot").series("myline").addValue({1.f, 3.f, 2.f, 5.f, 4.f});
   cvplot::figure("myplot").show();
 }
 
@@ -13,14 +13,13 @@ void demo() {
   std::vector<std::pair<float, float>> data;
   std::vector<float> values;
 
-  cvplot::window("cvplot demo");
-  cvplot::move(60, 100);
+  cvplot::Window::current("cvplot demo").offset({60, 100});
 
   {
     auto name = "simple";
-    cvplot::title(name, "line and histogram");
-    cvplot::move(name, 0, 0);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "line and histogram");
+    cvplot::moveWindow(name, 0, 0);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("line")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
@@ -35,9 +34,9 @@ void demo() {
 
   {
     auto name = "math";
-    cvplot::title(name, "math curves");
-    cvplot::move(name, 300, 0);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "math curves");
+    cvplot::moveWindow(name, 300, 0);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     values.clear();
     for (auto i = 0; i <= 10; i++) {
@@ -66,9 +65,9 @@ void demo() {
 
   {
     auto name = "scatter";
-    cvplot::title(name, "scatter plots");
-    cvplot::move(name, 600, 0);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "scatter plots");
+    cvplot::moveWindow(name, 600, 0);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
@@ -89,9 +88,9 @@ void demo() {
 
   {
     auto name = "histograms";
-    cvplot::title(name, "multiple histograms");
-    cvplot::move(name, 0, 300);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "multiple histograms");
+    cvplot::moveWindow(name, 0, 300);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("1")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
@@ -110,9 +109,9 @@ void demo() {
 
   {
     auto name = "parametric";
-    cvplot::title(name, "parametric plots");
-    cvplot::move(name, 0, 600);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "parametric plots");
+    cvplot::moveWindow(name, 0, 600);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.square(true);
     data.clear();
@@ -130,9 +129,9 @@ void demo() {
 
   {
     auto name = "no-axis";
-    cvplot::title(name, "hidden axis");
-    cvplot::move(name, 600, 600);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "hidden axis");
+    cvplot::moveWindow(name, 600, 600);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.origin(false, false);
     figure.series("histogram")
@@ -152,9 +151,9 @@ void demo() {
 
   {
     auto name = "colors";
-    cvplot::title(name, "auto color");
-    cvplot::move(name, 900, 0);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "auto color");
+    cvplot::moveWindow(name, 900, 0);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("color")
         .dynamicColor(true)
@@ -168,9 +167,9 @@ void demo() {
 
   {
     auto name = "fill";
-    cvplot::title(name, "filled line");
-    cvplot::move(name, 900, 0);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "filled line");
+    cvplot::moveWindow(name, 900, 0);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.gridSize(20);
     figure.series("fossil").type(cvplot::FillLine).color(cvplot::Orange);
@@ -186,9 +185,9 @@ void demo() {
 
   {
     auto name = "range";
-    cvplot::title(name, "range plot");
-    cvplot::move(name, 900, 300);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "range plot");
+    cvplot::moveWindow(name, 900, 300);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     values.clear();
     figure.series("apples").type(cvplot::RangeLine).color(cvplot::Orange);
@@ -208,9 +207,9 @@ void demo() {
 
   {
     auto name = "balls";
-    cvplot::title(name, "transparent circles");
-    cvplot::move(name, 300, 600);
-    cvplot::resize(name, 300, 300);
+    cvplot::setWindowTitle(name, "transparent circles");
+    cvplot::moveWindow(name, 300, 600);
+    cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("purple")
         .type(cvplot::Circle)
@@ -227,10 +226,10 @@ void demo() {
 
   {
     auto name = "image";
-    cvplot::title(name, "image and text");
-    cvplot::move(name, 900, 600);
-    cvplot::resize(name, 300, 300);
-    auto &view = cvplot::window().view(name);
+    cvplot::setWindowTitle(name, "image and text");
+    cvplot::moveWindow(name, 900, 600);
+    cvplot::resizeWindow(name, 300, 300);
+    auto &view = cvplot::Window::current().view(name);
     auto image = cv::imread("res/demo.jpg");
     cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
     view.drawImage(&image);
@@ -240,10 +239,10 @@ void demo() {
 
   {
     auto name = "dynamic";
-    cvplot::title(name, "dynamic plotting");
-    cvplot::move(name, 300, 300);
-    cvplot::resize(name, 600, 300);
-    auto &view = cvplot::window().view(name);
+    cvplot::setWindowTitle(name, "dynamic plotting");
+    cvplot::moveWindow(name, 300, 300);
+    cvplot::resizeWindow(name, 600, 300);
+    auto &view = cvplot::Window::current().view(name);
     auto &figure = cvplot::figure(name);
     figure.square(true);
     figure.origin(false, false);
@@ -283,8 +282,10 @@ void mouse_callback(int event, int x, int y, int flags, void *param) {
   if (event == cv::EVENT_LBUTTONDBLCLK) stream << "lbuttondblclk";
   if (event == cv::EVENT_RBUTTONDBLCLK) stream << "rbuttondblclk";
   if (event == cv::EVENT_MBUTTONDBLCLK) stream << "mbuttondblclk";
+#if CV_MAJOR_VERSION > 2
   if (event == cv::EVENT_MOUSEWHEEL) stream << "mousewheel";
   if (event == cv::EVENT_MOUSEHWHEEL) stream << "mousehwheel";
+#endif
   if (flags & cv::EVENT_FLAG_LBUTTON) stream << " lbutton";
   if (flags & cv::EVENT_FLAG_RBUTTON) stream << " rbutton";
   if (flags & cv::EVENT_FLAG_MBUTTON) stream << " mbutton";
@@ -300,17 +301,15 @@ void transparency() {
   std::vector<std::pair<float, float>> data;
   std::vector<float> values;
 
-  cvplot::window("cvplot transparency");
-  cvplot::move(30, 70);
-  cvplot::window().cursor(true);
+  cvplot::Window::current("cvplot transparency").offset({30, 70}).cursor(true);
 
   {
     auto name = "opaque";
-    cvplot::title(name, "opaque");
-    cvplot::move(name, 0, 0);
-    cvplot::resize(name, 300, 300);
-    cvplot::window().view(name).mouse(mouse_callback);
-    cvplot::window().view(name).frameColor(cvplot::Sky);
+    cvplot::setWindowTitle(name, "opaque");
+    cvplot::moveWindow(name, 0, 0);
+    cvplot::resizeWindow(name, 300, 300);
+    cvplot::setMouseCallback(name, mouse_callback);
+    cvplot::Window::current().view(name).frameColor(cvplot::Sky);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
         .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
@@ -323,12 +322,11 @@ void transparency() {
   {
     auto name = "transparent";
     auto alpha = 200;
-    cvplot::title(name, "transparent");
-    cvplot::move(name, 100, 100);
-    cvplot::resize(name, 300, 300);
-    cvplot::window().view(name).mouse(mouse_callback);
-    cvplot::window().view(name).frameColor(cvplot::Sky);
-    cvplot::window().view(name).alpha(alpha);
+    cvplot::setWindowTitle(name, "transparent");
+    cvplot::moveWindow(name, 100, 100);
+    cvplot::resizeWindow(name, 300, 300);
+    cvplot::setMouseCallback(name, mouse_callback);
+    cvplot::Window::current().view(name).frameColor(cvplot::Sky).alpha(alpha);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
         .setValue({5.f, 4.f, 3.f, 2.f, 1.f})
