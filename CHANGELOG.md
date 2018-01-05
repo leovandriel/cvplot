@@ -3,6 +3,9 @@ Change Log
 
 ### master (untagged)
 
+* Add mouse
+* Add auto flush
+
 ### 0.0.2 (2018-01-03)
 
 * Add transparency demo

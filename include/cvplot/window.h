@@ -24,6 +24,8 @@ struct Offset {
   Offset(int x, int y) : x(x), y(y) {}
 };
 
+typedef void (*MouseCallback)(int event, int x, int y, int flags, void *param);
+
 class Window;
 
 class View {
@@ -35,7 +37,9 @@ class View {
         frameless_(false),
         background_color_(Black),
         frame_color_(Green),
-        text_color_(Black) {}
+        text_color_(Black),
+        mouse_callback_(NULL),
+        mouse_param_(NULL) {}
   View &resize(Rect rect);
   View &size(Size size);
   View &offset(Offset offset);
@@ -45,10 +49,16 @@ class View {
   View &backgroundColor(Color color);
   View &frameColor(Color color);
   View &textColor(Color color);
+  View &mouse(MouseCallback callback, void *param = NULL);
+  void onmouse(int event, int x, int y, int flags);
+
   Color backgroundColor();
   Color frameColor();
   Color textColor();
+  std::string &title();
+  bool has(Offset offset);
 
+  void drawRect(Rect rect, Color color);
   void drawFill(Color background = White);
   void drawImage(const void *image, int alpha = 255);
   void drawText(const std::string &text, Offset offset, Color color) const;
@@ -56,6 +66,8 @@ class View {
   void *buffer(Rect &rect);
   void finish();
   void flush();
+
+  View &operator=(const View &) = delete;
 
  protected:
   Rect rect_;
@@ -65,6 +77,8 @@ class View {
   Color background_color_;
   Color frame_color_;
   Color text_color_;
+  MouseCallback mouse_callback_;
+  void *mouse_param_;
 };
 
 class Window {
@@ -76,12 +90,17 @@ class Window {
   Window &title(const std::string &title);
   Window &fps(float fps);
   Window &ensure(Rect rect);
+  Window &cursor(bool cursor);
   void *buffer();
-  void flush(bool force = false);
+  void flush();
   View &view(const std::string &name, Size size = {300, 300});
   void dirty();
   void tick();
   void sleep(float seconds);
+  void hide(bool hidden = true);
+  void onmouse(int event, int x, int y, int flags);
+
+  Window &operator=(const Window &) = delete;
 
  protected:
   Offset offset_;
@@ -92,6 +111,9 @@ class Window {
   bool dirty_;
   float flush_time_;
   float fps_;
+  bool hidden_;
+  bool show_cursor_;
+  Offset cursor_;
 };
 
 void window(const char *title, int width = 0, int height = 0);
