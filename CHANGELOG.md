@@ -3,6 +3,7 @@ Change Log
 
 ### master (untagged)
 
+* Add highgui wrapper
 * Add mouse
 * Add auto flush
 

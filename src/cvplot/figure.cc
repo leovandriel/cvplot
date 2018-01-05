@@ -726,7 +726,7 @@ void Figure::show(bool flush) const {
 
 Figure &figure(const std::string &name) {
   if (shared_figures_.count(name) == 0) {
-    auto &view = cvplot::view(name.c_str());
+    auto &view = Window::current().view(name.c_str());
     shared_figures_.insert(
         std::map<std::string, Figure>::value_type(name, Figure(view)));
   }
