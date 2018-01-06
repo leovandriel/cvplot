@@ -3,6 +3,8 @@ Change Log
 
 ### master (untagged)
 
+### 0.0.3 (2018-01-05)
+
 * Add highgui wrapper
 * Add mouse
 * Add auto flush
