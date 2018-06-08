@@ -10,6 +10,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 find_library(GTEST_LIB gtest)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC ")
 set(CVPLOT_LIB cvplot)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 
