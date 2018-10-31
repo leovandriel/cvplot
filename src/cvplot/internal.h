@@ -6,6 +6,12 @@
 #include <iomanip>
 #include <iostream>
 
+// Quick workaround for Opencv 4.0.0-pre
+#ifndef CV_AA
+	#define CV_AA cv::LINE_AA
+	#define cvWaitKey(x) cv::waitKey(x)
+#endif
+
 #define EXPECT_EQ(a__, b__)                                                    \
   do {                                                                         \
     if ((a__) != (b__)) {                                                      \
