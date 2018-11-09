@@ -28,6 +28,17 @@ if (${CVPLOT_DEMO})
   endforeach()
 endif()
 
+target_include_directories ( cvplot PUBLIC ../include )
+target_include_directories ( cvplot PRIVATE ../src )
+
+install ( TARGETS cvplot
+          LIBRARY DESTINATION lib
+          ARCHIVE DESTINATION lib
+          RUNTIME DESTINATION bin)
+
+install ( DIRECTORY include DESTINATION .
+          PATTERN CMakeLists.txt EXCLUDE )
+
 if (${CVPLOT_TEST})
   file(GLOB TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/cvplot/*_test.cc")
   foreach(filename ${TEST_SOURCES})
