@@ -169,6 +169,133 @@ class Figure {
 
 Figure &figure(const std::string &view);
 
+template<template<class, class> class ArrayType>
+Series &Series::add(const ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> &data) {
+    ensureDimsDepth(1, 1);
+    for (const auto &d : data) {
+        entries_.push_back(data_.size());
+        data_.push_back(d.first);
+        data_.push_back(d.second);
+    }
+    return *this;
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::add(const ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> &data) {
+    ensureDimsDepth(1, 2);
+    for (const auto &d : data) {
+        entries_.push_back(data_.size());
+        data_.push_back(d.first);
+        data_.push_back(d.second.x);
+        data_.push_back(d.second.y);
+    }
+    return *this;
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::add(const ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> &data) {
+    ensureDimsDepth(1, 3);
+    for (const auto &d : data) {
+        entries_.push_back(data_.size());
+        data_.push_back(d.first);
+        data_.push_back(d.second.x);
+        data_.push_back(d.second.y);
+        data_.push_back(d.second.z);
+    }
+    return *this;
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::addValue(const ArrayType<float, std::allocator<float>> &values) {
+    ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> data(values.size());
+    auto i = 0;
+    auto iter = values.begin();
+    for (auto &d : data) {
+        d.first = i++ + entries_.size();
+        d.second = *(iter++);
+    }
+    return add(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::addValue(const ArrayType<Point2, std::allocator<Point2>> &values) {
+    ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> data(values.size());
+    auto i = 0;
+    auto iter = values.begin();
+    for (auto &d : data) {
+        d.first = i++ + entries_.size();
+        d.second = *(iter++);
+    }
+    return add(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::addValue(const ArrayType<Point3, std::allocator<Point3>> &values) {
+    ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> data(values.size());
+    auto i = 0;
+    auto iter = values.begin();
+    for (auto &d : data) {
+        d.first = i++ + entries_.size();
+        d.second = *(iter++);
+    }
+    return add(data);
+}
+
+
+template<template<class, class> class ArrayType>
+Series &Series::set(const ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> &data) {
+    clear();
+    return add(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::set(const ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> &data) {
+    clear();
+    return add(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::set(const ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> &data) {
+    clear();
+    return add(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::setValue(const ArrayType<float, std::allocator<float>> &values) {
+    ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> data(values.size());
+    auto i = 0;
+    auto iter = values.begin();
+    for (auto &d : data) {
+        d.first = i++;
+        d.second = *(iter++);
+    }
+    return set(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::setValue(const ArrayType<Point2, std::allocator<Point2>> &values) {
+    ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> data(values.size());
+    auto i = 0;
+    auto iter = values.begin();
+    for (auto &d : data) {
+        d.first = i++;
+        d.second = *(iter++);
+    }
+    return set(data);
+}
+
+template<template<class, class> class ArrayType>
+Series &Series::setValue(const ArrayType<Point3, std::allocator<Point3>> &values) {
+    ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> data(values.size());
+    auto i = 0;
+    auto iter = values.begin();
+    for (auto &d : data) {
+        d.first = i++;
+        d.second = *(iter++);
+    }
+    return set(data);
+}
+
 }  // namespace cvplot
 
 #endif  // CVPLOT_FIGURE_H
