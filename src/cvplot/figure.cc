@@ -89,7 +89,8 @@ Series &Series::legend(bool legend) {
   return *this;
 }
 
-Series &Series::add(const std::vector<std::pair<float, float>> &data) {
+template<template<class, class> class ArrayType>
+Series &Series::add(const ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> &data) {
   ensureDimsDepth(1, 1);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -99,7 +100,8 @@ Series &Series::add(const std::vector<std::pair<float, float>> &data) {
   return *this;
 }
 
-Series &Series::add(const std::vector<std::pair<float, Point2>> &data) {
+template<template<class, class> class ArrayType>
+Series &Series::add(const ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> &data) {
   ensureDimsDepth(1, 2);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -110,7 +112,8 @@ Series &Series::add(const std::vector<std::pair<float, Point2>> &data) {
   return *this;
 }
 
-Series &Series::add(const std::vector<std::pair<float, Point3>> &data) {
+template<template<class, class> class ArrayType>
+Series &Series::add(const ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> &data) {
   ensureDimsDepth(1, 3);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -122,8 +125,9 @@ Series &Series::add(const std::vector<std::pair<float, Point3>> &data) {
   return *this;
 }
 
-Series &Series::addValue(const std::vector<float> &values) {
-  std::vector<std::pair<float, float>> data(values.size());
+template<template<class, class> class ArrayType>
+Series &Series::addValue(const ArrayType<float, std::allocator<float>> &values) {
+  ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i + entries_.size();
@@ -132,8 +136,9 @@ Series &Series::addValue(const std::vector<float> &values) {
   return add(data);
 }
 
-Series &Series::addValue(const std::vector<Point2> &values) {
-  std::vector<std::pair<float, Point2>> data(values.size());
+template<template<class, class> class ArrayType>
+Series &Series::addValue(const ArrayType<Point2, std::allocator<Point2>> &values) {
+  ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i + entries_.size();
@@ -142,8 +147,9 @@ Series &Series::addValue(const std::vector<Point2> &values) {
   return add(data);
 }
 
-Series &Series::addValue(const std::vector<Point3> &values) {
-  std::vector<std::pair<float, Point3>> data(values.size());
+template<template<class, class> class ArrayType>
+Series &Series::addValue(const ArrayType<Point3, std::allocator<Point3>> &values) {
+  ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i + entries_.size();
@@ -176,23 +182,27 @@ Series &Series::addValue(float value_a, float value_b, float value_c) {
   return addValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-Series &Series::set(const std::vector<std::pair<float, float>> &data) {
+template<template<class, class> class ArrayType>
+Series &Series::set(const ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> &data) {
   clear();
   return add(data);
 }
 
-Series &Series::set(const std::vector<std::pair<float, Point2>> &data) {
+template<template<class, class> class ArrayType>
+Series &Series::set(const ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> &data) {
   clear();
   return add(data);
 }
 
-Series &Series::set(const std::vector<std::pair<float, Point3>> &data) {
+template<template<class, class> class ArrayType>
+Series &Series::set(const ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> &data) {
   clear();
   return add(data);
 }
 
-Series &Series::setValue(const std::vector<float> &values) {
-  std::vector<std::pair<float, float>> data(values.size());
+template<template<class, class> class ArrayType>
+Series &Series::setValue(const ArrayType<float, std::allocator<float>> &values) {
+  ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -201,8 +211,9 @@ Series &Series::setValue(const std::vector<float> &values) {
   return set(data);
 }
 
-Series &Series::setValue(const std::vector<Point2> &values) {
-  std::vector<std::pair<float, Point2>> data(values.size());
+template<template<class, class> class ArrayType>
+Series &Series::setValue(const ArrayType<Point2, std::allocator<Point2>> &values) {
+  ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -211,8 +222,9 @@ Series &Series::setValue(const std::vector<Point2> &values) {
   return set(data);
 }
 
-Series &Series::setValue(const std::vector<Point3> &values) {
-  std::vector<std::pair<float, Point3>> data(values.size());
+template<template<class, class> class ArrayType>
+Series &Series::setValue(const ArrayType<Point3, std::allocator<Point3>> &values) {
+  ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;

@@ -51,24 +51,36 @@ class Series {
   Series &color(Color color);
   Series &dynamicColor(bool dynamic_color);
   Series &legend(bool legend);
-  Series &add(const std::vector<std::pair<float, float>> &data);
-  Series &add(const std::vector<std::pair<float, Point2>> &data);
-  Series &add(const std::vector<std::pair<float, Point3>> &data);
-  Series &addValue(const std::vector<float> &values);
-  Series &addValue(const std::vector<Point2> &values);
-  Series &addValue(const std::vector<Point3> &values);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &add(const ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> &data);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &add(const ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> &data);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &add(const ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> &data);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &addValue(const ArrayType<float, std::allocator<float>> &values);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &addValue(const ArrayType<Point2, std::allocator<Point2>> &values);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &addValue(const ArrayType<Point3, std::allocator<Point3>> &values);
   Series &add(float key, float value);
   Series &add(float key, Point2 value);
   Series &add(float key, Point3 value);
   Series &addValue(float value);
   Series &addValue(float value_a, float value_b);
   Series &addValue(float value_a, float value_b, float value_c);
-  Series &set(const std::vector<std::pair<float, float>> &data);
-  Series &set(const std::vector<std::pair<float, Point2>> &data);
-  Series &set(const std::vector<std::pair<float, Point3>> &data);
-  Series &setValue(const std::vector<float> &values);
-  Series &setValue(const std::vector<Point2> &values);
-  Series &setValue(const std::vector<Point3> &values);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &set(const ArrayType<std::pair<float, float>, std::allocator<std::pair<float, float>>> &data);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &set(const ArrayType<std::pair<float, Point2>, std::allocator<std::pair<float, Point2>>> &data);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &set(const ArrayType<std::pair<float, Point3>, std::allocator<std::pair<float, Point3>>> &data);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &setValue(const ArrayType<float, std::allocator<float>> &values);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &setValue(const ArrayType<Point2, std::allocator<Point2>> &values);
+  template<template<class, class> class ArrayType = std::vector>
+  Series &setValue(const ArrayType<Point3, std::allocator<Point3>> &values);
   Series &set(float key, float value);
   Series &set(float key, float value_a, float value_b);
   Series &set(float key, float value_a, float value_b, float value_c);
