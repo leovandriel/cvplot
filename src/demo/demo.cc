@@ -266,6 +266,8 @@ void demo() {
       view.finish();
       view.flush();
     }
+    view.drawTextShadow("Press any key to exit", {70, 130}, cvplot::Red, 40.f);
+    view.flush();
   }
 }
 
@@ -343,5 +345,7 @@ int main(int argc, char **argv) {
   demo::example();
   demo::transparency();
   demo::demo();
+  printf("Demo completed. Ctrl+C to exit.\n");
+  cvplot::waitKey();
   return 0;
 }
