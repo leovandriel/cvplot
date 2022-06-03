@@ -100,10 +100,10 @@ void View::drawRect(Rect rect, Color color) {
   window_.dirty();
 }
 
-void View::drawText(const std::string &text, Offset offset, Color color) const {
+void View::drawText(const std::string &text, Offset offset, Color color, float height) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
-  auto scale = 0.4f;
-  auto thickness = 1.f;
+  auto scale = height / 30.f;
+  auto thickness = height / 12.f;
   int baseline;
   cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
@@ -111,6 +111,12 @@ void View::drawText(const std::string &text, Offset offset, Color color) const {
   cv::putText(trans.with(color), text.c_str(), org, face, scale,
               color2scalar(color), thickness);
   window_.dirty();
+}
+
+void View::drawTextShadow(const std::string &text, Offset offset, Color color, float height) const {
+  int off = (int)(height / 20);
+  drawText(text, {offset.x + off, offset.y + off}, cvplot::Black.alpha(100), height);
+  drawText(text, offset, color, height);
 }
 
 void View::drawFrame(const std::string &title) const {

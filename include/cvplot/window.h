@@ -62,7 +62,8 @@ class View {
   void drawRect(Rect rect, Color color);
   void drawFill(Color background = White);
   void drawImage(const void *image, int alpha = 255);
-  void drawText(const std::string &text, Offset offset, Color color) const;
+  void drawText(const std::string &text, Offset offset, Color color, float height = 12.f) const;
+  void drawTextShadow(const std::string &text, Offset offset, Color color, float height) const;
   void drawFrame(const std::string &title) const;
   void *buffer(Rect &rect);
   void finish();
