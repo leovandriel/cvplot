@@ -8,6 +8,8 @@
 
 namespace cvplot {
 
+int paleness = 0;
+
 namespace {
 Window *shared_window = NULL;
 int shared_index = 0;
@@ -276,8 +278,8 @@ Window &Window::ensure(Rect rect) {
 }
 
 void Window::onmouse(int event, int x, int y, int flags) {
-  for (auto &pair : views_) {
-    auto &view = pair.second;
+  for (auto iter = views_.rbegin(); iter != views_.rend(); ++iter) {
+    auto &view = iter->second;
     if (view.has({x, y})) {
       view.onmouse(event, x, y, flags);
       break;

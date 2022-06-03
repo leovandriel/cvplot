@@ -8,6 +8,8 @@
 
 namespace cvplot {
 
+extern int paleness; // for that dated feel
+
 struct Rect {
   int x, y, width, height;
   Rect(int x, int y, int width, int height)
@@ -102,6 +104,7 @@ class Window {
   void tick();
   void hide(bool hidden = true);
   void onmouse(int event, int x, int y, int flags);
+  const std::string &name() const { return name_; }
 
   Window &operator=(const Window &) = delete;
 
