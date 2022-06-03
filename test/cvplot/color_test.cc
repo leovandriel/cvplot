@@ -72,9 +72,9 @@ TEST(ColorTest, Index) {
 
 TEST(ColorTest, Hash) {
   Color c = Color::hash("test");
-  EXPECT_EQ(c.r, 160);
-  EXPECT_EQ(c.g, 4);
-  EXPECT_EQ(c.b, 218);
+  EXPECT_EQ(c.r, 94);
+  EXPECT_EQ(c.g, 37);
+  EXPECT_EQ(c.b, 251);
   EXPECT_EQ(c.a, 255);
 }
 
