@@ -12,7 +12,7 @@ Yet another cvplot library? Yes. Because they're all pretty bad. Like this one.
 
 ## Build
 
-Install the dependencies CMake and OpenCV. If you're on macOS, use Homebrew:
+Install the dependencies CMake and [OpenCV](https://github.com/opencv/opencv). If you're on macOS, use Homebrew:
 
     brew install cmake opencv
 
@@ -67,6 +67,6 @@ The style of windows and colors are intentionally pale and pixelated to give a d
 
 ## Test
 
-If [googletest](https://github.com/google/googletest) is available on your system, run tests with:
+Run tests with:
 
     make test
