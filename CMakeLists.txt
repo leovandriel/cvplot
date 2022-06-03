@@ -7,12 +7,11 @@ find_package(OpenCV REQUIRED)
 include_directories(include)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-find_library(GTEST_LIB gtest)
-
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -fPIC ")
 set(CVPLOT_LIB cvplot)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
+set(GOOGLE_TEST_VERSION "1.11.0")
 
 if (DEFINED CVPLOT_LIB)
   file(GLOB LIB_SOURCES "${PROJECT_SOURCE_DIR}/src/cvplot/*.cc")
@@ -40,10 +39,17 @@ install ( DIRECTORY include DESTINATION .
           PATTERN CMakeLists.txt EXCLUDE )
 
 if (${CVPLOT_TEST})
+  include(FetchContent)
+  FetchContent_Declare(googletest URL "https://github.com/google/googletest/archive/refs/tags/release-${GOOGLE_TEST_VERSION}.zip")
+  FetchContent_MakeAvailable(googletest)
+  enable_testing()
+  include(GoogleTest)
+
   file(GLOB TEST_SOURCES "${PROJECT_SOURCE_DIR}/test/cvplot/*_test.cc")
   foreach(filename ${TEST_SOURCES})
     get_filename_component(name ${filename} NAME_WE)
     add_executable(${name} ${filename})
-    target_link_libraries(${name} ${CVPLOT_LIB} ${OpenCV_LIBS} ${GTEST_LIB})
+    target_link_libraries(${name} gtest_main ${CVPLOT_LIB} ${OpenCV_LIBS})
+    gtest_discover_tests(${name})
   endforeach()
 endif()
