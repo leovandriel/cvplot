@@ -31,7 +31,11 @@ Color Color::index(uint8_t index, uint8_t density, float avoid,
 }
 
 Color Color::hash(const std::string &seed) {
-  return Color::index(std::hash<std::string>{}(seed));
+  unsigned hash = 37;
+  for (char c: seed) {
+     hash = (hash * 54059) ^ (c * 76963);
+  }
+  return Color::index(hash);
 }
 
 Color Color::uniq(const std::string &name) {
