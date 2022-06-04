@@ -4,6 +4,10 @@
 
 namespace demo {
 
+float randFloat() {
+  return std::rand() / (float)RAND_MAX;  // NOLINT
+}
+
 void example() {
   cvplot::figure("myplot").series("myline").addValue({1.f, 3.f, 2.f, 5.f, 4.f});
   cvplot::figure("myplot").show();
@@ -71,14 +75,13 @@ void demo() {
     auto &figure = cvplot::figure(name);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back(
-          {(arc4random() % 100) / 10.f, (arc4random() % 100) / 10.f});
+      data.push_back({randFloat() * 10.f, randFloat() * 10.f});
     }
     figure.series("uniform").set(data).type(cvplot::Dots).color(cvplot::Orange);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back({exp((arc4random() % 100) / 30.f) - 1,
-                      exp((arc4random() % 100) / 30.f) - 1});
+      data.push_back(
+          {exp(randFloat() * 3.33f) - 1, exp(randFloat() * 3.33f) - 1});
     }
     figure.series("exponential")
         .set(data)
@@ -178,10 +181,8 @@ void demo() {
         .type(cvplot::FillLine)
         .color(cvplot::Green.gamma(.5f));
     for (auto i = 0; i < 16; i++) {
-      figure.series("fossil").addValue(10 - i +
-                                       10.f * arc4random() / (float)RAND_MAX);
-      figure.series("electric")
-          .addValue(i - 10 + 10.f * arc4random() / (float)RAND_MAX);
+      figure.series("fossil").addValue(10 - i + 10.f * randFloat());
+      figure.series("electric").addValue(i - 10 + 10.f * randFloat());
     }
     figure.show(false);
   }
@@ -197,15 +198,13 @@ void demo() {
     figure.series("pears").type(cvplot::RangeLine).color(cvplot::Sky);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
-      figure.series("apples").addValue(
-          v + 10.f + 5.f * arc4random() / (float)RAND_MAX,
-          v + 5.f * arc4random() / (float)RAND_MAX,
-          v + 20.f + 5.f * arc4random() / (float)RAND_MAX);
+      figure.series("apples").addValue(v + 10.f + 5.f * randFloat(),
+                                       v + 5.f * randFloat(),
+                                       v + 20.f + 5.f * randFloat());
       v = -(i - 6) * (i - 6) + 30;
-      figure.series("pears").addValue(
-          v + 10.f + 5.f * arc4random() / (float)RAND_MAX,
-          v + 5.f * arc4random() / (float)RAND_MAX,
-          v + 20.f + 5.f * arc4random() / (float)RAND_MAX);
+      figure.series("pears").addValue(v + 10.f + 5.f * randFloat(),
+                                      v + 5.f * randFloat(),
+                                      v + 20.f + 5.f * randFloat());
     }
     figure.show(false);
   }
@@ -221,12 +220,10 @@ void demo() {
         .color(cvplot::Purple.alpha(192));
     figure.series("aqua").type(cvplot::Circle).color(cvplot::Aqua.alpha(193));
     for (auto i = 0; i <= 20; i++) {
-      figure.series("purple").add(
-          (arc4random() % 100) / 10.f,
-          {(arc4random() % 100) / 10.f, (arc4random() % 100) / 5.f});
-      figure.series("aqua").add(
-          (arc4random() % 100) / 10.f,
-          {(arc4random() % 100) / 10.f, (arc4random() % 100) / 5.f});
+      figure.series("purple").add(randFloat() * 10.f,
+                                  {randFloat() * 10.f, randFloat() * 20.f});
+      figure.series("aqua").add(randFloat() * 10.f,
+                                {randFloat() * 10.f, randFloat() * 20.f});
     }
     figure.show(false);
   }
@@ -255,7 +252,6 @@ void demo() {
     auto &figure = cvplot::figure(name);
     figure.square(true);
     figure.origin(false, false);
-    srand(clock());
     auto x = 0.f, y = 0.f, dx = 1.f, dy = 0.f, f = 0.f, df = 0.f;
     figure.series("random").dynamicColor(true).legend(false);
     clock_t time = 0;
@@ -266,7 +262,7 @@ void demo() {
       dx = (dx + f * dy) / l;
       dy = (dy - f * dx) / l;
       f = (f + df) * 0.8f;
-      df = (df + arc4random() % 11 / 100.f - .05f) * 0.8f;
+      df = (df + randFloat() * .11f - .05f) * 0.8f;
       figure.series("random").add(x += dx, {y += dy, i / 10.f});
       figure.show(false);
       auto string = std::to_string(fps).substr(0, 4) + " fps  " +
