@@ -71,13 +71,14 @@ void demo() {
     auto &figure = cvplot::figure(name);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back({(rand() % 100) / 10.f, (rand() % 100) / 10.f});
+      data.push_back(
+          {(arc4random() % 100) / 10.f, (arc4random() % 100) / 10.f});
     }
     figure.series("uniform").set(data).type(cvplot::Dots).color(cvplot::Orange);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back(
-          {exp((rand() % 100) / 30.f) - 1, exp((rand() % 100) / 30.f) - 1});
+      data.push_back({exp((arc4random() % 100) / 30.f) - 1,
+                      exp((arc4random() % 100) / 30.f) - 1});
     }
     figure.series("exponential")
         .set(data)
@@ -177,8 +178,10 @@ void demo() {
         .type(cvplot::FillLine)
         .color(cvplot::Green.gamma(.5f));
     for (auto i = 0; i < 16; i++) {
-      figure.series("fossil").addValue(10 - i + 10.f * rand() / RAND_MAX);
-      figure.series("electric").addValue(i - 10 + 10.f * rand() / RAND_MAX);
+      figure.series("fossil").addValue(10 - i +
+                                       10.f * arc4random() / (float)RAND_MAX);
+      figure.series("electric")
+          .addValue(i - 10 + 10.f * arc4random() / (float)RAND_MAX);
     }
     figure.show(false);
   }
@@ -194,13 +197,15 @@ void demo() {
     figure.series("pears").type(cvplot::RangeLine).color(cvplot::Sky);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
-      figure.series("apples").addValue(v + 10.f + 5.f * rand() / RAND_MAX,
-                                       v + 5.f * rand() / RAND_MAX,
-                                       v + 20.f + 5.f * rand() / RAND_MAX);
+      figure.series("apples").addValue(
+          v + 10.f + 5.f * arc4random() / (float)RAND_MAX,
+          v + 5.f * arc4random() / (float)RAND_MAX,
+          v + 20.f + 5.f * arc4random() / (float)RAND_MAX);
       v = -(i - 6) * (i - 6) + 30;
-      figure.series("pears").addValue(v + 10.f + 5.f * rand() / RAND_MAX,
-                                      v + 5.f * rand() / RAND_MAX,
-                                      v + 20.f + 5.f * rand() / RAND_MAX);
+      figure.series("pears").addValue(
+          v + 10.f + 5.f * arc4random() / (float)RAND_MAX,
+          v + 5.f * arc4random() / (float)RAND_MAX,
+          v + 20.f + 5.f * arc4random() / (float)RAND_MAX);
     }
     figure.show(false);
   }
@@ -217,9 +222,11 @@ void demo() {
     figure.series("aqua").type(cvplot::Circle).color(cvplot::Aqua.alpha(193));
     for (auto i = 0; i <= 20; i++) {
       figure.series("purple").add(
-          (rand() % 100) / 10.f, {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
-      figure.series("aqua").add((rand() % 100) / 10.f,
-                                {(rand() % 100) / 10.f, (rand() % 100) / 5.f});
+          (arc4random() % 100) / 10.f,
+          {(arc4random() % 100) / 10.f, (arc4random() % 100) / 5.f});
+      figure.series("aqua").add(
+          (arc4random() % 100) / 10.f,
+          {(arc4random() % 100) / 10.f, (arc4random() % 100) / 5.f});
     }
     figure.show(false);
   }
@@ -257,7 +264,7 @@ void demo() {
       dx = (dx + f * dy) / l;
       dy = (dy - f * dx) / l;
       f = (f + df) * 0.8f;
-      df = (df + rand() % 11 / 100.f - .05f) * 0.8f;
+      df = (df + arc4random() % 11 / 100.f - .05f) * 0.8f;
       figure.series("random").add(x += dx, {y += dy, i / 10.f});
       figure.show(false);
       auto string = std::to_string(fps).substr(0, 4) + " fps  " +

@@ -613,12 +613,14 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
                       n_max / 10);
 
   // draw sub axis
-  for (auto x = ceil(x_min / x_grid) * x_grid; x <= x_max; x += x_grid) {
+  for (int i = ceil(x_min / x_grid), e = floor(x_max / x_grid); i <= e; i++) {
+    auto x = i * x_grid;
     cv::line(trans.with(sub_axis_color_), {(int)(x * xs + xd), border_size_},
              {(int)(x * xs + xd), buffer.rows - border_size_},
              color2scalar(sub_axis_color_), 1, cv::LINE_AA);
   }
-  for (auto y = ceil(y_min / y_grid) * y_grid; y <= y_max; y += y_grid) {
+  for (int i = ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e; i++) {
+    auto y = i * y_grid;
     cv::line(trans.with(sub_axis_color_), {border_size_, (int)(y * ys + yd)},
              {buffer.cols - border_size_, (int)(y * ys + yd)},
              color2scalar(sub_axis_color_), 1, cv::LINE_AA);
@@ -626,7 +628,9 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   if (std::abs(x_grid * xs) < 30) {
     x_grid *= std::ceil(30.f / std::abs(x_grid * xs));
   }
-  for (auto x = std::ceil(x_min / x_grid) * x_grid; x <= x_max; x += x_grid) {
+  for (int i = std::ceil(x_min / x_grid), e = floor(x_max / x_grid); i <= e;
+       i++) {
+    auto x = i * x_grid;
     std::ostringstream out;
     out << std::setprecision(4) << (x == 0 ? 0 : x);
     int baseline;
@@ -640,7 +644,9 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   if (std::abs(y_grid * ys) < 20) {
     y_grid *= std::ceil(20.f / std::abs(y_grid * ys));
   }
-  for (auto y = std::ceil(y_min / y_grid) * y_grid; y <= y_max; y += y_grid) {
+  for (int i = std::ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e;
+       i++) {
+    auto y = i * y_grid;
     std::ostringstream out;
     out << std::setprecision(4) << (y == 0 ? 0 : y);
     int baseline;
