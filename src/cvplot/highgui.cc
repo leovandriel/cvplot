@@ -7,7 +7,6 @@ namespace cvplot {
 int createTrackbar(const std::string &trackbarname, const std::string &winname,
                    int *value, int count, TrackbarCallback onChange,
                    void *userdata) {
-  // TODO
   return cv::createTrackbar(trackbarname, winname, value, count, onChange,
                             userdata);
 }
@@ -19,7 +18,6 @@ void destroyWindow(const std::string &view) {
 }
 
 int getMouseWheelDelta(int flags) {
-  // TODO
 #if CV_MAJOR_VERSION > 2
   return cv::getMouseWheelDelta(flags);
 #else
@@ -29,12 +27,10 @@ int getMouseWheelDelta(int flags) {
 
 int getTrackbarPos(const std::string &trackbarname,
                    const std::string &winname) {
-  // TODO
   return cv::getTrackbarPos(trackbarname, winname);
 }
 
 double getWindowProperty(const std::string &winname, int prop_id) {
-  // TODO
   return cv::getWindowProperty(winname, prop_id);
 }
 
@@ -62,7 +58,6 @@ void resizeWindow(const std::string &view, const Size &size) {
 
 Rect selectROI(const std::string &windowName, void *img, bool showCrosshair,
                bool fromCenter) {
-  // TODO
 #if CV_MAJOR_VERSION > 2
   auto rect =
       cv::selectROI(windowName, (cv::InputArray)img, showCrosshair, fromCenter);
@@ -73,7 +68,6 @@ Rect selectROI(const std::string &windowName, void *img, bool showCrosshair,
 }
 
 Rect selectROI(void *img, bool showCrosshair, bool fromCenter) {
-  // TODO
 #if CV_MAJOR_VERSION > 2
   auto rect = cv::selectROI((cv::InputArray)img, showCrosshair, fromCenter);
   return Rect(rect.x, rect.y, rect.width, rect.height);
@@ -85,7 +79,6 @@ Rect selectROI(void *img, bool showCrosshair, bool fromCenter) {
 void selectROIs(const std::string &windowName, void *img,
                 std::vector<Rect> &boundingBoxes, bool showCrosshair,
                 bool fromCenter) {
-  // TODO
 #if CV_MAJOR_VERSION > 2
   std::vector<cv::Rect> boxes;
   for (auto b : boundingBoxes) {
@@ -103,7 +96,6 @@ void setMouseCallback(const std::string &view, MouseCallback onMouse,
 
 void setTrackbarMax(const std::string &trackbarname, const std::string &winname,
                     int maxval) {
-  // TODO
 #if CV_MAJOR_VERSION > 2
   cv::setTrackbarMax(trackbarname, winname, maxval);
 #endif
@@ -111,7 +103,6 @@ void setTrackbarMax(const std::string &trackbarname, const std::string &winname,
 
 void setTrackbarMin(const std::string &trackbarname, const std::string &winname,
                     int minval) {
-  // TODO
 #if CV_MAJOR_VERSION > 2
   cv::setTrackbarMin(trackbarname, winname, minval);
 #endif
@@ -119,13 +110,11 @@ void setTrackbarMin(const std::string &trackbarname, const std::string &winname,
 
 void setTrackbarPos(const std::string &trackbarname, const std::string &winname,
                     int pos) {
-  // TODO
   cv::setTrackbarPos(trackbarname, winname, pos);
 }
 
 void setWindowProperty(const std::string &winname, int prop_id,
                        double prop_value) {
-  // TODO
   cv::setWindowProperty(winname, prop_id, prop_value);
 }
 
@@ -134,7 +123,6 @@ void setWindowTitle(const std::string &view, const std::string &title) {
 }
 
 int startWindowThread() {
-  // TODO
   return cv::startWindowThread();
 }
 
