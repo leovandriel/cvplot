@@ -3,6 +3,9 @@ Change Log
 
 ### master (untagged)
 
+### 0.0.4 (2022-06-03)
+
+* Fix for axis color
 * Add draw to PNG file
 * More contrast, bye pale
 * Text sizing and drop shadow
