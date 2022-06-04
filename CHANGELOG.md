@@ -3,6 +3,11 @@ Change Log
 
 ### master (untagged)
 
+* Add draw to PNG file
+* More contrast, bye pale
+* Text sizing and drop shadow
+* Build and format fixes (thanks @palerikm)
+
 ### 0.0.3 (2018-01-05)
 
 * Add highgui wrapper
