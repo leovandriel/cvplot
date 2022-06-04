@@ -135,8 +135,10 @@ class Figure {
   Color subaxisColor();
   Color textColor();
 
-  void draw(void *b, float x_min, float x_max, float y_min, float y_max,
+  void draw(void *buffer, float x_min, float x_max, float y_min, float y_max,
             int n_max, int p_max) const;
+  int drawFit(void *buffer) const;
+  bool drawFile(const std::string &filename, Size size) const;
   void show(bool flush = true) const;
   Series &series(const std::string &label);
 
