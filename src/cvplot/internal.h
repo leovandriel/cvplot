@@ -1,10 +1,9 @@
 #ifndef CVPLOT_INTERNAL_H
 #define CVPLOT_INTERNAL_H
 
-#include <opencv2/core/core.hpp>
-
 #include <iomanip>
 #include <iostream>
+#include <opencv2/core/core.hpp>
 
 #define EXPECT_EQ(a__, b__)                                                    \
   do {                                                                         \

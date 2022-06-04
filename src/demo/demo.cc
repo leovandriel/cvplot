@@ -1,6 +1,6 @@
-#include "cvplot/cvplot.h"
-
 #include <opencv2/opencv.hpp>
+
+#include "cvplot/cvplot.h"
 
 namespace demo {
 
@@ -303,7 +303,9 @@ void transparency() {
   std::vector<std::pair<float, float>> data;
   std::vector<float> values;
 
-  cvplot::Window::current("cvplot transparency and mouse (dated look)").offset({30, 70}).cursor(true);
+  cvplot::Window::current("cvplot transparency and mouse (dated look)")
+      .offset({30, 70})
+      .cursor(true);
   cvplot::paleness = 32;
 
   {

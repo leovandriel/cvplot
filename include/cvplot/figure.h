@@ -1,12 +1,12 @@
 #ifndef CVPLOT_FIGURE_H
 #define CVPLOT_FIGURE_H
 
-#include "color.h"
-#include "window.h"
-
 #include <map>
 #include <string>
 #include <vector>
+
+#include "color.h"
+#include "window.h"
 
 namespace cvplot {
 

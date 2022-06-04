@@ -1,9 +1,10 @@
 #include "cvplot/figure.h"
+
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include "cvplot/window.h"
 #include "internal.h"
-
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/imgcodecs.hpp>
 
 namespace cvplot {
 
@@ -310,7 +311,8 @@ void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
 
 void Series::dot(void *b, int x, int y, int r) const {
   Trans trans(b);
-  cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1, cv::LINE_AA);
+  cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1,
+             cv::LINE_AA);
 }
 
 void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
@@ -429,13 +431,15 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
         if (type_ == Horizontal) {
-          cv::line(
-              trans.with(color_), {(int)(x_min * xs + xd), (int)(y * ys + yd)},
-              {(int)(x_max * xs + xd), (int)(y * ys + yd)}, color, 1, cv::LINE_AA);
+          cv::line(trans.with(color_),
+                   {(int)(x_min * xs + xd), (int)(y * ys + yd)},
+                   {(int)(x_max * xs + xd), (int)(y * ys + yd)}, color, 1,
+                   cv::LINE_AA);
         } else if (type_ == Vertical) {
-          cv::line(
-              trans.with(color_), {(int)(y * xs + xd), (int)(y_min * ys + yd)},
-              {(int)(y * xs + xd), (int)(y_max * ys + yd)}, color, 1, cv::LINE_AA);
+          cv::line(trans.with(color_),
+                   {(int)(y * xs + xd), (int)(y_min * ys + yd)},
+                   {(int)(y * xs + xd), (int)(y_max * ys + yd)}, color, 1,
+                   cv::LINE_AA);
         }
       }
     } break;

@@ -1,10 +1,10 @@
 #include "cvplot/window.h"
-#include "internal.h"
 
+#include <ctime>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include <ctime>
+#include "internal.h"
 
 namespace cvplot {
 
@@ -102,7 +102,8 @@ void View::drawRect(Rect rect, Color color) {
   window_.dirty();
 }
 
-void View::drawText(const std::string &text, Offset offset, Color color, float height) const {
+void View::drawText(const std::string &text, Offset offset, Color color,
+                    float height) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
   auto scale = height / 30.f;
   auto thickness = height / 12.f;
@@ -115,9 +116,11 @@ void View::drawText(const std::string &text, Offset offset, Color color, float h
   window_.dirty();
 }
 
-void View::drawTextShadow(const std::string &text, Offset offset, Color color, float height) const {
+void View::drawTextShadow(const std::string &text, Offset offset, Color color,
+                          float height) const {
   int off = (int)(height / 20);
-  drawText(text, {offset.x + off, offset.y + off}, cvplot::Black.alpha(100), height);
+  drawText(text, {offset.x + off, offset.y + off}, cvplot::Black.alpha(100),
+           height);
   drawText(text, offset, color, height);
 }
 
