@@ -658,9 +658,9 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   }
 
   // draw axis
-  cv::line(trans.with(text_color_), {border_size_, (int)(y_axis * ys + yd)},
+  cv::line(trans.with(axis_color_), {border_size_, (int)(y_axis * ys + yd)},
            {buffer.cols - border_size_, (int)(y_axis * ys + yd)},
-           color2scalar(text_color_), 1, cv::LINE_AA);
+           color2scalar(axis_color_), 1, cv::LINE_AA);
   cv::line(trans.with(axis_color_), {(int)(x_axis * xs + xd), border_size_},
            {(int)(x_axis * xs + xd), buffer.rows - border_size_},
            color2scalar(axis_color_), 1, cv::LINE_AA);
