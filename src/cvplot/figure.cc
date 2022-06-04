@@ -3,6 +3,7 @@
 #include "internal.h"
 
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 namespace cvplot {
 
@@ -698,7 +699,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   }
 }
 
-void Figure::show(bool flush) const {
+int Figure::drawFit(void *buffer) const {
   auto x_min = (include_zero_x_ ? 0.f : FLT_MAX);
   auto x_max = (include_zero_x_ ? 0.f : FLT_MIN);
   auto y_min = (include_zero_y_ ? 0.f : FLT_MAX);
@@ -713,10 +714,30 @@ void Figure::show(bool flush) const {
   }
 
   if (n_max) {
-    Rect rect(0, 0, 0, 0);
-    auto &buffer = *(cv::Mat *)view_.buffer(rect);
-    auto sub = buffer({rect.x, rect.y, rect.width, rect.height});
-    draw(&sub, x_min, x_max, y_min, y_max, n_max, p_max);
+    draw(buffer, x_min, x_max, y_min, y_max, n_max, p_max);
+  }
+
+  return n_max;
+}
+
+bool Figure::drawFile(const std::string &filename, Size size) const {
+  cv::Mat mat(cv::Size(size.width, size.height), CV_8UC3);
+  int n_max = drawFit(&mat);
+  if (n_max) {
+    std::vector<int> compression_params;
+    compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+    compression_params.push_back(9);
+    return imwrite(filename, mat, compression_params);
+  }
+  return false;
+}
+
+void Figure::show(bool flush) const {
+  Rect rect(0, 0, 0, 0);
+  auto &buffer = *(cv::Mat *)view_.buffer(rect);
+  auto sub = buffer({rect.x, rect.y, rect.width, rect.height});
+  int n_max = drawFit(&sub);
+  if (n_max) {
     view_.finish();
     if (flush) {
       view_.flush();
