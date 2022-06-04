@@ -238,8 +238,10 @@ void demo() {
     cvplot::resizeWindow(name, 300, 300);
     auto &view = cvplot::Window::current().view(name);
     auto image = cv::imread("res/demo.jpg");
-    cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
-    view.drawImage(&image);
+    if (image.data) {
+      cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
+      view.drawImage(&image);
+    }
     view.drawText("..and text", {13, 273}, cvplot::Black.alpha(127));
     view.finish();
   }
