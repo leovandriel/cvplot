@@ -45,14 +45,13 @@ To draw a simple line graph:
 - Graphs: line, histogram, scatter
 - Time series, parametric, range
 - Automatic and dynamic coloring
-- Transparency
+- Transparency (yes, really)
 - Image and text drawing
 - Sub-windows (views)
 - Window and view layout
 - Green view frame
 - Mouse support
 - OpenCV-like API (highgui)
-- Distinguished dated look
 
 
 ## Demo
@@ -61,12 +60,22 @@ To see some of the plotting in action, run the demo:
 
     make demo
 
-<img src="res/demo.jpg" alt="cvplot demo" width="656"/>
+To learn more about these examples, take a look at `src/demo/demo.cc`.
 
-The style of windows and colors are intentionally pale and pixelated to give a dated feel to the whole thing.
+<img src="res/demo.jpg" alt="cvplot demo" width="656"/>
 
 ## Test
 
 Run tests with:
 
     make test
+
+
+## Contributing
+
+Your contributions to cvplot are welcome! cvplot is small and nimble, with lots of missing features. If you would like to see a new feature, found a bug, or wrote some new code, please don't hesitate to reach out by filing a PR or issue.
+
+
+## License
+
+MIT
