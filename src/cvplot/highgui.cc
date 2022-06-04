@@ -122,9 +122,7 @@ void setWindowTitle(const std::string &view, const std::string &title) {
   Window::current().view(view).title(title);
 }
 
-int startWindowThread() {
-  return cv::startWindowThread();
-}
+int startWindowThread() { return cv::startWindowThread(); }
 
 int waitKey(int delay) { return Util::key(delay); }
 
