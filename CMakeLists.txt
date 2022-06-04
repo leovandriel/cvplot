@@ -13,6 +13,11 @@ set(CVPLOT_LIB cvplot)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin")
 set(GOOGLE_TEST_VERSION "1.11.0")
 
+find_program(CLANG_TIDY_EXISTS clang-tidy)
+if(CLANG_TIDY_EXISTS)
+  set(CMAKE_CXX_CLANG_TIDY clang-tidy)
+endif()
+
 if (DEFINED CVPLOT_LIB)
   file(GLOB LIB_SOURCES "${PROJECT_SOURCE_DIR}/src/cvplot/*.cc")
   add_library(${CVPLOT_LIB} ${LIB_SOURCES})
