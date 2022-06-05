@@ -23,7 +23,6 @@ struct Color {
   static auto index(uint8_t index, uint8_t density = 16, double avoid = 2.,
                     double range = 2.) -> Color;
   static auto hash(const std::string &seed) -> Color;
-  static auto uniq(const std::string &name) -> Color;
 };
 
 static const Color Red = Color::hue(0.);
