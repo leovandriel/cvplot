@@ -10,8 +10,9 @@
 namespace cvplot {
 
 namespace {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::map<std::string, Figure> shared_figures_;
-}
+}  // namespace
 
 void Series::verifyParams() const {
   auto dims = 1;
@@ -96,7 +97,7 @@ auto Series::add(const std::vector<std::pair<double, double>> &data)
     -> Series & {
   ensureDimsDepth(1, 1);
   for (const auto &d : data) {
-    entries_.push_back(data_.size());
+    entries_.push_back(static_cast<int>(data_.size()));
     data_.push_back(d.first);
     data_.push_back(d.second);
   }
@@ -107,7 +108,7 @@ auto Series::add(const std::vector<std::pair<double, Point2>> &data)
     -> Series & {
   ensureDimsDepth(1, 2);
   for (const auto &d : data) {
-    entries_.push_back(data_.size());
+    entries_.push_back(static_cast<int>(data_.size()));
     data_.push_back(d.first);
     data_.push_back(d.second.x);
     data_.push_back(d.second.y);
@@ -119,7 +120,7 @@ auto Series::add(const std::vector<std::pair<double, Point3>> &data)
     -> Series & {
   ensureDimsDepth(1, 3);
   for (const auto &d : data) {
-    entries_.push_back(data_.size());
+    entries_.push_back(static_cast<int>(data_.size()));
     data_.push_back(d.first);
     data_.push_back(d.second.x);
     data_.push_back(d.second.y);
@@ -132,7 +133,7 @@ auto Series::addValue(const std::vector<double> &values) -> Series & {
   std::vector<std::pair<double, double>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
-    d.first = i + entries_.size();
+    d.first = static_cast<double>(i + entries_.size());
     d.second = values[i++];
   }
   return add(data);
@@ -142,7 +143,7 @@ auto Series::addValue(const std::vector<Point2> &values) -> Series & {
   std::vector<std::pair<double, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
-    d.first = i + entries_.size();
+    d.first = static_cast<double>(i + entries_.size());
     d.second = values[i++];
   }
   return add(data);
@@ -152,7 +153,7 @@ auto Series::addValue(const std::vector<Point3> &values) -> Series & {
   std::vector<std::pair<double, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
-    d.first = i + entries_.size();
+    d.first = static_cast<double>(i + entries_.size());
     d.second = values[i++];
   }
   return add(data);
@@ -273,6 +274,7 @@ auto Series::flipAxis() const -> bool {
   return type_ == Vertical || type_ == Vistogram;
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void Series::bounds(double &x_min, double &x_max, double &y_min, double &y_max,
                     int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
@@ -314,7 +316,7 @@ void Series::bounds(double &x_min, double &x_max, double &y_min, double &y_max,
     }
   }
   if (n_max < entries_.size()) {
-    n_max = entries_.size();
+    n_max = static_cast<int>(entries_.size());
   }
   if (type_ == Histogram || type_ == Vistogram) {
     p_max = std::max(30, p_max);
@@ -327,13 +329,14 @@ void Series::dot(void *b, int x, int y, int r) const {
              cv::LINE_AA);
 }
 
-void Series::draw(void *b, double x_min, double x_max, double y_min,
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+void Series::draw(void *buffer, double x_min, double x_max, double y_min,
                   double y_max, double xs, double xd, double ys, double yd,
                   double x_axis, double y_axis, int unit, double offset) const {
   if (dims_ == 0 || depth_ == 0) {
     return;
   }
-  Trans trans(*static_cast<cv::Mat *>(b));
+  Trans trans(*static_cast<cv::Mat *>(buffer));
   auto color = color2scalar(color_);
   switch (type_) {
     case Line:
@@ -354,7 +357,7 @@ void Series::draw(void *b, double x_min, double x_max, double y_min,
           cv::Point point(static_cast<int>(x * xs + xd),
                           static_cast<int>(y * ys + yd));
           if (has_last) {
-            // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
             cv::Point points[4] = {
                 point,
                 {point.x, static_cast<int>(y_axis * ys + yd)},
@@ -363,7 +366,8 @@ void Series::draw(void *b, double x_min, double x_max, double y_min,
                 {static_cast<int>(last_x * xs + xd),
                  static_cast<int>(last_y * ys + yd)},
             };
-            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+            cv::fillConvexPoly(trans.with(color_.a / 2),
+                               static_cast<cv::Point *>(points), 4, color,
                                cv::LINE_AA);
           } else {
             has_last = true;
@@ -383,7 +387,7 @@ void Series::draw(void *b, double x_min, double x_max, double y_min,
             color = color2scalar(Color::cos(data_[e + dims_ + 1]));
           }
           if (has_last) {
-            // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
             cv::Point points[4] = {
                 {static_cast<int>(x * xs + xd), static_cast<int>(y1 * ys + yd)},
                 {static_cast<int>(x * xs + xd), static_cast<int>(y2 * ys + yd)},
@@ -392,7 +396,8 @@ void Series::draw(void *b, double x_min, double x_max, double y_min,
                 {static_cast<int>(last_x * xs + xd),
                  static_cast<int>(last_y1 * ys + yd)},
             };
-            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+            cv::fillConvexPoly(trans.with(color_.a / 2),
+                               static_cast<cv::Point *>(points), 4, color,
                                cv::LINE_AA);
           } else {
             has_last = true;
@@ -496,9 +501,11 @@ void Series::draw(void *b, double x_min, double x_max, double y_min,
         cv::Point point_b(static_cast<int>(x * xs + xd),
                           static_cast<int>(y_b * ys + yd));
         if (has_last) {
-          // NOLINTNEXTLINE(modernize-avoid-c-arrays)
+          // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
           cv::Point points[4] = {point_a, point_b, last_b, last_a};
-          cv::fillConvexPoly(trans.with(color_), points, 4, color, cv::LINE_AA);
+          cv::fillConvexPoly(trans.with(color_),
+                             static_cast<cv::Point *>(points), 4, color,
+                             cv::LINE_AA);
         } else {
           has_last = true;
         }
@@ -515,7 +522,8 @@ void Series::draw(void *b, double x_min, double x_max, double y_min,
         }
         cv::Point point(static_cast<int>(x * xs + xd),
                         static_cast<int>(y * ys + yd));
-        cv::circle(trans.with(color_), point, r, color, -1, cv::LINE_AA);
+        cv::circle(trans.with(color_), point, static_cast<int>(r), color, -1,
+                   cv::LINE_AA);
       }
     } break;
   }
@@ -593,6 +601,7 @@ auto Figure::series(const std::string &label) -> Series & {
   return series_.back();
 }
 
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void Figure::draw(void *b, double x_min, double x_max, double y_min,
                   double y_max, int n_max, int p_max) const {
   auto &buffer = *static_cast<cv::Mat *>(b);
@@ -685,8 +694,8 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
     int baseline = 0;
     cv::Size size =
         getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1., &baseline);
-    cv::Point org(x * xs + xd - size.width / 2,
-                  buffer.rows - border_size_ + 5 + size.height);
+    cv::Point org(static_cast<int>(x * xs + xd - size.width / 2),
+                  (buffer.rows - border_size_ + 5 + size.height));
     cv::putText(trans.with(text_color_), out.str(), org,
                 cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.);
   }
@@ -701,7 +710,8 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
     int baseline = 0;
     cv::Size size =
         getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1., &baseline);
-    cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
+    cv::Point org(border_size_ - 5 - size.width,
+                  static_cast<int>(y * ys + yd + size.height / 2));
     cv::putText(trans.with(text_color_), out.str(), org,
                 cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.);
   }
@@ -729,7 +739,8 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
       index--;
     }
     s->draw(&trans.with(s->color()), x_min, x_max, y_min, y_max, xs, xd, ys, yd,
-            x_axis, y_axis, unit, static_cast<double>(index) / series_.size());
+            x_axis, y_axis, unit,
+            static_cast<double>(index) / static_cast<double>(series_.size()));
   }
 
   // draw label names
@@ -748,7 +759,7 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
     cv::putText(trans.with(background_color_), name,
                 {org.x + (shadow ? 1 : 0), org.y + (shadow ? 1 : 0)},
                 cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(background_color_),
-                (shadow ? 1. : 2.));
+                (shadow ? 1 : 2));
     cv::circle(trans.with(background_color_),
                {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
                color2scalar(background_color_), -1, cv::LINE_AA);

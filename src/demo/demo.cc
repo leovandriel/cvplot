@@ -395,6 +395,7 @@ auto main(int argc, char **argv) -> int {
   demo::example();
   demo::transparency();
   demo::demo();
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
   printf("Demo completed. Ctrl+C to exit.\n");
   cvplot::waitKey();
   return 0;

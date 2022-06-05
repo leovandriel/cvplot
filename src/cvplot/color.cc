@@ -6,8 +6,9 @@
 namespace cvplot {
 
 namespace {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::map<std::string, int> color_counter;
-}
+}  // namespace
 
 auto Color::alpha(uint8_t alpha) const -> Color { return {r, g, b, alpha}; }
 
@@ -23,9 +24,9 @@ auto Color::index(uint8_t index, uint8_t density, double avoid,
                   double range) -> Color {  // avoid greens by default
   if (avoid > 0) {
     auto step = density / (6 - range);
-    auto offset = (avoid + range / 2) * step;
-    index = offset + index % density;
-    density += step * range;
+    auto offset = (avoid + range / 2) * static_cast<double>(step);
+    index = static_cast<uint8_t>(offset) + index % density;
+    density += static_cast<uint8_t>(step * range);
   }
   auto hue = index % density * 6. / density;
   return Color::cos(hue);
@@ -41,7 +42,7 @@ auto Color::hash(const std::string &seed) -> Color {
 
 auto Color::uniq(const std::string &name) -> Color {
   if (color_counter.count(name) == 0) {
-    color_counter[name] = color_counter.size();
+    color_counter[name] = static_cast<int>(color_counter.size());
   }
   return Color::index(color_counter[name]);
 }

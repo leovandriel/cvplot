@@ -9,11 +9,15 @@
 
 namespace cvplot {
 
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 int paleness = 0;
 
 namespace {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 Window *shared_window = nullptr;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 int shared_index = 0;
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 clock_t shared_time = clock();
 }  // namespace
 
@@ -111,11 +115,12 @@ void View::drawText(const std::string &text, Offset offset, Color color,
   auto scale = height / 30.;
   auto thickness = height / 12.;
   int baseline = 0;
-  cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
+  cv::Size size =
+      getTextSize(text, face, scale, static_cast<int>(thickness), &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
   Trans trans(window_.buffer());
   cv::putText(trans.with(color), text, org, face, scale, color2scalar(color),
-              thickness);
+              static_cast<int>(thickness));
   window_.dirty();
 }
 
@@ -166,11 +171,11 @@ void View::drawImage(const void *image, int alpha) {
   window_.dirty();
 }
 
-void View::drawFill(Color color) {
+void View::drawFill(Color background) {
   Trans trans(window_.buffer());
-  cv::rectangle(trans.with(color), {rect_.x, rect_.y},
+  cv::rectangle(trans.with(background), {rect_.x, rect_.y},
                 {rect_.x + rect_.width - 1, rect_.y + rect_.height - 1},
-                color2scalar(color), -1);
+                color2scalar(background), -1);
   window_.dirty();
 }
 
@@ -236,6 +241,7 @@ auto Window::size(Size size) -> Window & {
                      std::min(current.rows, size.height));
       current(inter).copyTo(buffer(inter));
     }
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     delete &current;
   }
   buffer_ = &buffer;
@@ -353,12 +359,14 @@ void Window::hide(bool hidden) {
 
 auto Window::current() -> Window & {
   if (shared_window == nullptr) {
+    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
     shared_window = new Window("");
   }
   return *shared_window;
 }
 
 auto Window::current(const std::string &title) -> Window & {
+  // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
   shared_window = new Window(title);
   return *shared_window;
 }
@@ -371,7 +379,7 @@ void Util::sleep(double seconds) {
   cv::waitKey(std::max(1, static_cast<int>(seconds * 1000)));
 }
 
-auto Util::key(double timeout) -> char {
+auto Util::key(double timeout) -> int {
   return cv::waitKey(std::max(0, static_cast<int>(timeout * 1000)));
 }
 

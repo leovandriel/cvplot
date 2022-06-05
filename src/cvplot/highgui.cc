@@ -56,40 +56,6 @@ void resizeWindow(const std::string &view, const Size &size) {
   Window::current().view(view).size({size.width, size.height});
 }
 
-auto selectROI(const std::string &windowName, void *img, bool showCrosshair,
-               bool fromCenter) -> Rect {
-#if CV_MAJOR_VERSION > 2
-  auto rect = cv::selectROI(windowName, reinterpret_cast<cv::InputArray>(img),
-                            showCrosshair, fromCenter);
-  return {rect.x, rect.y, rect.width, rect.height};
-#else
-  return Rect(-1, -1, -1, -1);
-#endif
-}
-
-auto selectROI(void *img, bool showCrosshair, bool fromCenter) -> Rect {
-#if CV_MAJOR_VERSION > 2
-  auto rect = cv::selectROI(reinterpret_cast<cv::InputArray>(img),
-                            showCrosshair, fromCenter);
-  return {rect.x, rect.y, rect.width, rect.height};
-#else
-  return Rect(-1, -1, -1, -1);
-#endif
-}
-
-void selectROIs(const std::string &windowName, void *img,
-                std::vector<Rect> &boundingBoxes, bool showCrosshair,
-                bool fromCenter) {
-#if CV_MAJOR_VERSION > 2
-  std::vector<cv::Rect> boxes;
-  for (auto b : boundingBoxes) {
-    boxes.emplace_back(b.x, b.y, b.width, b.height);
-  }
-  cv::selectROIs(windowName, reinterpret_cast<cv::InputArray>(img), boxes,
-                 showCrosshair, fromCenter);
-#endif
-}
-
 void setMouseCallback(const std::string &view, MouseCallback onMouse,
                       void *userdata) {
   Window::current().view(view).mouse(onMouse, userdata);

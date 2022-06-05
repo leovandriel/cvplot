@@ -83,8 +83,8 @@ class Series {
   auto legend() const -> bool;
   auto color() const -> Color;
   void draw(void *buffer, double x_min, double x_max, double y_min,
-            double y_max, double x_axis, double xs, double xd, double ys,
-            double yd, double y_axis, int unit, double offset) const;
+            double y_max, double xs, double xd, double ys, double yd,
+            double x_axis, double y_axis, int unit, double offset) const;
   auto collides() const -> bool;
   void dot(void *b, int x, int y, int r) const;
   void bounds(double &x_min, double &x_max, double &y_min, double &y_max,
@@ -159,7 +159,7 @@ class Figure {
   int grid_padding_;
 };
 
-auto figure(const std::string &view) -> Figure &;
+auto figure(const std::string &name) -> Figure &;
 
 }  // namespace cvplot
 
