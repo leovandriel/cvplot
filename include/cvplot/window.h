@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "color.h"
 
@@ -26,55 +27,55 @@ struct Offset {
   Offset(int x, int y) : x(x), y(y) {}
 };
 
-typedef void (*MouseCallback)(int event, int x, int y, int flags, void *param);
-typedef void (*TrackbarCallback)(int pos, void *param);
+using MouseCallback = void (*)(int, int, int, int, void *);
+using TrackbarCallback = void (*)(int, void *);
 
 class Window;
 
 class View {
  public:
-  View(Window &window, const std::string &title = "", Size size = {300, 300})
+  View(Window &window, std::string title = "", Size size = {300, 300})
       : window_(window),
-        title_(title),
+        title_(std::move(title)),
         rect_(0, 0, size.width, size.height),
         frameless_(false),
         background_color_(Black),
         frame_color_(Green),
         text_color_(Black),
-        mouse_callback_(NULL),
-        mouse_param_(NULL) {}
-  View &resize(Rect rect);
-  View &size(Size size);
-  View &offset(Offset offset);
-  View &autosize();
-  View &title(const std::string &title);
-  View &alpha(int alpha);
-  View &backgroundColor(Color color);
-  View &frameColor(Color color);
-  View &textColor(Color color);
-  View &mouse(MouseCallback callback, void *param = NULL);
+        mouse_callback_(nullptr),
+        mouse_param_(nullptr) {}
+  auto resize(Rect rect) -> View &;
+  auto size(Size size) -> View &;
+  auto offset(Offset offset) -> View &;
+  auto autosize() -> View &;
+  auto title(const std::string &title) -> View &;
+  auto alpha(int alpha) -> View &;
+  auto backgroundColor(Color color) -> View &;
+  auto frameColor(Color color) -> View &;
+  auto textColor(Color color) -> View &;
+  auto mouse(MouseCallback callback, void *param = nullptr) -> View &;
   void onmouse(int event, int x, int y, int flags);
 
-  Color backgroundColor();
-  Color frameColor();
-  Color textColor();
-  std::string &title();
-  bool has(Offset offset);
+  auto backgroundColor() -> Color;
+  auto frameColor() -> Color;
+  auto textColor() -> Color;
+  auto title() -> std::string &;
+  auto has(Offset offset) const -> bool;
 
   void drawRect(Rect rect, Color color);
   void drawFill(Color background = White);
   void drawImage(const void *image, int alpha = 255);
   void drawText(const std::string &text, Offset offset, Color color,
-                float height = 12.f) const;
+                double height = 12.) const;
   void drawTextShadow(const std::string &text, Offset offset, Color color,
-                      float height) const;
+                      double height) const;
   void drawFrame(const std::string &title) const;
-  void *buffer(Rect &rect);
+  auto buffer(Rect &rect) -> void *;
   void finish();
   void flush();
   void hide(bool hidden = true);
 
-  View &operator=(const View &) = delete;
+  auto operator=(const View &) -> View & = delete;
 
  protected:
   Rect rect_;
@@ -91,48 +92,48 @@ class View {
 
 class Window {
  public:
-  Window(const std::string &title = "");
-  Window &resize(Rect rect);
-  Window &size(Size size);
-  Window &offset(Offset offset);
-  Window &title(const std::string &title);
-  Window &fps(float fps);
-  Window &ensure(Rect rect);
-  Window &cursor(bool cursor);
-  void *buffer();
+  Window(std::string title = "");
+  auto resize(Rect rect) -> Window &;
+  auto size(Size size) -> Window &;
+  auto offset(Offset offset) -> Window &;
+  auto title(const std::string &title) -> Window &;
+  auto fps(double fps) -> Window &;
+  auto ensure(Rect rect) -> Window &;
+  auto cursor(bool cursor) -> Window &;
+  auto buffer() -> void *;
   void flush();
-  View &view(const std::string &name, Size size = {300, 300});
+  auto view(const std::string &name, Size size = {300, 300}) -> View &;
   void dirty();
   void tick();
   void hide(bool hidden = true);
   void onmouse(int event, int x, int y, int flags);
-  const std::string &name() const { return name_; }
+  auto name() const -> const std::string & { return name_; }
 
-  Window &operator=(const Window &) = delete;
+  auto operator=(const Window &) -> Window & = delete;
 
-  static Window &current();
+  static auto current() -> Window &;
   static void current(Window &window);
-  static Window &current(const std::string &title);
+  static auto current(const std::string &title) -> Window &;
 
  protected:
   Offset offset_;
-  void *buffer_;
+  void *buffer_{nullptr};
   std::string title_;
   std::string name_;
   std::map<std::string, View> views_;
-  bool dirty_;
-  float flush_time_;
-  float fps_;
-  bool hidden_;
-  bool show_cursor_;
+  bool dirty_{false};
+  double flush_time_{0};
+  double fps_{1};
+  bool hidden_{false};
+  bool show_cursor_{false};
   Offset cursor_;
 };
 
 class Util {
  public:
-  static void sleep(float seconds = 0);
-  static char key(float timeout = 0);
-  static std::string line(float timeout = 0);
+  static void sleep(double seconds = 0);
+  static auto key(double timeout = 0) -> int;
+  static auto line(double timeout = 0) -> std::string;
 };
 
 }  // namespace cvplot

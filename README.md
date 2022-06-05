@@ -34,7 +34,7 @@ This project is developed and tested on macOS and Ubuntu.
 To draw a simple line graph:
 
     cvplot::figure("myplot").series("myline")
-      .addValue({1.f, 3.f, 2.f, 5.f, 4.f});
+      .addValue({1., 3., 2., 5., 4.});
     cvplot::figure("myplot").show();
 
 <img src="res/line.jpg" alt="cvplot example" width="206"/>
@@ -73,7 +73,7 @@ Run tests with:
 
 ## Contributing
 
-Your contributions to cvplot are welcome! cvplot is small and nimble, with lots of missing features. If you would like to see a new feature, found a bug, or wrote some new code, please don't hesitate to reach out by filing a PR or issue.
+Your contributions to cvplot are welcome! cvplot is small and nimble, with lots of missing features. If you would like to see a new feature, get your code merged, or report a bug, please don't hesitate to reach out by filing a PR or issue.
 
 
 ## License

@@ -1,0 +1,1 @@
+Checks: '*,-llvmlibc-*,-bugprone-*,-hicpp-*,-fuchsia-*,-altera-*,-*-magic-numbers'

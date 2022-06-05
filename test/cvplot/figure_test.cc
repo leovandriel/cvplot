@@ -1,7 +1,8 @@
 #include "cvplot/figure.h"
 
 #include <gtest/gtest.h>
-#include <stdio.h>
+
+#include <cstdio>
 
 namespace cvplot {
 
@@ -12,9 +13,9 @@ TEST(FigureTest, Init) {
 }
 
 TEST(FigureTest, File) {
-  auto filename = "test/figure.png";
+  const auto *filename = "test/figure.png";
   auto f = figure("test-figure");
-  f.series("test-series").addValue({1.f, 3.f, 2.f, 5.f, 4.f});
+  f.series("test-series").addValue({1., 3., 2., 5., 4.});
   auto result = f.drawFile(filename, {500, 500});
   EXPECT_EQ(result, true);
   EXPECT_EQ(remove(filename), 0);
@@ -22,7 +23,7 @@ TEST(FigureTest, File) {
 
 }  // namespace cvplot
 
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

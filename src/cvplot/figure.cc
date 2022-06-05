@@ -1,5 +1,6 @@
 #include "cvplot/figure.h"
 
+#include <cmath>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -9,8 +10,9 @@
 namespace cvplot {
 
 namespace {
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 std::map<std::string, Figure> shared_figures_;
-}
+}  // namespace
 
 void Series::verifyParams() const {
   auto dims = 1;
@@ -40,7 +42,7 @@ void Series::verifyParams() const {
   if (dynamic_color_) {
     depth += 1;
   }
-  if (entries_.size() > 0) {
+  if (!entries_.empty()) {
     EXPECT_EQ(dims_, dims);
     EXPECT_EQ(depth_, depth);
   }
@@ -63,7 +65,7 @@ void Series::ensureDimsDepth(int dims, int depth) {
   }
 }
 
-Series &Series::clear() {
+auto Series::clear() -> Series & {
   entries_.clear();
   data_.clear();
   dims_ = 0;
@@ -71,40 +73,42 @@ Series &Series::clear() {
   return *this;
 }
 
-Series &Series::type(enum Type type) {
+auto Series::type(enum Type type) -> Series & {
   type_ = type;
   return *this;
 }
 
-Series &Series::color(Color color) {
+auto Series::color(Color color) -> Series & {
   color_ = color;
   return *this;
 }
 
-Series &Series::dynamicColor(bool dynamic_color) {
+auto Series::dynamicColor(bool dynamic_color) -> Series & {
   dynamic_color_ = dynamic_color;
   return *this;
 }
 
-Series &Series::legend(bool legend) {
+auto Series::legend(bool legend) -> Series & {
   legend_ = legend;
   return *this;
 }
 
-Series &Series::add(const std::vector<std::pair<float, float>> &data) {
+auto Series::add(const std::vector<std::pair<double, double>> &data)
+    -> Series & {
   ensureDimsDepth(1, 1);
   for (const auto &d : data) {
-    entries_.push_back(data_.size());
+    entries_.push_back(static_cast<int>(data_.size()));
     data_.push_back(d.first);
     data_.push_back(d.second);
   }
   return *this;
 }
 
-Series &Series::add(const std::vector<std::pair<float, Point2>> &data) {
+auto Series::add(const std::vector<std::pair<double, Point2>> &data)
+    -> Series & {
   ensureDimsDepth(1, 2);
   for (const auto &d : data) {
-    entries_.push_back(data_.size());
+    entries_.push_back(static_cast<int>(data_.size()));
     data_.push_back(d.first);
     data_.push_back(d.second.x);
     data_.push_back(d.second.y);
@@ -112,10 +116,11 @@ Series &Series::add(const std::vector<std::pair<float, Point2>> &data) {
   return *this;
 }
 
-Series &Series::add(const std::vector<std::pair<float, Point3>> &data) {
+auto Series::add(const std::vector<std::pair<double, Point3>> &data)
+    -> Series & {
   ensureDimsDepth(1, 3);
   for (const auto &d : data) {
-    entries_.push_back(data_.size());
+    entries_.push_back(static_cast<int>(data_.size()));
     data_.push_back(d.first);
     data_.push_back(d.second.x);
     data_.push_back(d.second.y);
@@ -124,77 +129,81 @@ Series &Series::add(const std::vector<std::pair<float, Point3>> &data) {
   return *this;
 }
 
-Series &Series::addValue(const std::vector<float> &values) {
-  std::vector<std::pair<float, float>> data(values.size());
+auto Series::addValue(const std::vector<double> &values) -> Series & {
+  std::vector<std::pair<double, double>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
-    d.first = i + entries_.size();
+    d.first = static_cast<double>(i + entries_.size());
     d.second = values[i++];
   }
   return add(data);
 }
 
-Series &Series::addValue(const std::vector<Point2> &values) {
-  std::vector<std::pair<float, Point2>> data(values.size());
+auto Series::addValue(const std::vector<Point2> &values) -> Series & {
+  std::vector<std::pair<double, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
-    d.first = i + entries_.size();
+    d.first = static_cast<double>(i + entries_.size());
     d.second = values[i++];
   }
   return add(data);
 }
 
-Series &Series::addValue(const std::vector<Point3> &values) {
-  std::vector<std::pair<float, Point3>> data(values.size());
+auto Series::addValue(const std::vector<Point3> &values) -> Series & {
+  std::vector<std::pair<double, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
-    d.first = i + entries_.size();
+    d.first = static_cast<double>(i + entries_.size());
     d.second = values[i++];
   }
   return add(data);
 }
 
-Series &Series::add(float key, float value) {
-  return add(std::vector<std::pair<float, float>>({{key, value}}));
+auto Series::add(double key, double value) -> Series & {
+  return add(std::vector<std::pair<double, double>>({{key, value}}));
 }
 
-Series &Series::add(float key, Point2 value) {
-  return add(std::vector<std::pair<float, Point2>>({{key, value}}));
+auto Series::add(double key, Point2 value) -> Series & {
+  return add(std::vector<std::pair<double, Point2>>({{key, value}}));
 }
 
-Series &Series::add(float key, Point3 value) {
-  return add(std::vector<std::pair<float, Point3>>({{key, value}}));
+auto Series::add(double key, Point3 value) -> Series & {
+  return add(std::vector<std::pair<double, Point3>>({{key, value}}));
 }
 
-Series &Series::addValue(float value) {
-  return addValue(std::vector<float>({value}));
+auto Series::addValue(double value) -> Series & {
+  return addValue(std::vector<double>({value}));
 }
 
-Series &Series::addValue(float value_a, float value_b) {
+auto Series::addValue(double value_a, double value_b) -> Series & {
   return addValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-Series &Series::addValue(float value_a, float value_b, float value_c) {
+auto Series::addValue(double value_a, double value_b, double value_c)
+    -> Series & {
   return addValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-Series &Series::set(const std::vector<std::pair<float, float>> &data) {
+auto Series::set(const std::vector<std::pair<double, double>> &data)
+    -> Series & {
   clear();
   return add(data);
 }
 
-Series &Series::set(const std::vector<std::pair<float, Point2>> &data) {
+auto Series::set(const std::vector<std::pair<double, Point2>> &data)
+    -> Series & {
   clear();
   return add(data);
 }
 
-Series &Series::set(const std::vector<std::pair<float, Point3>> &data) {
+auto Series::set(const std::vector<std::pair<double, Point3>> &data)
+    -> Series & {
   clear();
   return add(data);
 }
 
-Series &Series::setValue(const std::vector<float> &values) {
-  std::vector<std::pair<float, float>> data(values.size());
+auto Series::setValue(const std::vector<double> &values) -> Series & {
+  std::vector<std::pair<double, double>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -203,8 +212,8 @@ Series &Series::setValue(const std::vector<float> &values) {
   return set(data);
 }
 
-Series &Series::setValue(const std::vector<Point2> &values) {
-  std::vector<std::pair<float, Point2>> data(values.size());
+auto Series::setValue(const std::vector<Point2> &values) -> Series & {
+  std::vector<std::pair<double, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -213,8 +222,8 @@ Series &Series::setValue(const std::vector<Point2> &values) {
   return set(data);
 }
 
-Series &Series::setValue(const std::vector<Point3> &values) {
-  std::vector<std::pair<float, Point3>> data(values.size());
+auto Series::setValue(const std::vector<Point3> &values) -> Series & {
+  std::vector<std::pair<double, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -223,51 +232,56 @@ Series &Series::setValue(const std::vector<Point3> &values) {
   return set(data);
 }
 
-Series &Series::set(float key, float value) {
-  return set(std::vector<std::pair<float, float>>({{key, value}}));
+auto Series::set(double key, double value) -> Series & {
+  return set(std::vector<std::pair<double, double>>({{key, value}}));
 }
 
-Series &Series::set(float key, float value_a, float value_b) {
+auto Series::set(double key, double value_a, double value_b) -> Series & {
   return set(
-      std::vector<std::pair<float, Point2>>({{key, {value_a, value_b}}}));
+      std::vector<std::pair<double, Point2>>({{key, {value_a, value_b}}}));
 }
 
-Series &Series::set(float key, float value_a, float value_b, float value_c) {
-  return set(std::vector<std::pair<float, Point3>>(
+auto Series::set(double key, double value_a, double value_b, double value_c)
+    -> Series & {
+  return set(std::vector<std::pair<double, Point3>>(
       {{key, {value_a, value_b, value_c}}}));
 }
 
-Series &Series::setValue(float value) {
-  return setValue(std::vector<float>({value}));
+auto Series::setValue(double value) -> Series & {
+  return setValue(std::vector<double>({value}));
 }
 
-Series &Series::setValue(float value_a, float value_b) {
+auto Series::setValue(double value_a, double value_b) -> Series & {
   return setValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-Series &Series::setValue(float value_a, float value_b, float value_c) {
+auto Series::setValue(double value_a, double value_b, double value_c)
+    -> Series & {
   return setValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-const std::string &Series::label() const { return label_; }
+auto Series::label() const -> const std::string & { return label_; }
 
-bool Series::legend() const { return legend_; }
+auto Series::legend() const -> bool { return legend_; }
 
-Color Series::color() const { return color_; }
+auto Series::color() const -> Color { return color_; }
 
-bool Series::collides() const {
+auto Series::collides() const -> bool {
   return type_ == Histogram || type_ == Vistogram;
 }
 
-bool Series::flipAxis() const {
+auto Series::flipAxis() const -> bool {
   return type_ == Vertical || type_ == Vistogram;
 }
 
-void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+void Series::bounds(double &x_min, double &x_max, double &y_min, double &y_max,
                     int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
-    auto xe = e, xd = dims_, ye = e + dims_,
-         yd = depth_ - (dynamic_color_ ? 1 : 0);
+    auto xe = e;
+    auto xd = dims_;
+    auto ye = e + dims_;
+    auto yd = depth_ - (dynamic_color_ ? 1 : 0);
     if (type_ == Circle) {
       yd = 1;
     }
@@ -279,7 +293,7 @@ void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
       xd = yd;
       yd = s;
     }
-    if (type_ != Horizontal) {  // TODO: check Horizontal/Vertical logic
+    if (type_ != Horizontal) {  // TODO(leo): check Horizontal/Vertical logic
       EXPECT_EQ(xd, 1);
       const auto &x = data_[xe];
       if (x_min > x) {
@@ -302,7 +316,7 @@ void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
     }
   }
   if (n_max < entries_.size()) {
-    n_max = entries_.size();
+    n_max = static_cast<int>(entries_.size());
   }
   if (type_ == Histogram || type_ == Vistogram) {
     p_max = std::max(30, p_max);
@@ -315,13 +329,14 @@ void Series::dot(void *b, int x, int y, int r) const {
              cv::LINE_AA);
 }
 
-void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
-                  float xs, float xd, float ys, float yd, float x_axis,
-                  float y_axis, int unit, float offset) const {
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+void Series::draw(void *buffer, double x_min, double x_max, double y_min,
+                  double y_max, double xs, double xd, double ys, double yd,
+                  double x_axis, double y_axis, int unit, double offset) const {
   if (dims_ == 0 || depth_ == 0) {
     return;
   }
-  Trans trans(*(cv::Mat *)b);
+  Trans trans(*static_cast<cv::Mat *>(buffer));
   auto color = color2scalar(color_);
   switch (type_) {
     case Line:
@@ -331,21 +346,28 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     case RangeLine: {
       if (type_ == FillLine) {
         bool has_last = false;
-        float last_x, last_y;
+        double last_x = NAN;
+        double last_y = NAN;
         for (const auto &e : entries_) {
-          auto x = data_[e], y = data_[e + dims_];
+          auto x = data_[e];
+          auto y = data_[e + dims_];
           if (dynamic_color_) {
             color = color2scalar(Color::cos(data_[e + dims_ + 1]));
           }
-          cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
+          cv::Point point(static_cast<int>(x * xs + xd),
+                          static_cast<int>(y * ys + yd));
           if (has_last) {
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
             cv::Point points[4] = {
                 point,
-                {point.x, (int)(y_axis * ys + yd)},
-                {(int)(last_x * xs + xd), (int)(y_axis * ys + yd)},
-                {(int)(last_x * xs + xd), (int)(last_y * ys + yd)},
+                {point.x, static_cast<int>(y_axis * ys + yd)},
+                {static_cast<int>(last_x * xs + xd),
+                 static_cast<int>(y_axis * ys + yd)},
+                {static_cast<int>(last_x * xs + xd),
+                 static_cast<int>(last_y * ys + yd)},
             };
-            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+            cv::fillConvexPoly(trans.with(color_.a / 2),
+                               static_cast<cv::Point *>(points), 4, color,
                                cv::LINE_AA);
           } else {
             has_last = true;
@@ -354,21 +376,28 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       } else if (type_ == RangeLine) {
         bool has_last = false;
-        float last_x, last_y1, last_y2;
+        double last_x = NAN;
+        double last_y1 = NAN;
+        double last_y2 = NAN;
         for (const auto &e : entries_) {
-          auto x = data_[e], y1 = data_[e + dims_ + 1],
-               y2 = data_[e + dims_ + 2];
+          auto x = data_[e];
+          auto y1 = data_[e + dims_ + 1];
+          auto y2 = data_[e + dims_ + 2];
           if (dynamic_color_) {
             color = color2scalar(Color::cos(data_[e + dims_ + 1]));
           }
           if (has_last) {
+            // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
             cv::Point points[4] = {
-                {(int)(x * xs + xd), (int)(y1 * ys + yd)},
-                {(int)(x * xs + xd), (int)(y2 * ys + yd)},
-                {(int)(last_x * xs + xd), (int)(last_y2 * ys + yd)},
-                {(int)(last_x * xs + xd), (int)(last_y1 * ys + yd)},
+                {static_cast<int>(x * xs + xd), static_cast<int>(y1 * ys + yd)},
+                {static_cast<int>(x * xs + xd), static_cast<int>(y2 * ys + yd)},
+                {static_cast<int>(last_x * xs + xd),
+                 static_cast<int>(last_y2 * ys + yd)},
+                {static_cast<int>(last_x * xs + xd),
+                 static_cast<int>(last_y1 * ys + yd)},
             };
-            cv::fillConvexPoly(trans.with(color_.a / 2), points, 4, color,
+            cv::fillConvexPoly(trans.with(color_.a / 2),
+                               static_cast<cv::Point *>(points), 4, color,
                                cv::LINE_AA);
           } else {
             has_last = true;
@@ -377,19 +406,23 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       }
       bool has_last = false;
-      float last_x, last_y;
+      double last_x = NAN;
+      double last_y = NAN;
       for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_];
+        auto x = data_[e];
+        auto y = data_[e + dims_];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
-        cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
+        cv::Point point(static_cast<int>(x * xs + xd),
+                        static_cast<int>(y * ys + yd));
         if (has_last) {
           if (type_ == DotLine || type_ == Line || type_ == FillLine ||
               type_ == RangeLine) {
             cv::line(trans.with(color_),
-                     {(int)(last_x * xs + xd), (int)(last_y * ys + yd)}, point,
-                     color, 1, cv::LINE_AA);
+                     {static_cast<int>(last_x * xs + xd),
+                      static_cast<int>(last_y * ys + yd)},
+                     point, color, 1, cv::LINE_AA);
           }
         } else {
           has_last = true;
@@ -403,22 +436,27 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     case Vistogram:
     case Histogram: {
       auto u = 2 * unit;
-      auto o = (int)(2 * u * offset);
+      auto o = static_cast<int>(2 * u * offset);
       for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_];
+        auto x = data_[e];
+        auto y = data_[e + dims_];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
         if (type_ == Histogram) {
           cv::rectangle(trans.with(color_),
-                        {(int)(x * xs + xd) - u + o, (int)(y_axis * ys + yd)},
-                        {(int)(x * xs + xd) + u + o, (int)(y * ys + yd)}, color,
-                        -1, cv::LINE_AA);
+                        {static_cast<int>(x * xs + xd) - u + o,
+                         static_cast<int>(y_axis * ys + yd)},
+                        {static_cast<int>(x * xs + xd) + u + o,
+                         static_cast<int>(y * ys + yd)},
+                        color, -1, cv::LINE_AA);
         } else if (type_ == Vistogram) {
           cv::rectangle(trans.with(color_),
-                        {(int)(x_axis * xs + xd), (int)(x * ys + yd) - u + o},
-                        {(int)(y * xs + xd), (int)(x * ys + yd) + u + o}, color,
-                        -1, cv::LINE_AA);
+                        {static_cast<int>(x_axis * xs + xd),
+                         static_cast<int>(x * ys + yd) - u + o},
+                        {static_cast<int>(y * xs + xd),
+                         static_cast<int>(x * ys + yd) + u + o},
+                        color, -1, cv::LINE_AA);
         }
       }
 
@@ -432,30 +470,42 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
         if (type_ == Horizontal) {
           cv::line(trans.with(color_),
-                   {(int)(x_min * xs + xd), (int)(y * ys + yd)},
-                   {(int)(x_max * xs + xd), (int)(y * ys + yd)}, color, 1,
-                   cv::LINE_AA);
+                   {static_cast<int>(x_min * xs + xd),
+                    static_cast<int>(y * ys + yd)},
+                   {static_cast<int>(x_max * xs + xd),
+                    static_cast<int>(y * ys + yd)},
+                   color, 1, cv::LINE_AA);
         } else if (type_ == Vertical) {
           cv::line(trans.with(color_),
-                   {(int)(y * xs + xd), (int)(y_min * ys + yd)},
-                   {(int)(y * xs + xd), (int)(y_max * ys + yd)}, color, 1,
-                   cv::LINE_AA);
+                   {static_cast<int>(y * xs + xd),
+                    static_cast<int>(y_min * ys + yd)},
+                   {static_cast<int>(y * xs + xd),
+                    static_cast<int>(y_max * ys + yd)},
+                   color, 1, cv::LINE_AA);
         }
       }
     } break;
     case Range: {
       bool has_last = false;
-      cv::Point last_a, last_b;
+      cv::Point last_a;
+      cv::Point last_b;
       for (const auto &e : entries_) {
-        auto x = data_[e], y_a = data_[e + dims_], y_b = data_[e + dims_ + 1];
+        auto x = data_[e];
+        auto y_a = data_[e + dims_];
+        auto y_b = data_[e + dims_ + 1];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 2]));
         }
-        cv::Point point_a((int)(x * xs + xd), (int)(y_a * ys + yd));
-        cv::Point point_b((int)(x * xs + xd), (int)(y_b * ys + yd));
+        cv::Point point_a(static_cast<int>(x * xs + xd),
+                          static_cast<int>(y_a * ys + yd));
+        cv::Point point_b(static_cast<int>(x * xs + xd),
+                          static_cast<int>(y_b * ys + yd));
         if (has_last) {
+          // NOLINTNEXTLINE(cppcoreguidelines-avoid-c-arrays,modernize-avoid-c-arrays)
           cv::Point points[4] = {point_a, point_b, last_b, last_a};
-          cv::fillConvexPoly(trans.with(color_), points, 4, color, cv::LINE_AA);
+          cv::fillConvexPoly(trans.with(color_),
+                             static_cast<cv::Point *>(points), 4, color,
+                             cv::LINE_AA);
         } else {
           has_last = true;
         }
@@ -464,38 +514,42 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     } break;
     case Circle: {
       for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_], r = data_[e + dims_ + 1];
+        auto x = data_[e];
+        auto y = data_[e + dims_];
+        auto r = data_[e + dims_ + 1];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 2]));
         }
-        cv::Point point((int)(x * xs + xd), (int)(y * ys + yd));
-        cv::circle(trans.with(color_), point, r, color, -1, cv::LINE_AA);
+        cv::Point point(static_cast<int>(x * xs + xd),
+                        static_cast<int>(y * ys + yd));
+        cv::circle(trans.with(color_), point, static_cast<int>(r), color, -1,
+                   cv::LINE_AA);
       }
     } break;
   }
 }
 
-Figure &Figure::clear() {
+auto Figure::clear() -> Figure & {
   series_.clear();
   return *this;
 }
 
-Figure &Figure::origin(bool x, bool y) {
+auto Figure::origin(bool x, bool y) -> Figure & {
   include_zero_x_ = x, include_zero_y_ = y;
   return *this;
 }
 
-Figure &Figure::square(bool square) {
+auto Figure::square(bool square) -> Figure & {
   aspect_square_ = square;
   return *this;
 }
 
-Figure &Figure::border(int size) {
+auto Figure::border(int size) -> Figure & {
   border_size_ = size;
   return *this;
 }
 
-Figure &Figure::alpha(int alpha) {
+auto Figure::alpha(int alpha) -> Figure & {
   background_color_ = background_color_.alpha(alpha);
   axis_color_ = axis_color_.alpha(alpha);
   sub_axis_color_ = sub_axis_color_.alpha(alpha);
@@ -503,40 +557,40 @@ Figure &Figure::alpha(int alpha) {
   return *this;
 }
 
-Figure &Figure::gridSize(int size) {
+auto Figure::gridSize(int size) -> Figure & {
   grid_size_ = size;
   return *this;
 }
 
-Figure &Figure::backgroundColor(Color color) {
+auto Figure::backgroundColor(Color color) -> Figure & {
   background_color_ = color;
   return *this;
 }
 
-Figure &Figure::axisColor(Color color) {
+auto Figure::axisColor(Color color) -> Figure & {
   axis_color_ = color;
   return *this;
 }
 
-Figure &Figure::subaxisColor(Color color) {
+auto Figure::subaxisColor(Color color) -> Figure & {
   sub_axis_color_ = color;
   return *this;
 }
 
-Figure &Figure::textColor(Color color) {
+auto Figure::textColor(Color color) -> Figure & {
   text_color_ = color;
   return *this;
 }
 
-Color Figure::backgroundColor() { return background_color_; }
+auto Figure::backgroundColor() -> Color { return background_color_; }
 
-Color Figure::axisColor() { return axis_color_; }
+auto Figure::axisColor() -> Color { return axis_color_; }
 
-Color Figure::subaxisColor() { return sub_axis_color_; }
+auto Figure::subaxisColor() -> Color { return sub_axis_color_; }
 
-Color Figure::textColor() { return text_color_; }
+auto Figure::textColor() -> Color { return text_color_; }
 
-Series &Figure::series(const std::string &label) {
+auto Figure::series(const std::string &label) -> Series & {
   for (auto &s : series_) {
     if (s.label() == label) {
       return s;
@@ -547,9 +601,10 @@ Series &Figure::series(const std::string &label) {
   return series_.back();
 }
 
-void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
-                  int n_max, int p_max) const {
-  auto &buffer = *(cv::Mat *)b;
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
+void Figure::draw(void *b, double x_min, double x_max, double y_min,
+                  double y_max, int n_max, int p_max) const {
+  auto &buffer = *static_cast<cv::Mat *>(b);
   Trans trans(b);
 
   // draw background and sub axis square
@@ -565,7 +620,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   auto h_plot = buffer.rows - 2 * border_size_;
 
   // add padding inside graph (histograms get extra)
-  if (p_max) {
+  if (p_max != 0) {
     auto dx = p_max * (x_max - x_min) / w_plot;
     auto dy = p_max * (y_max - y_min) / h_plot;
     x_min -= dx;
@@ -588,8 +643,8 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   }
 
   // calc where to draw axis
-  auto x_axis = std::max(x_min, std::min(x_max, 0.f));
-  auto y_axis = std::max(y_min, std::min(y_max, 0.f));
+  auto x_axis = std::max(x_min, std::min(x_max, 0.));
+  auto y_axis = std::max(y_min, std::min(y_max, 0.));
 
   // calc sub axis grid size
   auto x_grid =
@@ -601,68 +656,74 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
 
   // calc affine transform value space to plot space
   auto xs = (x_max != x_min ? (buffer.cols - 2 * border_size_) / (x_max - x_min)
-                            : 1.f);
+                            : 1.);
   auto xd = border_size_ - x_min * xs;
   auto ys = (y_max != y_min ? (buffer.rows - 2 * border_size_) / (y_min - y_max)
-                            : 1.f);
+                            : 1.);
   auto yd = buffer.rows - y_min * ys - border_size_;
 
   // safe unit for showing points
   auto unit =
-      std::max(1, ((int)std::min(buffer.cols, buffer.rows) - 2 * border_size_) /
+      std::max(1, (static_cast<int>(std::min(buffer.cols, buffer.rows)) -
+                   2 * border_size_) /
                       n_max / 10);
 
   // draw sub axis
   for (int i = ceil(x_min / x_grid), e = floor(x_max / x_grid); i <= e; i++) {
     auto x = i * x_grid;
-    cv::line(trans.with(sub_axis_color_), {(int)(x * xs + xd), border_size_},
-             {(int)(x * xs + xd), buffer.rows - border_size_},
+    cv::line(trans.with(sub_axis_color_),
+             {static_cast<int>(x * xs + xd), border_size_},
+             {static_cast<int>(x * xs + xd), buffer.rows - border_size_},
              color2scalar(sub_axis_color_), 1, cv::LINE_AA);
   }
   for (int i = ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e; i++) {
     auto y = i * y_grid;
-    cv::line(trans.with(sub_axis_color_), {border_size_, (int)(y * ys + yd)},
-             {buffer.cols - border_size_, (int)(y * ys + yd)},
+    cv::line(trans.with(sub_axis_color_),
+             {border_size_, static_cast<int>(y * ys + yd)},
+             {buffer.cols - border_size_, static_cast<int>(y * ys + yd)},
              color2scalar(sub_axis_color_), 1, cv::LINE_AA);
   }
   if (std::abs(x_grid * xs) < 30) {
-    x_grid *= std::ceil(30.f / std::abs(x_grid * xs));
+    x_grid *= std::ceil(30. / std::abs(x_grid * xs));
   }
   for (int i = std::ceil(x_min / x_grid), e = floor(x_max / x_grid); i <= e;
        i++) {
     auto x = i * x_grid;
     std::ostringstream out;
     out << std::setprecision(4) << (x == 0 ? 0 : x);
-    int baseline;
+    int baseline = 0;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
-    cv::Point org(x * xs + xd - size.width / 2,
-                  buffer.rows - border_size_ + 5 + size.height);
-    cv::putText(trans.with(text_color_), out.str().c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1., &baseline);
+    cv::Point org(static_cast<int>(x * xs + xd - size.width / 2),
+                  (buffer.rows - border_size_ + 5 + size.height));
+    cv::putText(trans.with(text_color_), out.str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.);
   }
   if (std::abs(y_grid * ys) < 20) {
-    y_grid *= std::ceil(20.f / std::abs(y_grid * ys));
+    y_grid *= std::ceil(20. / std::abs(y_grid * ys));
   }
   for (int i = std::ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e;
        i++) {
     auto y = i * y_grid;
     std::ostringstream out;
     out << std::setprecision(4) << (y == 0 ? 0 : y);
-    int baseline;
+    int baseline = 0;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
-    cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
-    cv::putText(trans.with(text_color_), out.str().c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1., &baseline);
+    cv::Point org(border_size_ - 5 - size.width,
+                  static_cast<int>(y * ys + yd + size.height / 2));
+    cv::putText(trans.with(text_color_), out.str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.);
   }
 
   // draw axis
-  cv::line(trans.with(axis_color_), {border_size_, (int)(y_axis * ys + yd)},
-           {buffer.cols - border_size_, (int)(y_axis * ys + yd)},
+  cv::line(trans.with(axis_color_),
+           {border_size_, static_cast<int>(y_axis * ys + yd)},
+           {buffer.cols - border_size_, static_cast<int>(y_axis * ys + yd)},
            color2scalar(axis_color_), 1, cv::LINE_AA);
-  cv::line(trans.with(axis_color_), {(int)(x_axis * xs + xd), border_size_},
-           {(int)(x_axis * xs + xd), buffer.rows - border_size_},
+  cv::line(trans.with(axis_color_),
+           {static_cast<int>(x_axis * xs + xd), border_size_},
+           {static_cast<int>(x_axis * xs + xd), buffer.rows - border_size_},
            color2scalar(axis_color_), 1, cv::LINE_AA);
 
   // draw plot
@@ -672,13 +733,14 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
       index++;
     }
   }
-  std::max((int)series_.size() - 1, 1);
+  std::max(static_cast<int>(series_.size()) - 1, 1);
   for (auto s = series_.rbegin(); s != series_.rend(); ++s) {
     if (s->collides()) {
       index--;
     }
     s->draw(&trans.with(s->color()), x_min, x_max, y_min, y_max, xs, xd, ys, yd,
-            x_axis, y_axis, unit, (float)index / series_.size());
+            x_axis, y_axis, unit,
+            static_cast<double>(index) / static_cast<double>(series_.size()));
   }
 
   // draw label names
@@ -688,32 +750,32 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
       continue;
     }
     auto name = s.label();
-    int baseline;
+    int baseline = 0;
     cv::Size size =
-        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4f, 1.f, &baseline);
+        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4, 1., &baseline);
     cv::Point org(buffer.cols - border_size_ - size.width - 17,
                   border_size_ + 15 * index + 15);
     auto shadow = true;
-    cv::putText(trans.with(background_color_), name.c_str(),
+    cv::putText(trans.with(background_color_), name,
                 {org.x + (shadow ? 1 : 0), org.y + (shadow ? 1 : 0)},
-                cv::FONT_HERSHEY_SIMPLEX, 0.4f, color2scalar(background_color_),
-                (shadow ? 1.f : 2.f));
+                cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(background_color_),
+                (shadow ? 1 : 2));
     cv::circle(trans.with(background_color_),
                {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
                color2scalar(background_color_), -1, cv::LINE_AA);
-    cv::putText(trans.with(text_color_), name.c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.4f, color2scalar(text_color_), 1.f);
+    cv::putText(trans.with(text_color_), name, org, cv::FONT_HERSHEY_SIMPLEX,
+                0.4, color2scalar(text_color_), 1.);
     s.dot(&trans.with(s.color()), buffer.cols - border_size_ - 10, org.y - 3,
           3);
     index++;
   }
 }
 
-int Figure::drawFit(void *buffer) const {
-  auto x_min = (include_zero_x_ ? 0.f : FLT_MAX);
-  auto x_max = (include_zero_x_ ? 0.f : FLT_MIN);
-  auto y_min = (include_zero_y_ ? 0.f : FLT_MAX);
-  auto y_max = (include_zero_y_ ? 0.f : FLT_MIN);
+auto Figure::drawFit(void *buffer) const -> int {
+  auto x_min = (include_zero_x_ ? 0. : FLT_MAX);
+  auto x_max = (include_zero_x_ ? 0. : FLT_MIN);
+  auto y_min = (include_zero_y_ ? 0. : FLT_MAX);
+  auto y_max = (include_zero_y_ ? 0. : FLT_MIN);
   auto n_max = 0;
   auto p_max = grid_padding_;
 
@@ -723,17 +785,17 @@ int Figure::drawFit(void *buffer) const {
     s.bounds(x_min, x_max, y_min, y_max, n_max, p_max);
   }
 
-  if (n_max) {
+  if (n_max != 0) {
     draw(buffer, x_min, x_max, y_min, y_max, n_max, p_max);
   }
 
   return n_max;
 }
 
-bool Figure::drawFile(const std::string &filename, Size size) const {
+auto Figure::drawFile(const std::string &filename, Size size) const -> bool {
   cv::Mat mat(cv::Size(size.width, size.height), CV_8UC3);
   int n_max = drawFit(&mat);
-  if (n_max) {
+  if (n_max != 0) {
     std::vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(9);
@@ -744,10 +806,10 @@ bool Figure::drawFile(const std::string &filename, Size size) const {
 
 void Figure::show(bool flush) const {
   Rect rect(0, 0, 0, 0);
-  auto &buffer = *(cv::Mat *)view_.buffer(rect);
+  auto &buffer = *static_cast<cv::Mat *>(view_.buffer(rect));
   auto sub = buffer({rect.x, rect.y, rect.width, rect.height});
   int n_max = drawFit(&sub);
-  if (n_max) {
+  if (n_max != 0) {
     view_.finish();
     if (flush) {
       view_.flush();
@@ -755,9 +817,9 @@ void Figure::show(bool flush) const {
   }
 }
 
-Figure &figure(const std::string &name) {
+auto figure(const std::string &name) -> Figure & {
   if (shared_figures_.count(name) == 0) {
-    auto &view = Window::current().view(name.c_str());
+    auto &view = Window::current().view(name);
     shared_figures_.insert(
         std::map<std::string, Figure>::value_type(name, Figure(view)));
   }

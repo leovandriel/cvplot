@@ -4,9 +4,9 @@
 
 namespace cvplot {
 
-int createTrackbar(const std::string &trackbarname, const std::string &winname,
-                   int *value, int count, TrackbarCallback onChange,
-                   void *userdata) {
+auto createTrackbar(const std::string &trackbarname, const std::string &winname,
+                    int *value, int count, TrackbarCallback onChange,
+                    void *userdata) -> int {
   return cv::createTrackbar(trackbarname, winname, value, count, onChange,
                             userdata);
 }
@@ -17,7 +17,7 @@ void destroyWindow(const std::string &view) {
   Window::current().view(view).hide();
 }
 
-int getMouseWheelDelta(int flags) {
+auto getMouseWheelDelta(int flags) -> int {
 #if CV_MAJOR_VERSION > 2
   return cv::getMouseWheelDelta(flags);
 #else
@@ -25,12 +25,12 @@ int getMouseWheelDelta(int flags) {
 #endif
 }
 
-int getTrackbarPos(const std::string &trackbarname,
-                   const std::string &winname) {
+auto getTrackbarPos(const std::string &trackbarname, const std::string &winname)
+    -> int {
   return cv::getTrackbarPos(trackbarname, winname);
 }
 
-double getWindowProperty(const std::string &winname, int prop_id) {
+auto getWindowProperty(const std::string &winname, int prop_id) -> double {
   return cv::getWindowProperty(winname, prop_id);
 }
 
@@ -44,7 +44,7 @@ void moveWindow(const std::string &view, int x, int y) {
   Window::current().view(view).offset({x, y});
 }
 
-void namedWindow(const std::string &view, int flags) {
+void namedWindow(const std::string &view, int /*flags*/) {
   Window::current().view(view);
 }
 
@@ -54,39 +54,6 @@ void resizeWindow(const std::string &view, int width, int height) {
 
 void resizeWindow(const std::string &view, const Size &size) {
   Window::current().view(view).size({size.width, size.height});
-}
-
-Rect selectROI(const std::string &windowName, void *img, bool showCrosshair,
-               bool fromCenter) {
-#if CV_MAJOR_VERSION > 2
-  auto rect =
-      cv::selectROI(windowName, (cv::InputArray)img, showCrosshair, fromCenter);
-  return Rect(rect.x, rect.y, rect.width, rect.height);
-#else
-  return Rect(-1, -1, -1, -1);
-#endif
-}
-
-Rect selectROI(void *img, bool showCrosshair, bool fromCenter) {
-#if CV_MAJOR_VERSION > 2
-  auto rect = cv::selectROI((cv::InputArray)img, showCrosshair, fromCenter);
-  return Rect(rect.x, rect.y, rect.width, rect.height);
-#else
-  return Rect(-1, -1, -1, -1);
-#endif
-}
-
-void selectROIs(const std::string &windowName, void *img,
-                std::vector<Rect> &boundingBoxes, bool showCrosshair,
-                bool fromCenter) {
-#if CV_MAJOR_VERSION > 2
-  std::vector<cv::Rect> boxes;
-  for (auto b : boundingBoxes) {
-    boxes.push_back(cv::Rect(b.x, b.y, b.width, b.height));
-  }
-  cv::selectROIs(windowName, (cv::InputArray)img, boxes, showCrosshair,
-                 fromCenter);
-#endif
 }
 
 void setMouseCallback(const std::string &view, MouseCallback onMouse,
@@ -122,10 +89,10 @@ void setWindowTitle(const std::string &view, const std::string &title) {
   Window::current().view(view).title(title);
 }
 
-int startWindowThread() { return cv::startWindowThread(); }
+auto startWindowThread() -> int { return cv::startWindowThread(); }
 
-int waitKey(int delay) { return Util::key(delay); }
+auto waitKey(int delay) -> int { return Util::key(delay); }
 
-int waitKeyEx(int delay) { return Util::key(delay); }
+auto waitKeyEx(int delay) -> int { return Util::key(delay); }
 
 }  // namespace cvplot
