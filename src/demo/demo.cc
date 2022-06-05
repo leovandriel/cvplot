@@ -9,7 +9,7 @@ auto randFloat() -> float {
 }
 
 void example() {
-  cvplot::figure("myplot").series("myline").addValue({1.f, 3.f, 2.f, 5.f, 4.f});
+  cvplot::figure("myplot").series("myline").addValue({1.F, 3.F, 2.F, 5.F, 4.F});
   cvplot::figure("myplot").show();
 }
 
@@ -20,24 +20,24 @@ void demo() {
   cvplot::Window::current("cvplot demo").offset({60, 100});
 
   {
-    auto name = "simple";
+    const auto *name = "simple";
     cvplot::setWindowTitle(name, "line and histogram");
     cvplot::moveWindow(name, 0, 0);
     cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("line")
-        .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
+        .setValue({1.F, 2.F, 3.F, 4.F, 5.F})
         .type(cvplot::DotLine)
         .color(cvplot::Blue);
     figure.series("histogram")
-        .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
+        .setValue({1.F, 2.F, 3.F, 4.F, 5.F})
         .type(cvplot::Histogram)
         .color(cvplot::Red);
     figure.show(false);
   }
 
   {
-    auto name = "math";
+    const auto *name = "math";
     cvplot::setWindowTitle(name, "math curves");
     cvplot::moveWindow(name, 300, 0);
     cvplot::resizeWindow(name, 300, 300);
@@ -52,7 +52,7 @@ void demo() {
         .color(cvplot::Green);
     values.clear();
     for (auto i = 0; i <= 10; i++) {
-      values.push_back(sin(i / 1.5f) * 5);
+      values.push_back(sin(i / 1.5F) * 5);
     }
     figure.series("sine")
         .setValue(values)
@@ -68,20 +68,20 @@ void demo() {
   }
 
   {
-    auto name = "scatter";
+    const auto *name = "scatter";
     cvplot::setWindowTitle(name, "scatter plots");
     cvplot::moveWindow(name, 600, 0);
     cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.emplace_back(randFloat() * 10.f, randFloat() * 10.f);
+      data.emplace_back(randFloat() * 10.F, randFloat() * 10.F);
     }
     figure.series("uniform").set(data).type(cvplot::Dots).color(cvplot::Orange);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.emplace_back(exp(randFloat() * 3.33f) - 1,
-                        exp(randFloat() * 3.33f) - 1);
+      data.emplace_back(exp(randFloat() * 3.33F) - 1,
+                        exp(randFloat() * 3.33F) - 1);
     }
     figure.series("exponential")
         .set(data)
@@ -91,28 +91,28 @@ void demo() {
   }
 
   {
-    auto name = "histograms";
+    const auto *name = "histograms";
     cvplot::setWindowTitle(name, "multiple histograms");
     cvplot::moveWindow(name, 0, 300);
     cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.series("1")
-        .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
+        .setValue({1.F, 2.F, 3.F, 4.F, 5.F})
         .type(cvplot::Histogram)
         .color(cvplot::Blue.alpha(201));
     figure.series("2")
-        .setValue({6.f, 5.f, 4.f, 3.f, 2.f, 1.f})
+        .setValue({6.F, 5.F, 4.F, 3.F, 2.F, 1.F})
         .type(cvplot::Histogram)
         .color(cvplot::Green.alpha(201));
     figure.series("3")
-        .setValue({3.f, 1.f, -1.f, 1.f, 3.f, 7.f})
+        .setValue({3.F, 1.F, -1.F, 1.F, 3.F, 7.F})
         .type(cvplot::Histogram)
         .color(cvplot::Red.alpha(201));
     figure.show(false);
   }
 
   {
-    auto name = "parametric";
+    const auto *name = "parametric";
     cvplot::setWindowTitle(name, "parametric plots");
     cvplot::moveWindow(name, 0, 600);
     cvplot::resizeWindow(name, 300, 300);
@@ -120,41 +120,41 @@ void demo() {
     figure.square(true);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.emplace_back(cos(i * .0628f + 4) * 2, sin(i * .0628f + 4) * 2);
+      data.emplace_back(cos(i * .0628F + 4) * 2, sin(i * .0628F + 4) * 2);
     }
     figure.series("circle").add(data);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.emplace_back(cos(i * .2513f + 1), sin(i * .0628f + 4));
+      data.emplace_back(cos(i * .2513F + 1), sin(i * .0628F + 4));
     }
     figure.series("lissajous").add(data);
     figure.show(false);
   }
 
   {
-    auto name = "no-axis";
+    const auto *name = "no-axis";
     cvplot::setWindowTitle(name, "hidden axis");
     cvplot::moveWindow(name, 600, 600);
     cvplot::resizeWindow(name, 300, 300);
     auto &figure = cvplot::figure(name);
     figure.origin(false, false);
     figure.series("histogram")
-        .setValue({4.f, 5.f, 7.f, 6.f})
+        .setValue({4.F, 5.F, 7.F, 6.F})
         .type(cvplot::Vistogram)
         .color(cvplot::Blue);
     figure.series("min")
-        .setValue(4.f)
+        .setValue(4.F)
         .type(cvplot::Vertical)
         .color(cvplot::Pink);
     figure.series("max")
-        .setValue(7.f)
+        .setValue(7.F)
         .type(cvplot::Vertical)
         .color(cvplot::Purple);
     figure.show(false);
   }
 
   {
-    auto name = "colors";
+    const auto *name = "colors";
     cvplot::setWindowTitle(name, "auto color");
     cvplot::moveWindow(name, 900, 0);
     cvplot::resizeWindow(name, 300, 300);
@@ -170,7 +170,7 @@ void demo() {
   }
 
   {
-    auto name = "fill";
+    const auto *name = "fill";
     cvplot::setWindowTitle(name, "filled line");
     cvplot::moveWindow(name, 900, 0);
     cvplot::resizeWindow(name, 300, 300);
@@ -179,16 +179,16 @@ void demo() {
     figure.series("fossil").type(cvplot::FillLine).color(cvplot::Orange);
     figure.series("electric")
         .type(cvplot::FillLine)
-        .color(cvplot::Green.gamma(.5f));
+        .color(cvplot::Green.gamma(.5F));
     for (auto i = 0; i < 16; i++) {
-      figure.series("fossil").addValue(10 - i + 10.f * randFloat());
-      figure.series("electric").addValue(i - 10 + 10.f * randFloat());
+      figure.series("fossil").addValue(10 - i + 10.F * randFloat());
+      figure.series("electric").addValue(i - 10 + 10.F * randFloat());
     }
     figure.show(false);
   }
 
   {
-    auto name = "range";
+    const auto *name = "range";
     cvplot::setWindowTitle(name, "range plot");
     cvplot::moveWindow(name, 900, 300);
     cvplot::resizeWindow(name, 300, 300);
@@ -198,19 +198,19 @@ void demo() {
     figure.series("pears").type(cvplot::RangeLine).color(cvplot::Sky);
     for (auto i = 0; i <= 10; i++) {
       float v = (i - 4) * (i - 4) - 6;
-      figure.series("apples").addValue(v + 10.f + 5.f * randFloat(),
-                                       v + 5.f * randFloat(),
-                                       v + 20.f + 5.f * randFloat());
+      figure.series("apples").addValue(v + 10.F + 5.F * randFloat(),
+                                       v + 5.F * randFloat(),
+                                       v + 20.F + 5.F * randFloat());
       v = -(i - 6) * (i - 6) + 30;
-      figure.series("pears").addValue(v + 10.f + 5.f * randFloat(),
-                                      v + 5.f * randFloat(),
-                                      v + 20.f + 5.f * randFloat());
+      figure.series("pears").addValue(v + 10.F + 5.F * randFloat(),
+                                      v + 5.F * randFloat(),
+                                      v + 20.F + 5.F * randFloat());
     }
     figure.show(false);
   }
 
   {
-    auto name = "balls";
+    const auto *name = "balls";
     cvplot::setWindowTitle(name, "transparent circles");
     cvplot::moveWindow(name, 300, 600);
     cvplot::resizeWindow(name, 300, 300);
@@ -220,22 +220,22 @@ void demo() {
         .color(cvplot::Purple.alpha(192));
     figure.series("aqua").type(cvplot::Circle).color(cvplot::Aqua.alpha(193));
     for (auto i = 0; i <= 20; i++) {
-      figure.series("purple").add(randFloat() * 10.f,
-                                  {randFloat() * 10.f, randFloat() * 20.f});
-      figure.series("aqua").add(randFloat() * 10.f,
-                                {randFloat() * 10.f, randFloat() * 20.f});
+      figure.series("purple").add(randFloat() * 10.F,
+                                  {randFloat() * 10.F, randFloat() * 20.F});
+      figure.series("aqua").add(randFloat() * 10.F,
+                                {randFloat() * 10.F, randFloat() * 20.F});
     }
     figure.show(false);
   }
 
   {
-    auto name = "image";
+    const auto *name = "image";
     cvplot::setWindowTitle(name, "image and text");
     cvplot::moveWindow(name, 900, 600);
     cvplot::resizeWindow(name, 300, 300);
     auto &view = cvplot::Window::current().view(name);
     auto image = cv::imread("res/demo.jpg");
-    if (image.data) {
+    if (image.data != nullptr) {
       cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
       view.drawImage(&image);
     }
@@ -244,7 +244,7 @@ void demo() {
   }
 
   {
-    auto name = "dynamic";
+    const auto *name = "dynamic";
     cvplot::setWindowTitle(name, "dynamic plotting");
     cvplot::moveWindow(name, 300, 300);
     cvplot::resizeWindow(name, 600, 300);
@@ -252,7 +252,12 @@ void demo() {
     auto &figure = cvplot::figure(name);
     figure.square(true);
     figure.origin(false, false);
-    auto x = 0.f, y = 0.f, dx = 1.f, dy = 0.f, f = 0.f, df = 0.f;
+    auto x = 0.F;
+    auto y = 0.F;
+    auto dx = 1.F;
+    auto dy = 0.F;
+    auto f = 0.F;
+    auto df = 0.F;
     figure.series("random").dynamicColor(true).legend(false);
     clock_t time = 0;
     for (int i = 0; i < 1000; i++) {
@@ -261,17 +266,17 @@ void demo() {
       auto l = sqrt((dx * dx + dy * dy) * (f * f + 1)) * 10;
       dx = (dx + f * dy) / l;
       dy = (dy - f * dx) / l;
-      f = (f + df) * 0.8f;
-      df = (df + randFloat() * .11f - .05f) * 0.8f;
-      figure.series("random").add(x += dx, {y += dy, i / 10.f});
+      f = (f + df) * 0.8F;
+      df = (df + randFloat() * .11F - .05F) * 0.8F;
+      figure.series("random").add(x += dx, {y += dy, i / 10.F});
       figure.show(false);
       auto string = std::to_string(fps).substr(0, 4) + " fps  " +
-                    std::to_string(i / 10.f).substr(0, 4) + "%";
+                    std::to_string(i / 10.F).substr(0, 4) + "%";
       view.drawText(string, {480, 277}, cvplot::Gray);
       view.finish();
       view.flush();
     }
-    view.drawTextShadow("Press any key to exit", {70, 130}, cvplot::Red, 40.f);
+    view.drawTextShadow("Press any key to exit", {70, 130}, cvplot::Red, 40.F);
     view.flush();
   }
 }
@@ -279,26 +284,44 @@ void demo() {
 void mouse_callback(int event, int x, int y, int flags, void *param) {
   auto &view = *static_cast<cvplot::View *>(param);
   std::ostringstream stream;
-  if (event == cv::EVENT_MOUSEMOVE) stream << "mousemove";
-  if (event == cv::EVENT_LBUTTONDOWN) stream << "lbuttondown";
-  if (event == cv::EVENT_RBUTTONDOWN) stream << "rbuttondown";
-  if (event == cv::EVENT_MBUTTONDOWN) stream << "mbuttondown";
-  if (event == cv::EVENT_LBUTTONUP) stream << "lbuttonup";
-  if (event == cv::EVENT_RBUTTONUP) stream << "rbuttonup";
-  if (event == cv::EVENT_MBUTTONUP) stream << "mbuttonup";
-  if (event == cv::EVENT_LBUTTONDBLCLK) stream << "lbuttondblclk";
-  if (event == cv::EVENT_RBUTTONDBLCLK) stream << "rbuttondblclk";
-  if (event == cv::EVENT_MBUTTONDBLCLK) stream << "mbuttondblclk";
+  if (event == cv::EVENT_MOUSEMOVE) { stream << "mousemove";
+}
+  if (event == cv::EVENT_LBUTTONDOWN) { stream << "lbuttondown";
+}
+  if (event == cv::EVENT_RBUTTONDOWN) { stream << "rbuttondown";
+}
+  if (event == cv::EVENT_MBUTTONDOWN) { stream << "mbuttondown";
+}
+  if (event == cv::EVENT_LBUTTONUP) { stream << "lbuttonup";
+}
+  if (event == cv::EVENT_RBUTTONUP) { stream << "rbuttonup";
+}
+  if (event == cv::EVENT_MBUTTONUP) { stream << "mbuttonup";
+}
+  if (event == cv::EVENT_LBUTTONDBLCLK) { stream << "lbuttondblclk";
+}
+  if (event == cv::EVENT_RBUTTONDBLCLK) { stream << "rbuttondblclk";
+}
+  if (event == cv::EVENT_MBUTTONDBLCLK) { stream << "mbuttondblclk";
+}
 #if CV_MAJOR_VERSION > 2
-  if (event == cv::EVENT_MOUSEWHEEL) stream << "mousewheel";
-  if (event == cv::EVENT_MOUSEHWHEEL) stream << "mousehwheel";
+  if (event == cv::EVENT_MOUSEWHEEL) { stream << "mousewheel";
+}
+  if (event == cv::EVENT_MOUSEHWHEEL) { stream << "mousehwheel";
+}
 #endif
-  if (flags & cv::EVENT_FLAG_LBUTTON) stream << " lbutton";
-  if (flags & cv::EVENT_FLAG_RBUTTON) stream << " rbutton";
-  if (flags & cv::EVENT_FLAG_MBUTTON) stream << " mbutton";
-  if (flags & cv::EVENT_FLAG_CTRLKEY) stream << " ctrlkey";
-  if (flags & cv::EVENT_FLAG_SHIFTKEY) stream << " shiftkey";
-  if (flags & cv::EVENT_FLAG_ALTKEY) stream << " altkey";
+  if ((flags & cv::EVENT_FLAG_LBUTTON) != 0) { stream << " lbutton";
+}
+  if ((flags & cv::EVENT_FLAG_RBUTTON) != 0) { stream << " rbutton";
+}
+  if ((flags & cv::EVENT_FLAG_MBUTTON) != 0) { stream << " mbutton";
+}
+  if ((flags & cv::EVENT_FLAG_CTRLKEY) != 0) { stream << " ctrlkey";
+}
+  if ((flags & cv::EVENT_FLAG_SHIFTKEY) != 0) { stream << " shiftkey";
+}
+  if ((flags & cv::EVENT_FLAG_ALTKEY) != 0) { stream << " altkey";
+}
   stream << "  " << x << "," << y;
   view.drawRect({10, 24, 280, 12}, cvplot::Light);
   view.drawText(stream.str(), {10, 25}, cvplot::Black);
@@ -314,7 +337,7 @@ void transparency() {
   cvplot::paleness = 32;
 
   {
-    auto name = "opaque";
+    const auto *name = "opaque";
     cvplot::setWindowTitle(name, "opaque");
     cvplot::moveWindow(name, 0, 0);
     cvplot::resizeWindow(name, 300, 300);
@@ -322,7 +345,7 @@ void transparency() {
     cvplot::Window::current().view(name).frameColor(cvplot::Sky);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
-        .setValue({1.f, 2.f, 3.f, 4.f, 5.f})
+        .setValue({1.F, 2.F, 3.F, 4.F, 5.F})
         .type(cvplot::Histogram)
         .color(cvplot::Red)
         .legend(false);
@@ -330,7 +353,7 @@ void transparency() {
   }
 
   {
-    auto name = "transparent";
+    const auto *name = "transparent";
     auto alpha = 200;
     cvplot::setWindowTitle(name, "transparent");
     cvplot::moveWindow(name, 100, 100);
@@ -339,7 +362,7 @@ void transparency() {
     cvplot::Window::current().view(name).frameColor(cvplot::Sky).alpha(alpha);
     auto &figure = cvplot::figure(name);
     figure.series("histogram")
-        .setValue({5.f, 4.f, 3.f, 2.f, 1.f})
+        .setValue({5.F, 4.F, 3.F, 2.F, 1.F})
         .type(cvplot::Histogram)
         .color(cvplot::Blue.alpha(alpha))
         .legend(false);

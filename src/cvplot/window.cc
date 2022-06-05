@@ -108,14 +108,14 @@ void View::drawRect(Rect rect, Color color) {
 void View::drawText(const std::string &text, Offset offset, Color color,
                     float height) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
-  auto scale = height / 30.f;
-  auto thickness = height / 12.f;
+  auto scale = height / 30.F;
+  auto thickness = height / 12.F;
   int baseline = 0;
   cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
   Trans trans(window_.buffer());
-  cv::putText(trans.with(color), text.c_str(), org, face, scale,
-              color2scalar(color), thickness);
+  cv::putText(trans.with(color), text, org, face, scale, color2scalar(color),
+              thickness);
   window_.dirty();
 }
 
@@ -140,15 +140,15 @@ void View::drawFrame(const std::string &title) const {
                 color2scalar(frame_color_), -1);
   int baseline = 0;
   cv::Size size =
-      getTextSize(title.c_str(), cv::FONT_HERSHEY_PLAIN, 1.f, 1.f, &baseline);
-  cv::putText(trans.with(text_color_), title.c_str(),
+      getTextSize(title, cv::FONT_HERSHEY_PLAIN, 1.F, 1.F, &baseline);
+  cv::putText(trans.with(text_color_), title,
               {rect_.x + 2 + (rect_.width - size.width) / 2, rect_.y + 14},
-              cv::FONT_HERSHEY_PLAIN, 1.f, color2scalar(text_color_), 1.f);
+              cv::FONT_HERSHEY_PLAIN, 1.F, color2scalar(text_color_), 1.F);
   window_.dirty();
 }
 
 void View::drawImage(const void *image, int alpha) {
-  auto &img = *static_cast<const cv::Mat *>(image);
+  const auto &img = *static_cast<const cv::Mat *>(image);
   if (rect_.width == 0 && rect_.height == 0) {
     rect_.width = img.cols;
     rect_.height = img.rows;
@@ -190,7 +190,7 @@ void View::finish() {
 
 void View::flush() { window_.flush(); }
 
-auto View::has(Offset offset) -> bool {
+auto View::has(Offset offset) const -> bool {
   return offset.x >= rect_.x && offset.y >= rect_.y &&
          offset.x < rect_.x + rect_.width && offset.y < rect_.y + rect_.height;
 }
@@ -296,7 +296,7 @@ void Window::onmouse(int event, int x, int y, int flags) {
 
 void Window::flush() {
   if (dirty_ && buffer_ != nullptr) {
-    auto b = static_cast<cv::Mat *>(buffer_);
+    auto *b = static_cast<cv::Mat *>(buffer_);
     if (b->cols > 0 && b->rows > 0) {
       cv::Mat mat;
       if (show_cursor_) {
@@ -315,8 +315,8 @@ void Window::flush() {
 #if CV_MAJOR_VERSION > 2
       cv::setWindowTitle(name_, title_);
 #endif
-      cv::imshow(name_.c_str(), *b);
-      cv::setMouseCallback(name_.c_str(), mouse_callback, this);
+      cv::imshow(name_, *b);
+      cv::setMouseCallback(name_, mouse_callback, this);
       Util::sleep();
     }
   }
@@ -333,7 +333,7 @@ auto Window::view(const std::string &name, Size size) -> View & {
 }
 
 void Window::tick() {
-  if (fps_ > 0 && (runtime() - flush_time_) > 1.f / fps_) {
+  if (fps_ > 0 && (runtime() - flush_time_) > 1.F / fps_) {
     flush();
   }
 }
@@ -344,7 +344,7 @@ void Window::hide(bool hidden) {
   if (hidden_ != hidden) {
     hidden_ = hidden;
     if (hidden) {
-      cv::destroyWindow(name_.c_str());
+      cv::destroyWindow(name_);
     } else {
       dirty();
       flush();
@@ -387,7 +387,8 @@ auto Util::line(float timeout) -> std::string {
     }
     if (key == '\r' || key <= '\n') {
       break;
-    } else if (key == '\b' || key == 127) {
+    }
+    if (key == '\b' || key == 127) {
       auto s = stream.str();
       stream = std::stringstream();
       if (s.length() > 0) {

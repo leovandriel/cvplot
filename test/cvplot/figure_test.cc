@@ -13,9 +13,9 @@ TEST(FigureTest, Init) {
 }
 
 TEST(FigureTest, File) {
-  auto filename = "test/figure.png";
+  const auto *filename = "test/figure.png";
   auto f = figure("test-figure");
-  f.series("test-series").addValue({1.f, 3.f, 2.f, 5.f, 4.f});
+  f.series("test-series").addValue({1.F, 3.F, 2.F, 5.F, 4.F});
   auto result = f.drawFile(filename, {500, 500});
   EXPECT_EQ(result, true);
   EXPECT_EQ(remove(filename), 0);

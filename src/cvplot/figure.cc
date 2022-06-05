@@ -41,7 +41,7 @@ void Series::verifyParams() const {
   if (dynamic_color_) {
     depth += 1;
   }
-  if (entries_.size() > 0) {
+  if (!entries_.empty()) {
     EXPECT_EQ(dims_, dims);
     EXPECT_EQ(depth_, depth);
   }
@@ -272,8 +272,10 @@ auto Series::flipAxis() const -> bool {
 void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
                     int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
-    auto xe = e, xd = dims_, ye = e + dims_,
-         yd = depth_ - (dynamic_color_ ? 1 : 0);
+    auto xe = e;
+    auto xd = dims_;
+    auto ye = e + dims_;
+    auto yd = depth_ - (dynamic_color_ ? 1 : 0);
     if (type_ == Circle) {
       yd = 1;
     }
@@ -337,9 +339,11 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     case RangeLine: {
       if (type_ == FillLine) {
         bool has_last = false;
-        float last_x = NAN, last_y = NAN;
+        float last_x = NAN;
+        float last_y = NAN;
         for (const auto &e : entries_) {
-          auto x = data_[e], y = data_[e + dims_];
+          auto x = data_[e];
+          auto y = data_[e + dims_];
           if (dynamic_color_) {
             color = color2scalar(Color::cos(data_[e + dims_ + 1]));
           }
@@ -364,10 +368,13 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       } else if (type_ == RangeLine) {
         bool has_last = false;
-        float last_x = NAN, last_y1 = NAN, last_y2 = NAN;
+        float last_x = NAN;
+        float last_y1 = NAN;
+        float last_y2 = NAN;
         for (const auto &e : entries_) {
-          auto x = data_[e], y1 = data_[e + dims_ + 1],
-               y2 = data_[e + dims_ + 2];
+          auto x = data_[e];
+          auto y1 = data_[e + dims_ + 1];
+          auto y2 = data_[e + dims_ + 2];
           if (dynamic_color_) {
             color = color2scalar(Color::cos(data_[e + dims_ + 1]));
           }
@@ -390,9 +397,11 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       }
       bool has_last = false;
-      float last_x = NAN, last_y = NAN;
+      float last_x = NAN;
+      float last_y = NAN;
       for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_];
+        auto x = data_[e];
+        auto y = data_[e + dims_];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
@@ -420,7 +429,8 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
       auto u = 2 * unit;
       auto o = static_cast<int>(2 * u * offset);
       for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_];
+        auto x = data_[e];
+        auto y = data_[e + dims_];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 1]));
         }
@@ -468,9 +478,12 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     } break;
     case Range: {
       bool has_last = false;
-      cv::Point last_a, last_b;
+      cv::Point last_a;
+      cv::Point last_b;
       for (const auto &e : entries_) {
-        auto x = data_[e], y_a = data_[e + dims_], y_b = data_[e + dims_ + 1];
+        auto x = data_[e];
+        auto y_a = data_[e + dims_];
+        auto y_b = data_[e + dims_ + 1];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 2]));
         }
@@ -490,7 +503,9 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     } break;
     case Circle: {
       for (const auto &e : entries_) {
-        auto x = data_[e], y = data_[e + dims_], r = data_[e + dims_ + 1];
+        auto x = data_[e];
+        auto y = data_[e + dims_];
+        auto r = data_[e + dims_ + 1];
         if (dynamic_color_) {
           color = color2scalar(Color::cos(data_[e + dims_ + 2]));
         }
@@ -592,7 +607,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   auto h_plot = buffer.rows - 2 * border_size_;
 
   // add padding inside graph (histograms get extra)
-  if (p_max) {
+  if (p_max != 0) {
     auto dx = p_max * (x_max - x_min) / w_plot;
     auto dy = p_max * (y_max - y_min) / h_plot;
     x_min -= dx;
@@ -615,8 +630,8 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   }
 
   // calc where to draw axis
-  auto x_axis = std::max(x_min, std::min(x_max, 0.f));
-  auto y_axis = std::max(y_min, std::min(y_max, 0.f));
+  auto x_axis = std::max(x_min, std::min(x_max, 0.F));
+  auto y_axis = std::max(y_min, std::min(y_max, 0.F));
 
   // calc sub axis grid size
   auto x_grid =
@@ -628,10 +643,10 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
 
   // calc affine transform value space to plot space
   auto xs = (x_max != x_min ? (buffer.cols - 2 * border_size_) / (x_max - x_min)
-                            : 1.f);
+                            : 1.F);
   auto xd = border_size_ - x_min * xs;
   auto ys = (y_max != y_min ? (buffer.rows - 2 * border_size_) / (y_min - y_max)
-                            : 1.f);
+                            : 1.F);
   auto yd = buffer.rows - y_min * ys - border_size_;
 
   // safe unit for showing points
@@ -656,7 +671,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
              color2scalar(sub_axis_color_), 1, cv::LINE_AA);
   }
   if (std::abs(x_grid * xs) < 30) {
-    x_grid *= std::ceil(30.f / std::abs(x_grid * xs));
+    x_grid *= std::ceil(30.F / std::abs(x_grid * xs));
   }
   for (int i = std::ceil(x_min / x_grid), e = floor(x_max / x_grid); i <= e;
        i++) {
@@ -665,14 +680,14 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     out << std::setprecision(4) << (x == 0 ? 0 : x);
     int baseline = 0;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3F, 1.F, &baseline);
     cv::Point org(x * xs + xd - size.width / 2,
                   buffer.rows - border_size_ + 5 + size.height);
-    cv::putText(trans.with(text_color_), out.str().c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
+    cv::putText(trans.with(text_color_), out.str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.3F, color2scalar(text_color_), 1.F);
   }
   if (std::abs(y_grid * ys) < 20) {
-    y_grid *= std::ceil(20.f / std::abs(y_grid * ys));
+    y_grid *= std::ceil(20.F / std::abs(y_grid * ys));
   }
   for (int i = std::ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e;
        i++) {
@@ -681,10 +696,10 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     out << std::setprecision(4) << (y == 0 ? 0 : y);
     int baseline = 0;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3F, 1.F, &baseline);
     cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
-    cv::putText(trans.with(text_color_), out.str().c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3f, color2scalar(text_color_), 1.f);
+    cv::putText(trans.with(text_color_), out.str(), org,
+                cv::FONT_HERSHEY_SIMPLEX, 0.3F, color2scalar(text_color_), 1.F);
   }
 
   // draw axis
@@ -722,19 +737,19 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     auto name = s.label();
     int baseline = 0;
     cv::Size size =
-        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4f, 1.f, &baseline);
+        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4F, 1.F, &baseline);
     cv::Point org(buffer.cols - border_size_ - size.width - 17,
                   border_size_ + 15 * index + 15);
     auto shadow = true;
-    cv::putText(trans.with(background_color_), name.c_str(),
+    cv::putText(trans.with(background_color_), name,
                 {org.x + (shadow ? 1 : 0), org.y + (shadow ? 1 : 0)},
-                cv::FONT_HERSHEY_SIMPLEX, 0.4f, color2scalar(background_color_),
-                (shadow ? 1.f : 2.f));
+                cv::FONT_HERSHEY_SIMPLEX, 0.4F, color2scalar(background_color_),
+                (shadow ? 1.F : 2.F));
     cv::circle(trans.with(background_color_),
                {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
                color2scalar(background_color_), -1, cv::LINE_AA);
-    cv::putText(trans.with(text_color_), name.c_str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.4f, color2scalar(text_color_), 1.f);
+    cv::putText(trans.with(text_color_), name, org, cv::FONT_HERSHEY_SIMPLEX,
+                0.4F, color2scalar(text_color_), 1.F);
     s.dot(&trans.with(s.color()), buffer.cols - border_size_ - 10, org.y - 3,
           3);
     index++;
@@ -742,10 +757,10 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
 }
 
 auto Figure::drawFit(void *buffer) const -> int {
-  auto x_min = (include_zero_x_ ? 0.f : FLT_MAX);
-  auto x_max = (include_zero_x_ ? 0.f : FLT_MIN);
-  auto y_min = (include_zero_y_ ? 0.f : FLT_MAX);
-  auto y_max = (include_zero_y_ ? 0.f : FLT_MIN);
+  auto x_min = (include_zero_x_ ? 0.F : FLT_MAX);
+  auto x_max = (include_zero_x_ ? 0.F : FLT_MIN);
+  auto y_min = (include_zero_y_ ? 0.F : FLT_MAX);
+  auto y_max = (include_zero_y_ ? 0.F : FLT_MIN);
   auto n_max = 0;
   auto p_max = grid_padding_;
 
@@ -755,7 +770,7 @@ auto Figure::drawFit(void *buffer) const -> int {
     s.bounds(x_min, x_max, y_min, y_max, n_max, p_max);
   }
 
-  if (n_max) {
+  if (n_max != 0) {
     draw(buffer, x_min, x_max, y_min, y_max, n_max, p_max);
   }
 
@@ -765,7 +780,7 @@ auto Figure::drawFit(void *buffer) const -> int {
 auto Figure::drawFile(const std::string &filename, Size size) const -> bool {
   cv::Mat mat(cv::Size(size.width, size.height), CV_8UC3);
   int n_max = drawFit(&mat);
-  if (n_max) {
+  if (n_max != 0) {
     std::vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(9);
@@ -779,7 +794,7 @@ void Figure::show(bool flush) const {
   auto &buffer = *static_cast<cv::Mat *>(view_.buffer(rect));
   auto sub = buffer({rect.x, rect.y, rect.width, rect.height});
   int n_max = drawFit(&sub);
-  if (n_max) {
+  if (n_max != 0) {
     view_.finish();
     if (flush) {
       view_.flush();
@@ -789,7 +804,7 @@ void Figure::show(bool flush) const {
 
 auto figure(const std::string &name) -> Figure & {
   if (shared_figures_.count(name) == 0) {
-    auto &view = Window::current().view(name.c_str());
+    auto &view = Window::current().view(name);
     shared_figures_.insert(
         std::map<std::string, Figure>::value_type(name, Figure(view)));
   }

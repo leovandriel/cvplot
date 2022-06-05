@@ -12,9 +12,9 @@ std::map<std::string, int> color_counter;
 auto Color::alpha(uint8_t alpha) const -> Color { return {r, g, b, alpha}; }
 
 auto Color::gamma(float gamma) const -> Color {
-  return {static_cast<uint8_t>(pow(r / 255.f, 1 / gamma) * 255),
-          static_cast<uint8_t>(pow(g / 255.f, 1 / gamma) * 255),
-          static_cast<uint8_t>(pow(b / 255.f, 1 / gamma) * 255), a};
+  return {static_cast<uint8_t>(pow(r / 255.F, 1 / gamma) * 255),
+          static_cast<uint8_t>(pow(g / 255.F, 1 / gamma) * 255),
+          static_cast<uint8_t>(pow(b / 255.F, 1 / gamma) * 255), a};
 }
 
 auto Color::gray(uint8_t v) -> Color { return {v, v, v}; }
@@ -27,7 +27,7 @@ auto Color::index(uint8_t index, uint8_t density, float avoid,
     index = offset + index % density;
     density += step * range;
   }
-  auto hue = index % density * 6.f / density;
+  auto hue = index % density * 6.F / density;
   return Color::cos(hue);
 }
 
@@ -68,9 +68,9 @@ auto Color::hue(float hue) -> Color {
 }
 
 auto Color::cos(float hue) -> Color {
-  return {static_cast<uint8_t>((std::cos(hue * 1.047f) + 1) * 127.9f),
-          static_cast<uint8_t>((std::cos((hue - 2) * 1.047f) + 1) * 127.9f),
-          static_cast<uint8_t>((std::cos((hue - 4) * 1.047f) + 1) * 127.9f)};
+  return {static_cast<uint8_t>((std::cos(hue * 1.047F) + 1) * 127.9F),
+          static_cast<uint8_t>((std::cos((hue - 2) * 1.047F) + 1) * 127.9F),
+          static_cast<uint8_t>((std::cos((hue - 4) * 1.047F) + 1) * 127.9F)};
 }
 
 auto Color::hue() const -> float {
@@ -79,13 +79,13 @@ auto Color::hue() const -> float {
   if (min == max) {
     return 0;
   }
-  auto hue = 0.f;
+  auto hue = 0.F;
   if (r == max) {
     hue = (g - b) / static_cast<float>(max - min);
   } else if (g == max) {
-    hue = 2.f + (b - r) / static_cast<float>(max - min);
+    hue = 2.F + (b - r) / static_cast<float>(max - min);
   } else {
-    hue = 4.f + (r - g) / static_cast<float>(max - min);
+    hue = 4.F + (r - g) / static_cast<float>(max - min);
   }
   if (hue < 0) {
     hue += 6;

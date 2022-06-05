@@ -60,7 +60,7 @@ class View {
   auto frameColor() -> Color;
   auto textColor() -> Color;
   auto title() -> std::string &;
-  auto has(Offset offset) -> bool;
+  auto has(Offset offset) const -> bool;
 
   void drawRect(Rect rect, Color color);
   void drawFill(Color background = White);
