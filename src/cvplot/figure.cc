@@ -1,5 +1,6 @@
 #include "cvplot/figure.h"
 
+#include <cmath>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
@@ -336,7 +337,7 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     case RangeLine: {
       if (type_ == FillLine) {
         bool has_last = false;
-        float last_x, last_y;
+        float last_x = NAN, last_y = NAN;
         for (const auto &e : entries_) {
           auto x = data_[e], y = data_[e + dims_];
           if (dynamic_color_) {
@@ -363,7 +364,7 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       } else if (type_ == RangeLine) {
         bool has_last = false;
-        float last_x, last_y1, last_y2;
+        float last_x = NAN, last_y1 = NAN, last_y2 = NAN;
         for (const auto &e : entries_) {
           auto x = data_[e], y1 = data_[e + dims_ + 1],
                y2 = data_[e + dims_ + 2];
@@ -389,7 +390,7 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       }
       bool has_last = false;
-      float last_x, last_y;
+      float last_x = NAN, last_y = NAN;
       for (const auto &e : entries_) {
         auto x = data_[e], y = data_[e + dims_];
         if (dynamic_color_) {
@@ -662,7 +663,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     auto x = i * x_grid;
     std::ostringstream out;
     out << std::setprecision(4) << (x == 0 ? 0 : x);
-    int baseline;
+    int baseline = 0;
     cv::Size size =
         getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
     cv::Point org(x * xs + xd - size.width / 2,
@@ -678,7 +679,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     auto y = i * y_grid;
     std::ostringstream out;
     out << std::setprecision(4) << (y == 0 ? 0 : y);
-    int baseline;
+    int baseline = 0;
     cv::Size size =
         getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3f, 1.f, &baseline);
     cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
@@ -719,7 +720,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
       continue;
     }
     auto name = s.label();
-    int baseline;
+    int baseline = 0;
     cv::Size size =
         getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4f, 1.f, &baseline);
     cv::Point org(buffer.cols - border_size_ - size.width - 17,
