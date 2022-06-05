@@ -12,9 +12,9 @@ std::map<std::string, int> color_counter;
 auto Color::alpha(uint8_t alpha) const -> Color { return {r, g, b, alpha}; }
 
 auto Color::gamma(float gamma) const -> Color {
-  return {(uint8_t)(pow(r / 255.f, 1 / gamma) * 255),
-          (uint8_t)(pow(g / 255.f, 1 / gamma) * 255),
-          (uint8_t)(pow(b / 255.f, 1 / gamma) * 255), a};
+  return {static_cast<uint8_t>(pow(r / 255.f, 1 / gamma) * 255),
+          static_cast<uint8_t>(pow(g / 255.f, 1 / gamma) * 255),
+          static_cast<uint8_t>(pow(b / 255.f, 1 / gamma) * 255), a};
 }
 
 auto Color::gray(uint8_t v) -> Color { return {v, v, v}; }
@@ -48,29 +48,29 @@ auto Color::uniq(const std::string &name) -> Color {
 
 auto Color::hue(float hue) -> Color {
   Color color;
-  auto i = (int)hue;
-  auto f = (uint8_t)((hue - i) * 255);
+  auto i = static_cast<int>(hue);
+  auto f = static_cast<uint8_t>((hue - i) * 255);
   switch (i % 6) {
     case 0:
       return {255, f, 0};
     case 1:
-      return {(uint8_t)(255 - f), 255, 0};
+      return {static_cast<uint8_t>(255 - f), 255, 0};
     case 2:
       return {0, 255, f};
     case 3:
-      return {0, (uint8_t)(255 - f), 255};
+      return {0, static_cast<uint8_t>(255 - f), 255};
     case 4:
       return {f, 0, 255};
     case 5:
-      return {255, 0, (uint8_t)(255 - f)};
+      return {255, 0, static_cast<uint8_t>(255 - f)};
   }
   return {};
 }
 
 auto Color::cos(float hue) -> Color {
-  return {(uint8_t)((std::cos(hue * 1.047f) + 1) * 127.9f),
-          (uint8_t)((std::cos((hue - 2) * 1.047f) + 1) * 127.9f),
-          (uint8_t)((std::cos((hue - 4) * 1.047f) + 1) * 127.9f)};
+  return {static_cast<uint8_t>((std::cos(hue * 1.047f) + 1) * 127.9f),
+          static_cast<uint8_t>((std::cos((hue - 2) * 1.047f) + 1) * 127.9f),
+          static_cast<uint8_t>((std::cos((hue - 4) * 1.047f) + 1) * 127.9f)};
 }
 
 auto Color::hue() const -> float {
@@ -81,11 +81,11 @@ auto Color::hue() const -> float {
   }
   auto hue = 0.f;
   if (r == max) {
-    hue = (g - b) / (float)(max - min);
+    hue = (g - b) / static_cast<float>(max - min);
   } else if (g == max) {
-    hue = 2.f + (b - r) / (float)(max - min);
+    hue = 2.f + (b - r) / static_cast<float>(max - min);
   } else {
-    hue = 4.f + (r - g) / (float)(max - min);
+    hue = 4.f + (r - g) / static_cast<float>(max - min);
   }
   if (hue < 0) {
     hue += 6;

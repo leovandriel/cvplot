@@ -256,7 +256,7 @@ void demo() {
     figure.series("random").dynamicColor(true).legend(false);
     clock_t time = 0;
     for (int i = 0; i < 1000; i++) {
-      auto fps = CLOCKS_PER_SEC / (float)(clock() - time);
+      auto fps = CLOCKS_PER_SEC / static_cast<float>(clock() - time);
       time = clock();
       auto l = sqrt((dx * dx + dy * dy) * (f * f + 1)) * 10;
       dx = (dx + f * dy) / l;
@@ -277,7 +277,7 @@ void demo() {
 }
 
 void mouse_callback(int event, int x, int y, int flags, void *param) {
-  auto &view = *(cvplot::View *)param;
+  auto &view = *static_cast<cvplot::View *>(param);
   std::ostringstream stream;
   if (event == cv::EVENT_MOUSEMOVE) stream << "mousemove";
   if (event == cv::EVENT_LBUTTONDOWN) stream << "lbuttondown";

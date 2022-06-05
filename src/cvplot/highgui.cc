@@ -59,8 +59,8 @@ void resizeWindow(const std::string &view, const Size &size) {
 auto selectROI(const std::string &windowName, void *img, bool showCrosshair,
                bool fromCenter) -> Rect {
 #if CV_MAJOR_VERSION > 2
-  auto rect =
-      cv::selectROI(windowName, (cv::InputArray)img, showCrosshair, fromCenter);
+  auto rect = cv::selectROI(windowName, reinterpret_cast<cv::InputArray>(img),
+                            showCrosshair, fromCenter);
   return {rect.x, rect.y, rect.width, rect.height};
 #else
   return Rect(-1, -1, -1, -1);
@@ -69,7 +69,8 @@ auto selectROI(const std::string &windowName, void *img, bool showCrosshair,
 
 auto selectROI(void *img, bool showCrosshair, bool fromCenter) -> Rect {
 #if CV_MAJOR_VERSION > 2
-  auto rect = cv::selectROI((cv::InputArray)img, showCrosshair, fromCenter);
+  auto rect = cv::selectROI(reinterpret_cast<cv::InputArray>(img),
+                            showCrosshair, fromCenter);
   return {rect.x, rect.y, rect.width, rect.height};
 #else
   return Rect(-1, -1, -1, -1);
@@ -84,8 +85,8 @@ void selectROIs(const std::string &windowName, void *img,
   for (auto b : boundingBoxes) {
     boxes.emplace_back(b.x, b.y, b.width, b.height);
   }
-  cv::selectROIs(windowName, (cv::InputArray)img, boxes, showCrosshair,
-                 fromCenter);
+  cv::selectROIs(windowName, reinterpret_cast<cv::InputArray>(img), boxes,
+                 showCrosshair, fromCenter);
 #endif
 }
 

@@ -18,11 +18,11 @@ clock_t shared_time = clock();
 }  // namespace
 
 auto runtime() -> float {
-  return (float)(clock() - shared_time) / CLOCKS_PER_SEC;
+  return static_cast<float>(clock() - shared_time) / CLOCKS_PER_SEC;
 }
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
-  ((Window *)window)->onmouse(event, x, y, flags);
+  (static_cast<Window *>(window))->onmouse(event, x, y, flags);
 }
 
 // View
@@ -121,7 +121,7 @@ void View::drawText(const std::string &text, Offset offset, Color color,
 
 void View::drawTextShadow(const std::string &text, Offset offset, Color color,
                           float height) const {
-  int off = (int)(height / 20);
+  int off = static_cast<int>(height / 20);
   drawText(text, {offset.x + off, offset.y + off}, cvplot::Black.alpha(100),
            height);
   drawText(text, offset, color, height);
@@ -148,7 +148,7 @@ void View::drawFrame(const std::string &title) const {
 }
 
 void View::drawImage(const void *image, int alpha) {
-  auto &img = *(cv::Mat *)image;
+  auto &img = *static_cast<const cv::Mat *>(image);
   if (rect_.width == 0 && rect_.height == 0) {
     rect_.width = img.cols;
     rect_.height = img.rows;
@@ -230,7 +230,7 @@ auto Window::size(Size size) -> Window & {
   auto &buffer = *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3,
                                color2scalar(Gray)));
   if (buffer_ != nullptr) {
-    auto &current = *(cv::Mat *)buffer_;
+    auto &current = *static_cast<cv::Mat *>(buffer_);
     if (current.cols > 0 && current.rows > 0 && size.width > 0 &&
         size.height > 0) {
       cv::Rect inter(0, 0, std::min(current.cols, size.width),
@@ -270,7 +270,7 @@ auto Window::ensure(Rect rect) -> Window & {
   if (buffer_ == nullptr) {
     size({rect.x + rect.width, rect.y + rect.height});
   } else {
-    auto &b = *(cv::Mat *)buffer_;
+    auto &b = *static_cast<cv::Mat *>(buffer_);
     if (rect.x + rect.width > b.cols || rect.y + rect.height > b.rows) {
       size({std::max(b.cols, rect.x + rect.width),
             std::max(b.rows, rect.y + rect.height)});
@@ -296,7 +296,7 @@ void Window::onmouse(int event, int x, int y, int flags) {
 
 void Window::flush() {
   if (dirty_ && buffer_ != nullptr) {
-    auto b = (cv::Mat *)buffer_;
+    auto b = static_cast<cv::Mat *>(buffer_);
     if (b->cols > 0 && b->rows > 0) {
       cv::Mat mat;
       if (show_cursor_) {
@@ -356,12 +356,12 @@ auto Window::current() -> Window & {
   if (shared_window == nullptr) {
     shared_window = new Window("");
   }
-  return *(Window *)shared_window;
+  return *shared_window;
 }
 
 auto Window::current(const std::string &title) -> Window & {
   shared_window = new Window(title);
-  return *(Window *)shared_window;
+  return *shared_window;
 }
 
 void Window::current(Window &window) { shared_window = &window; }
@@ -369,16 +369,16 @@ void Window::current(Window &window) { shared_window = &window; }
 // Util
 
 void Util::sleep(float seconds) {
-  cv::waitKey(std::max(1, (int)(seconds * 1000)));
+  cv::waitKey(std::max(1, static_cast<int>(seconds * 1000)));
 }
 
 auto Util::key(float timeout) -> char {
-  return cv::waitKey(std::max(0, (int)(timeout * 1000)));
+  return cv::waitKey(std::max(0, static_cast<int>(timeout * 1000)));
 }
 
 auto Util::line(float timeout) -> std::string {
   std::stringstream stream;
-  auto ms = (timeout > 0 ? std::max(1, (int)(timeout * 1000)) : -1);
+  auto ms = (timeout > 0 ? std::max(1, static_cast<int>(timeout * 1000)) : -1);
   while (ms != 0) {
     auto key = cv::waitKey(1);
     if (key == -1) {
@@ -394,7 +394,7 @@ auto Util::line(float timeout) -> std::string {
         stream << s.substr(0, s.length() - 1);
       }
     } else {
-      stream << (char)key;
+      stream << static_cast<char>(key);
     }
   }
   return stream.str();
