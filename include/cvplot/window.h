@@ -9,8 +9,6 @@
 
 namespace cvplot {
 
-extern int paleness;  // for that dated feel
-
 struct Rect {
   int x, y, width, height;
   Rect(int x, int y, int width, int height)
@@ -104,7 +102,6 @@ class Window {
   void flush();
   auto view(const std::string &name, Size size = {300, 300}) -> View &;
   void dirty();
-  void tick();
   void hide(bool hidden = true);
   void onmouse(int event, int x, int y, int flags);
   auto name() const -> const std::string & { return name_; }
@@ -122,7 +119,6 @@ class Window {
   std::string name_;
   std::map<std::string, View> views_;
   bool dirty_{false};
-  double flush_time_{0};
   double fps_{1};
   bool hidden_{false};
   bool show_cursor_{false};

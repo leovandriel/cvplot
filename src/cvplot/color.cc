@@ -5,11 +5,6 @@
 
 namespace cvplot {
 
-namespace {
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-std::map<std::string, int> color_counter;
-}  // namespace
-
 auto Color::alpha(uint8_t alpha) const -> Color { return {r, g, b, alpha}; }
 
 auto Color::gamma(double gamma) const -> Color {
@@ -38,13 +33,6 @@ auto Color::hash(const std::string &seed) -> Color {
     hash = (hash * 54059) ^ (c * 76963);
   }
   return Color::index(hash);
-}
-
-auto Color::uniq(const std::string &name) -> Color {
-  if (color_counter.count(name) == 0) {
-    color_counter[name] = static_cast<int>(color_counter.size());
-  }
-  return Color::index(color_counter[name]);
 }
 
 auto Color::hue(double hue) -> Color {

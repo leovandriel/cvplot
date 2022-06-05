@@ -3,6 +3,11 @@ Change Log
 
 ### master (untagged)
 
+* Remove window tick
+* Remove paleness
+* Remove color uniq
+* Add lint rules
+
 ### 0.0.4 (2022-06-03)
 
 * Fix for axis color

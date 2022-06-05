@@ -9,21 +9,10 @@
 
 namespace cvplot {
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-int paleness = 0;
-
 namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 Window *shared_window = nullptr;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-int shared_index = 0;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,cert-err58-cpp)
-clock_t shared_time = clock();
 }  // namespace
-
-auto runtime() -> double {
-  return static_cast<double>(clock() - shared_time) / CLOCKS_PER_SEC;
-}
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
   (static_cast<Window *>(window))->onmouse(event, x, y, flags);
@@ -216,11 +205,9 @@ void View::hide(bool hidden) {
 
 Window::Window(std::string title)
     : offset_(0, 0),
-
       title_(std::move(title)),
-
       cursor_(-10, -10),
-      name_("cvplot_" + std::to_string(shared_index++)) {}
+      name_("cvplot_" + std::to_string(clock())) {}
 
 auto Window::buffer() -> void * { return buffer_; }
 
@@ -326,7 +313,6 @@ void Window::flush() {
     }
   }
   dirty_ = false;
-  flush_time_ = runtime();
 }
 
 auto Window::view(const std::string &name, Size size) -> View & {
@@ -335,12 +321,6 @@ auto Window::view(const std::string &name, Size size) -> View & {
         std::map<std::string, View>::value_type(name, View(*this, name, size)));
   }
   return views_.at(name);
-}
-
-void Window::tick() {
-  if (fps_ > 0 && (runtime() - flush_time_) > 1. / fps_) {
-    flush();
-  }
 }
 
 void Window::dirty() { dirty_ = true; }

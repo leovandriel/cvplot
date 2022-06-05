@@ -15,13 +15,8 @@
 
 namespace cvplot {
 
-static auto channel2pale(uint8_t c) -> uint8_t {
-  return c * (255 - 2 * paleness) / 255 + paleness;
-}
-
 static auto color2scalar(const Color &color) -> cv::Scalar {
-  return {(double)channel2pale(color.b), (double)channel2pale(color.g),
-          (double)channel2pale(color.r)};
+  return {(double)color.b, (double)color.g, (double)color.r};
 }
 
 static auto value2snap(double value) -> double {
