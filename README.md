@@ -73,7 +73,7 @@ Run tests with:
 
 ## Contributing
 
-Your contributions to cvplot are welcome! cvplot is small and nimble, with lots of missing features. If you would like to see a new feature, found a bug, or wrote some new code, please don't hesitate to reach out by filing a PR or issue.
+Your contributions to cvplot are welcome! cvplot is small and nimble, with lots of missing features. If you would like to see a new feature, get your code merged, or report a bug, please don't hesitate to reach out by filing a PR or issue.
 
 
 ## License

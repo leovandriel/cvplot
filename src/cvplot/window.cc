@@ -17,7 +17,7 @@ namespace {
 Window *shared_window = nullptr;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 int shared_index = 0;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
+// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,cert-err58-cpp)
 clock_t shared_time = clock();
 }  // namespace
 

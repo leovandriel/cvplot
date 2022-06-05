@@ -10,7 +10,6 @@
     if ((a__) != (b__)) {                                                      \
       std::cerr << "Incorrect " << #a__ << " (" << (a__) << "), should equal " \
                 << (b__) << std::endl;                                         \
-      exit(-1);                                                                \
     }                                                                          \
   } while (0)
 

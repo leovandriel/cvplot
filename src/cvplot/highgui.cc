@@ -44,7 +44,7 @@ void moveWindow(const std::string &view, int x, int y) {
   Window::current().view(view).offset({x, y});
 }
 
-void namedWindow(const std::string &view, int flags) {
+void namedWindow(const std::string &view, int /*flags*/) {
   Window::current().view(view);
 }
 

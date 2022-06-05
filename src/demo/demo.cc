@@ -391,7 +391,7 @@ void transparency() {
 
 }  // namespace demo
 
-auto main(int argc, char **argv) -> int {
+auto main(int /*argc*/, char ** /*argv*/) -> int {
   demo::example();
   demo::transparency();
   demo::demo();
