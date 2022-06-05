@@ -12,8 +12,6 @@ namespace cvplot {
 namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 Window *shared_window = nullptr;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-int shared_index = 0;
 }  // namespace
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
@@ -207,11 +205,9 @@ void View::hide(bool hidden) {
 
 Window::Window(std::string title)
     : offset_(0, 0),
-
       title_(std::move(title)),
-
       cursor_(-10, -10),
-      name_("cvplot_" + std::to_string(shared_index++)) {}
+      name_("cvplot_" + std::to_string(clock())) {}
 
 auto Window::buffer() -> void * { return buffer_; }
 
