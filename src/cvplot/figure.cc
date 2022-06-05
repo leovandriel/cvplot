@@ -92,7 +92,8 @@ auto Series::legend(bool legend) -> Series & {
   return *this;
 }
 
-auto Series::add(const std::vector<std::pair<float, float>> &data) -> Series & {
+auto Series::add(const std::vector<std::pair<double, double>> &data)
+    -> Series & {
   ensureDimsDepth(1, 1);
   for (const auto &d : data) {
     entries_.push_back(data_.size());
@@ -102,7 +103,7 @@ auto Series::add(const std::vector<std::pair<float, float>> &data) -> Series & {
   return *this;
 }
 
-auto Series::add(const std::vector<std::pair<float, Point2>> &data)
+auto Series::add(const std::vector<std::pair<double, Point2>> &data)
     -> Series & {
   ensureDimsDepth(1, 2);
   for (const auto &d : data) {
@@ -114,7 +115,7 @@ auto Series::add(const std::vector<std::pair<float, Point2>> &data)
   return *this;
 }
 
-auto Series::add(const std::vector<std::pair<float, Point3>> &data)
+auto Series::add(const std::vector<std::pair<double, Point3>> &data)
     -> Series & {
   ensureDimsDepth(1, 3);
   for (const auto &d : data) {
@@ -127,8 +128,8 @@ auto Series::add(const std::vector<std::pair<float, Point3>> &data)
   return *this;
 }
 
-auto Series::addValue(const std::vector<float> &values) -> Series & {
-  std::vector<std::pair<float, float>> data(values.size());
+auto Series::addValue(const std::vector<double> &values) -> Series & {
+  std::vector<std::pair<double, double>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i + entries_.size();
@@ -138,7 +139,7 @@ auto Series::addValue(const std::vector<float> &values) -> Series & {
 }
 
 auto Series::addValue(const std::vector<Point2> &values) -> Series & {
-  std::vector<std::pair<float, Point2>> data(values.size());
+  std::vector<std::pair<double, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i + entries_.size();
@@ -148,7 +149,7 @@ auto Series::addValue(const std::vector<Point2> &values) -> Series & {
 }
 
 auto Series::addValue(const std::vector<Point3> &values) -> Series & {
-  std::vector<std::pair<float, Point3>> data(values.size());
+  std::vector<std::pair<double, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i + entries_.size();
@@ -157,49 +158,51 @@ auto Series::addValue(const std::vector<Point3> &values) -> Series & {
   return add(data);
 }
 
-auto Series::add(float key, float value) -> Series & {
-  return add(std::vector<std::pair<float, float>>({{key, value}}));
+auto Series::add(double key, double value) -> Series & {
+  return add(std::vector<std::pair<double, double>>({{key, value}}));
 }
 
-auto Series::add(float key, Point2 value) -> Series & {
-  return add(std::vector<std::pair<float, Point2>>({{key, value}}));
+auto Series::add(double key, Point2 value) -> Series & {
+  return add(std::vector<std::pair<double, Point2>>({{key, value}}));
 }
 
-auto Series::add(float key, Point3 value) -> Series & {
-  return add(std::vector<std::pair<float, Point3>>({{key, value}}));
+auto Series::add(double key, Point3 value) -> Series & {
+  return add(std::vector<std::pair<double, Point3>>({{key, value}}));
 }
 
-auto Series::addValue(float value) -> Series & {
-  return addValue(std::vector<float>({value}));
+auto Series::addValue(double value) -> Series & {
+  return addValue(std::vector<double>({value}));
 }
 
-auto Series::addValue(float value_a, float value_b) -> Series & {
+auto Series::addValue(double value_a, double value_b) -> Series & {
   return addValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-auto Series::addValue(float value_a, float value_b, float value_c) -> Series & {
+auto Series::addValue(double value_a, double value_b, double value_c)
+    -> Series & {
   return addValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
-auto Series::set(const std::vector<std::pair<float, float>> &data) -> Series & {
-  clear();
-  return add(data);
-}
-
-auto Series::set(const std::vector<std::pair<float, Point2>> &data)
+auto Series::set(const std::vector<std::pair<double, double>> &data)
     -> Series & {
   clear();
   return add(data);
 }
 
-auto Series::set(const std::vector<std::pair<float, Point3>> &data)
+auto Series::set(const std::vector<std::pair<double, Point2>> &data)
     -> Series & {
   clear();
   return add(data);
 }
 
-auto Series::setValue(const std::vector<float> &values) -> Series & {
-  std::vector<std::pair<float, float>> data(values.size());
+auto Series::set(const std::vector<std::pair<double, Point3>> &data)
+    -> Series & {
+  clear();
+  return add(data);
+}
+
+auto Series::setValue(const std::vector<double> &values) -> Series & {
+  std::vector<std::pair<double, double>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -209,7 +212,7 @@ auto Series::setValue(const std::vector<float> &values) -> Series & {
 }
 
 auto Series::setValue(const std::vector<Point2> &values) -> Series & {
-  std::vector<std::pair<float, Point2>> data(values.size());
+  std::vector<std::pair<double, Point2>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -219,7 +222,7 @@ auto Series::setValue(const std::vector<Point2> &values) -> Series & {
 }
 
 auto Series::setValue(const std::vector<Point3> &values) -> Series & {
-  std::vector<std::pair<float, Point3>> data(values.size());
+  std::vector<std::pair<double, Point3>> data(values.size());
   auto i = 0;
   for (auto &d : data) {
     d.first = i;
@@ -228,30 +231,31 @@ auto Series::setValue(const std::vector<Point3> &values) -> Series & {
   return set(data);
 }
 
-auto Series::set(float key, float value) -> Series & {
-  return set(std::vector<std::pair<float, float>>({{key, value}}));
+auto Series::set(double key, double value) -> Series & {
+  return set(std::vector<std::pair<double, double>>({{key, value}}));
 }
 
-auto Series::set(float key, float value_a, float value_b) -> Series & {
+auto Series::set(double key, double value_a, double value_b) -> Series & {
   return set(
-      std::vector<std::pair<float, Point2>>({{key, {value_a, value_b}}}));
+      std::vector<std::pair<double, Point2>>({{key, {value_a, value_b}}}));
 }
 
-auto Series::set(float key, float value_a, float value_b, float value_c)
+auto Series::set(double key, double value_a, double value_b, double value_c)
     -> Series & {
-  return set(std::vector<std::pair<float, Point3>>(
+  return set(std::vector<std::pair<double, Point3>>(
       {{key, {value_a, value_b, value_c}}}));
 }
 
-auto Series::setValue(float value) -> Series & {
-  return setValue(std::vector<float>({value}));
+auto Series::setValue(double value) -> Series & {
+  return setValue(std::vector<double>({value}));
 }
 
-auto Series::setValue(float value_a, float value_b) -> Series & {
+auto Series::setValue(double value_a, double value_b) -> Series & {
   return setValue(std::vector<Point2>({{value_a, value_b}}));
 }
 
-auto Series::setValue(float value_a, float value_b, float value_c) -> Series & {
+auto Series::setValue(double value_a, double value_b, double value_c)
+    -> Series & {
   return setValue(std::vector<Point3>({{value_a, value_b, value_c}}));
 }
 
@@ -269,7 +273,7 @@ auto Series::flipAxis() const -> bool {
   return type_ == Vertical || type_ == Vistogram;
 }
 
-void Series::bounds(float &x_min, float &x_max, float &y_min, float &y_max,
+void Series::bounds(double &x_min, double &x_max, double &y_min, double &y_max,
                     int &n_max, int &p_max) const {
   for (const auto &e : entries_) {
     auto xe = e;
@@ -323,9 +327,9 @@ void Series::dot(void *b, int x, int y, int r) const {
              cv::LINE_AA);
 }
 
-void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
-                  float xs, float xd, float ys, float yd, float x_axis,
-                  float y_axis, int unit, float offset) const {
+void Series::draw(void *b, double x_min, double x_max, double y_min,
+                  double y_max, double xs, double xd, double ys, double yd,
+                  double x_axis, double y_axis, int unit, double offset) const {
   if (dims_ == 0 || depth_ == 0) {
     return;
   }
@@ -339,8 +343,8 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     case RangeLine: {
       if (type_ == FillLine) {
         bool has_last = false;
-        float last_x = NAN;
-        float last_y = NAN;
+        double last_x = NAN;
+        double last_y = NAN;
         for (const auto &e : entries_) {
           auto x = data_[e];
           auto y = data_[e + dims_];
@@ -368,9 +372,9 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       } else if (type_ == RangeLine) {
         bool has_last = false;
-        float last_x = NAN;
-        float last_y1 = NAN;
-        float last_y2 = NAN;
+        double last_x = NAN;
+        double last_y1 = NAN;
+        double last_y2 = NAN;
         for (const auto &e : entries_) {
           auto x = data_[e];
           auto y1 = data_[e + dims_ + 1];
@@ -397,8 +401,8 @@ void Series::draw(void *b, float x_min, float x_max, float y_min, float y_max,
         }
       }
       bool has_last = false;
-      float last_x = NAN;
-      float last_y = NAN;
+      double last_x = NAN;
+      double last_y = NAN;
       for (const auto &e : entries_) {
         auto x = data_[e];
         auto y = data_[e + dims_];
@@ -589,8 +593,8 @@ auto Figure::series(const std::string &label) -> Series & {
   return series_.back();
 }
 
-void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
-                  int n_max, int p_max) const {
+void Figure::draw(void *b, double x_min, double x_max, double y_min,
+                  double y_max, int n_max, int p_max) const {
   auto &buffer = *static_cast<cv::Mat *>(b);
   Trans trans(b);
 
@@ -630,8 +634,8 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
   }
 
   // calc where to draw axis
-  auto x_axis = std::max(x_min, std::min(x_max, 0.F));
-  auto y_axis = std::max(y_min, std::min(y_max, 0.F));
+  auto x_axis = std::max(x_min, std::min(x_max, 0.));
+  auto y_axis = std::max(y_min, std::min(y_max, 0.));
 
   // calc sub axis grid size
   auto x_grid =
@@ -643,10 +647,10 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
 
   // calc affine transform value space to plot space
   auto xs = (x_max != x_min ? (buffer.cols - 2 * border_size_) / (x_max - x_min)
-                            : 1.F);
+                            : 1.);
   auto xd = border_size_ - x_min * xs;
   auto ys = (y_max != y_min ? (buffer.rows - 2 * border_size_) / (y_min - y_max)
-                            : 1.F);
+                            : 1.);
   auto yd = buffer.rows - y_min * ys - border_size_;
 
   // safe unit for showing points
@@ -671,7 +675,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
              color2scalar(sub_axis_color_), 1, cv::LINE_AA);
   }
   if (std::abs(x_grid * xs) < 30) {
-    x_grid *= std::ceil(30.F / std::abs(x_grid * xs));
+    x_grid *= std::ceil(30. / std::abs(x_grid * xs));
   }
   for (int i = std::ceil(x_min / x_grid), e = floor(x_max / x_grid); i <= e;
        i++) {
@@ -680,14 +684,14 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     out << std::setprecision(4) << (x == 0 ? 0 : x);
     int baseline = 0;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3F, 1.F, &baseline);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1., &baseline);
     cv::Point org(x * xs + xd - size.width / 2,
                   buffer.rows - border_size_ + 5 + size.height);
     cv::putText(trans.with(text_color_), out.str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3F, color2scalar(text_color_), 1.F);
+                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.);
   }
   if (std::abs(y_grid * ys) < 20) {
-    y_grid *= std::ceil(20.F / std::abs(y_grid * ys));
+    y_grid *= std::ceil(20. / std::abs(y_grid * ys));
   }
   for (int i = std::ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e;
        i++) {
@@ -696,10 +700,10 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     out << std::setprecision(4) << (y == 0 ? 0 : y);
     int baseline = 0;
     cv::Size size =
-        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3F, 1.F, &baseline);
+        getTextSize(out.str(), cv::FONT_HERSHEY_SIMPLEX, 0.3, 1., &baseline);
     cv::Point org(border_size_ - 5 - size.width, y * ys + yd + size.height / 2);
     cv::putText(trans.with(text_color_), out.str(), org,
-                cv::FONT_HERSHEY_SIMPLEX, 0.3F, color2scalar(text_color_), 1.F);
+                cv::FONT_HERSHEY_SIMPLEX, 0.3, color2scalar(text_color_), 1.);
   }
 
   // draw axis
@@ -725,7 +729,7 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
       index--;
     }
     s->draw(&trans.with(s->color()), x_min, x_max, y_min, y_max, xs, xd, ys, yd,
-            x_axis, y_axis, unit, static_cast<float>(index) / series_.size());
+            x_axis, y_axis, unit, static_cast<double>(index) / series_.size());
   }
 
   // draw label names
@@ -737,19 +741,19 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
     auto name = s.label();
     int baseline = 0;
     cv::Size size =
-        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4F, 1.F, &baseline);
+        getTextSize(name, cv::FONT_HERSHEY_SIMPLEX, 0.4, 1., &baseline);
     cv::Point org(buffer.cols - border_size_ - size.width - 17,
                   border_size_ + 15 * index + 15);
     auto shadow = true;
     cv::putText(trans.with(background_color_), name,
                 {org.x + (shadow ? 1 : 0), org.y + (shadow ? 1 : 0)},
-                cv::FONT_HERSHEY_SIMPLEX, 0.4F, color2scalar(background_color_),
-                (shadow ? 1.F : 2.F));
+                cv::FONT_HERSHEY_SIMPLEX, 0.4, color2scalar(background_color_),
+                (shadow ? 1. : 2.));
     cv::circle(trans.with(background_color_),
                {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
                color2scalar(background_color_), -1, cv::LINE_AA);
     cv::putText(trans.with(text_color_), name, org, cv::FONT_HERSHEY_SIMPLEX,
-                0.4F, color2scalar(text_color_), 1.F);
+                0.4, color2scalar(text_color_), 1.);
     s.dot(&trans.with(s.color()), buffer.cols - border_size_ - 10, org.y - 3,
           3);
     index++;
@@ -757,10 +761,10 @@ void Figure::draw(void *b, float x_min, float x_max, float y_min, float y_max,
 }
 
 auto Figure::drawFit(void *buffer) const -> int {
-  auto x_min = (include_zero_x_ ? 0.F : FLT_MAX);
-  auto x_max = (include_zero_x_ ? 0.F : FLT_MIN);
-  auto y_min = (include_zero_y_ ? 0.F : FLT_MAX);
-  auto y_max = (include_zero_y_ ? 0.F : FLT_MIN);
+  auto x_min = (include_zero_x_ ? 0. : FLT_MAX);
+  auto x_max = (include_zero_x_ ? 0. : FLT_MIN);
+  auto y_min = (include_zero_y_ ? 0. : FLT_MAX);
+  auto y_max = (include_zero_y_ ? 0. : FLT_MIN);
   auto n_max = 0;
   auto p_max = grid_padding_;
 

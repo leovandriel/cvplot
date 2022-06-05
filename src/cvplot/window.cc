@@ -17,8 +17,8 @@ int shared_index = 0;
 clock_t shared_time = clock();
 }  // namespace
 
-auto runtime() -> float {
-  return static_cast<float>(clock() - shared_time) / CLOCKS_PER_SEC;
+auto runtime() -> double {
+  return static_cast<double>(clock() - shared_time) / CLOCKS_PER_SEC;
 }
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
@@ -106,10 +106,10 @@ void View::drawRect(Rect rect, Color color) {
 }
 
 void View::drawText(const std::string &text, Offset offset, Color color,
-                    float height) const {
+                    double height) const {
   auto face = cv::FONT_HERSHEY_SIMPLEX;
-  auto scale = height / 30.F;
-  auto thickness = height / 12.F;
+  auto scale = height / 30.;
+  auto thickness = height / 12.;
   int baseline = 0;
   cv::Size size = getTextSize(text, face, scale, thickness, &baseline);
   cv::Point org(rect_.x + offset.x, rect_.y + size.height + offset.y);
@@ -120,7 +120,7 @@ void View::drawText(const std::string &text, Offset offset, Color color,
 }
 
 void View::drawTextShadow(const std::string &text, Offset offset, Color color,
-                          float height) const {
+                          double height) const {
   int off = static_cast<int>(height / 20);
   drawText(text, {offset.x + off, offset.y + off}, cvplot::Black.alpha(100),
            height);
@@ -139,11 +139,10 @@ void View::drawFrame(const std::string &title) const {
                 {rect_.x + rect_.width - 3, rect_.y + 16},
                 color2scalar(frame_color_), -1);
   int baseline = 0;
-  cv::Size size =
-      getTextSize(title, cv::FONT_HERSHEY_PLAIN, 1.F, 1.F, &baseline);
+  cv::Size size = getTextSize(title, cv::FONT_HERSHEY_PLAIN, 1., 1., &baseline);
   cv::putText(trans.with(text_color_), title,
               {rect_.x + 2 + (rect_.width - size.width) / 2, rect_.y + 14},
-              cv::FONT_HERSHEY_PLAIN, 1.F, color2scalar(text_color_), 1.F);
+              cv::FONT_HERSHEY_PLAIN, 1., color2scalar(text_color_), 1.);
   window_.dirty();
 }
 
@@ -256,7 +255,7 @@ auto Window::title(const std::string &title) -> Window & {
   return *this;
 }
 
-auto Window::fps(float fps) -> Window & {
+auto Window::fps(double fps) -> Window & {
   fps_ = fps;
   return *this;
 }
@@ -333,7 +332,7 @@ auto Window::view(const std::string &name, Size size) -> View & {
 }
 
 void Window::tick() {
-  if (fps_ > 0 && (runtime() - flush_time_) > 1.F / fps_) {
+  if (fps_ > 0 && (runtime() - flush_time_) > 1. / fps_) {
     flush();
   }
 }
@@ -368,15 +367,15 @@ void Window::current(Window &window) { shared_window = &window; }
 
 // Util
 
-void Util::sleep(float seconds) {
+void Util::sleep(double seconds) {
   cv::waitKey(std::max(1, static_cast<int>(seconds * 1000)));
 }
 
-auto Util::key(float timeout) -> char {
+auto Util::key(double timeout) -> char {
   return cv::waitKey(std::max(0, static_cast<int>(timeout * 1000)));
 }
 
-auto Util::line(float timeout) -> std::string {
+auto Util::line(double timeout) -> std::string {
   std::stringstream stream;
   auto ms = (timeout > 0 ? std::max(1, static_cast<int>(timeout * 1000)) : -1);
   while (ms != 0) {

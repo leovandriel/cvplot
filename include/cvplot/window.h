@@ -66,9 +66,9 @@ class View {
   void drawFill(Color background = White);
   void drawImage(const void *image, int alpha = 255);
   void drawText(const std::string &text, Offset offset, Color color,
-                float height = 12.f) const;
+                double height = 12.) const;
   void drawTextShadow(const std::string &text, Offset offset, Color color,
-                      float height) const;
+                      double height) const;
   void drawFrame(const std::string &title) const;
   auto buffer(Rect &rect) -> void *;
   void finish();
@@ -97,7 +97,7 @@ class Window {
   auto size(Size size) -> Window &;
   auto offset(Offset offset) -> Window &;
   auto title(const std::string &title) -> Window &;
-  auto fps(float fps) -> Window &;
+  auto fps(double fps) -> Window &;
   auto ensure(Rect rect) -> Window &;
   auto cursor(bool cursor) -> Window &;
   auto buffer() -> void *;
@@ -122,8 +122,8 @@ class Window {
   std::string name_;
   std::map<std::string, View> views_;
   bool dirty_{false};
-  float flush_time_{0};
-  float fps_{1};
+  double flush_time_{0};
+  double fps_{1};
   bool hidden_{false};
   bool show_cursor_{false};
   Offset cursor_;
@@ -131,9 +131,9 @@ class Window {
 
 class Util {
  public:
-  static void sleep(float seconds = 0);
-  static auto key(float timeout = 0) -> char;
-  static auto line(float timeout = 0) -> std::string;
+  static void sleep(double seconds = 0);
+  static auto key(double timeout = 0) -> char;
+  static auto line(double timeout = 0) -> std::string;
 };
 
 }  // namespace cvplot

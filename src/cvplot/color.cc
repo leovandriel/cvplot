@@ -11,23 +11,23 @@ std::map<std::string, int> color_counter;
 
 auto Color::alpha(uint8_t alpha) const -> Color { return {r, g, b, alpha}; }
 
-auto Color::gamma(float gamma) const -> Color {
-  return {static_cast<uint8_t>(pow(r / 255.F, 1 / gamma) * 255),
-          static_cast<uint8_t>(pow(g / 255.F, 1 / gamma) * 255),
-          static_cast<uint8_t>(pow(b / 255.F, 1 / gamma) * 255), a};
+auto Color::gamma(double gamma) const -> Color {
+  return {static_cast<uint8_t>(pow(r / 255., 1 / gamma) * 255),
+          static_cast<uint8_t>(pow(g / 255., 1 / gamma) * 255),
+          static_cast<uint8_t>(pow(b / 255., 1 / gamma) * 255), a};
 }
 
 auto Color::gray(uint8_t v) -> Color { return {v, v, v}; }
 
-auto Color::index(uint8_t index, uint8_t density, float avoid,
-                  float range) -> Color {  // avoid greens by default
+auto Color::index(uint8_t index, uint8_t density, double avoid,
+                  double range) -> Color {  // avoid greens by default
   if (avoid > 0) {
     auto step = density / (6 - range);
     auto offset = (avoid + range / 2) * step;
     index = offset + index % density;
     density += step * range;
   }
-  auto hue = index % density * 6.F / density;
+  auto hue = index % density * 6. / density;
   return Color::cos(hue);
 }
 
@@ -46,7 +46,7 @@ auto Color::uniq(const std::string &name) -> Color {
   return Color::index(color_counter[name]);
 }
 
-auto Color::hue(float hue) -> Color {
+auto Color::hue(double hue) -> Color {
   Color color;
   auto i = static_cast<int>(hue);
   auto f = static_cast<uint8_t>((hue - i) * 255);
@@ -67,25 +67,25 @@ auto Color::hue(float hue) -> Color {
   return {};
 }
 
-auto Color::cos(float hue) -> Color {
-  return {static_cast<uint8_t>((std::cos(hue * 1.047F) + 1) * 127.9F),
-          static_cast<uint8_t>((std::cos((hue - 2) * 1.047F) + 1) * 127.9F),
-          static_cast<uint8_t>((std::cos((hue - 4) * 1.047F) + 1) * 127.9F)};
+auto Color::cos(double hue) -> Color {
+  return {static_cast<uint8_t>((std::cos(hue * 1.047) + 1) * 127.9),
+          static_cast<uint8_t>((std::cos((hue - 2) * 1.047) + 1) * 127.9),
+          static_cast<uint8_t>((std::cos((hue - 4) * 1.047) + 1) * 127.9)};
 }
 
-auto Color::hue() const -> float {
+auto Color::hue() const -> double {
   auto min = std::min(std::min(r, g), b);
   auto max = std::max(std::max(r, g), b);
   if (min == max) {
     return 0;
   }
-  auto hue = 0.F;
+  auto hue = 0.;
   if (r == max) {
-    hue = (g - b) / static_cast<float>(max - min);
+    hue = (g - b) / static_cast<double>(max - min);
   } else if (g == max) {
-    hue = 2.F + (b - r) / static_cast<float>(max - min);
+    hue = 2. + (b - r) / static_cast<double>(max - min);
   } else {
-    hue = 4.F + (r - g) / static_cast<float>(max - min);
+    hue = 4. + (r - g) / static_cast<double>(max - min);
   }
   if (hue < 0) {
     hue += 6;

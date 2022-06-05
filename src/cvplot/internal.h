@@ -25,7 +25,7 @@ static auto color2scalar(const Color &color) -> cv::Scalar {
           (double)channel2pale(color.r)};
 }
 
-static auto value2snap(float value) -> float {
+static auto value2snap(double value) -> double {
   return std::max({pow(10, floor(log10(value))),
                    pow(10, floor(log10(value / 2))) * 2,
                    pow(10, floor(log10(value / 5))) * 5});
@@ -57,7 +57,7 @@ class Trans {
   void flush() {
     if (interim_) {
       // std::cerr << "blending " << alpha_ << std::endl;
-      auto weight = alpha_ / 255.f;
+      auto weight = alpha_ / 255.;
       cv::addWeighted(*interim_, weight, original_, 1 - weight, 0, original_);
       delete interim_;
       interim_ = nullptr;

@@ -34,7 +34,7 @@ This project is developed and tested on macOS and Ubuntu.
 To draw a simple line graph:
 
     cvplot::figure("myplot").series("myline")
-      .addValue({1.f, 3.f, 2.f, 5.f, 4.f});
+      .addValue({1., 3., 2., 5., 4.});
     cvplot::figure("myplot").show();
 
 <img src="res/line.jpg" alt="cvplot example" width="206"/>
