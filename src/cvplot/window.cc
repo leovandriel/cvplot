@@ -14,13 +14,7 @@ namespace {
 Window *shared_window = nullptr;
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 int shared_index = 0;
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables,cert-err58-cpp)
-clock_t shared_time = clock();
 }  // namespace
-
-auto runtime() -> double {
-  return static_cast<double>(clock() - shared_time) / CLOCKS_PER_SEC;
-}
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
   (static_cast<Window *>(window))->onmouse(event, x, y, flags);
@@ -323,7 +317,6 @@ void Window::flush() {
     }
   }
   dirty_ = false;
-  flush_time_ = runtime();
 }
 
 auto Window::view(const std::string &name, Size size) -> View & {
@@ -332,12 +325,6 @@ auto Window::view(const std::string &name, Size size) -> View & {
         std::map<std::string, View>::value_type(name, View(*this, name, size)));
   }
   return views_.at(name);
-}
-
-void Window::tick() {
-  if (fps_ > 0 && (runtime() - flush_time_) > 1. / fps_) {
-    flush();
-  }
 }
 
 void Window::dirty() { dirty_ = true; }

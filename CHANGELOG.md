@@ -3,6 +3,7 @@ Change Log
 
 ### master (untagged)
 
+* Remove window tick
 * Remove paleness
 * Remove color uniq
 * Add lint rules
