@@ -16,16 +16,16 @@
 
 namespace cvplot {
 
-static uint8_t channel2pale(uint8_t c) {
+static auto channel2pale(uint8_t c) -> uint8_t {
   return c * (255 - 2 * paleness) / 255 + paleness;
 }
 
-static cv::Scalar color2scalar(const Color &color) {
-  return cv::Scalar(channel2pale(color.b), channel2pale(color.g),
-                    channel2pale(color.r));
+static auto color2scalar(const Color &color) -> cv::Scalar {
+  return {(double)channel2pale(color.b), (double)channel2pale(color.g),
+          (double)channel2pale(color.r)};
 }
 
-static float value2snap(float value) {
+static auto value2snap(float value) -> float {
   return std::max({pow(10, floor(log10(value))),
                    pow(10, floor(log10(value / 2))) * 2,
                    pow(10, floor(log10(value / 5))) * 5});
@@ -35,13 +35,15 @@ class Trans {
  public:
   Trans(void *buffer) : Trans(*(cv::Mat *)buffer) {}
 
-  Trans(cv::Mat &buffer) : original_(buffer), alpha_(0), interim_(NULL) {}
+  Trans(cv::Mat &buffer) : original_(buffer), alpha_(0), interim_(nullptr) {}
 
   Trans(cv::Mat &buffer, int alpha) : Trans(buffer) { setup(alpha); }
 
   ~Trans() { flush(); }
 
-  cv::Mat &get() const { return (interim_ != NULL ? *interim_ : original_); }
+  auto get() const -> cv::Mat & {
+    return (interim_ != nullptr ? *interim_ : original_);
+  }
 
   void setup(int alpha) {
     bool transparent = (alpha != 255);
@@ -58,11 +60,11 @@ class Trans {
       auto weight = alpha_ / 255.f;
       cv::addWeighted(*interim_, weight, original_, 1 - weight, 0, original_);
       delete interim_;
-      interim_ = NULL;
+      interim_ = nullptr;
     }
   }
 
-  cv::Mat &with(int alpha) {
+  auto with(int alpha) -> cv::Mat & {
     if (alpha != alpha_) {
       flush();
       setup(alpha);
@@ -70,7 +72,7 @@ class Trans {
     return get();
   }
 
-  cv::Mat &with(const Color &color) { return with(color.a); }
+  auto with(const Color &color) -> cv::Mat & { return with(color.a); }
 
  protected:
   int alpha_;

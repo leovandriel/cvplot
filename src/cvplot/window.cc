@@ -3,6 +3,7 @@
 #include <ctime>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <utility>
 
 #include "internal.h"
 
@@ -11,12 +12,14 @@ namespace cvplot {
 int paleness = 0;
 
 namespace {
-Window *shared_window = NULL;
+Window *shared_window = nullptr;
 int shared_index = 0;
 clock_t shared_time = clock();
 }  // namespace
 
-float runtime() { return (float)(clock() - shared_time) / CLOCKS_PER_SEC; }
+auto runtime() -> float {
+  return (float)(clock() - shared_time) / CLOCKS_PER_SEC;
+}
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
   ((Window *)window)->onmouse(event, x, y, flags);
@@ -24,38 +27,38 @@ void mouse_callback(int event, int x, int y, int flags, void *window) {
 
 // View
 
-View &View::resize(Rect rect) {
+auto View::resize(Rect rect) -> View & {
   rect_ = rect;
   window_.dirty();
   return *this;
 }
 
-View &View::size(Size size) {
+auto View::size(Size size) -> View & {
   rect_.width = size.width;
   rect_.height = size.height;
   window_.dirty();
   return *this;
 }
 
-View &View::offset(Offset offset) {
+auto View::offset(Offset offset) -> View & {
   rect_.x = offset.x;
   rect_.y = offset.y;
   window_.dirty();
   return *this;
 }
 
-View &View::autosize() {
+auto View::autosize() -> View & {
   size({0, 0});
   return *this;
 }
 
-View &View::title(const std::string &title) {
+auto View::title(const std::string &title) -> View & {
   title_ = title;
   window_.dirty();
   return *this;
 }
 
-View &View::alpha(int alpha) {
+auto View::alpha(int alpha) -> View & {
   background_color_ = background_color_.alpha(alpha);
   frame_color_ = frame_color_.alpha(alpha);
   text_color_ = text_color_.alpha(alpha);
@@ -63,36 +66,36 @@ View &View::alpha(int alpha) {
   return *this;
 }
 
-View &View::backgroundColor(Color color) {
+auto View::backgroundColor(Color color) -> View & {
   background_color_ = color;
   window_.dirty();
   return *this;
 }
 
-View &View::frameColor(Color color) {
+auto View::frameColor(Color color) -> View & {
   frame_color_ = color;
   window_.dirty();
   return *this;
 }
 
-View &View::textColor(Color color) {
+auto View::textColor(Color color) -> View & {
   text_color_ = color;
   window_.dirty();
   return *this;
 }
 
-View &View::mouse(MouseCallback callback, void *param) {
+auto View::mouse(MouseCallback callback, void *param) -> View & {
   mouse_callback_ = callback;
-  mouse_param_ = (param == NULL ? this : param);
+  mouse_param_ = (param == nullptr ? this : param);
   return *this;
 }
 
-Color View::backgroundColor() { return background_color_; }
+auto View::backgroundColor() -> Color { return background_color_; }
 
-Color View::frameColor() { return frame_color_; }
+auto View::frameColor() -> Color { return frame_color_; }
 
-Color View::textColor() { return text_color_; }
-std::string &View::title() { return title_; }
+auto View::textColor() -> Color { return text_color_; }
+auto View::title() -> std::string & { return title_; }
 
 void View::drawRect(Rect rect, Color color) {
   Trans trans(window_.buffer());
@@ -172,7 +175,7 @@ void View::drawFill(Color color) {
   window_.dirty();
 }
 
-void *View::buffer(Rect &rect) {
+auto View::buffer(Rect &rect) -> void * {
   window_.ensure(rect_);
   rect = rect_;
   return window_.buffer();
@@ -187,13 +190,13 @@ void View::finish() {
 
 void View::flush() { window_.flush(); }
 
-bool View::has(Offset offset) {
+auto View::has(Offset offset) -> bool {
   return offset.x >= rect_.x && offset.y >= rect_.y &&
          offset.x < rect_.x + rect_.width && offset.y < rect_.y + rect_.height;
 }
 
 void View::onmouse(int event, int x, int y, int flags) {
-  if (mouse_callback_ != NULL) {
+  if (mouse_callback_ != nullptr) {
     mouse_callback_(event, x, y, flags, mouse_param_);
   }
 }
@@ -207,30 +210,26 @@ void View::hide(bool hidden) {
 
 // Window
 
-Window::Window(const std::string &title)
+Window::Window(std::string title)
     : offset_(0, 0),
-      buffer_(NULL),
-      title_(title),
-      dirty_(false),
-      flush_time_(0),
-      fps_(1),
-      hidden_(false),
-      show_cursor_(false),
+
+      title_(std::move(title)),
+
       cursor_(-10, -10),
       name_("cvplot_" + std::to_string(shared_index++)) {}
 
-void *Window::buffer() { return buffer_; }
+auto Window::buffer() -> void * { return buffer_; }
 
-Window &Window::resize(Rect rect) {
+auto Window::resize(Rect rect) -> Window & {
   offset({rect.x, rect.y});
   size({rect.width, rect.height});
   return *this;
 }
 
-Window &Window::size(Size size) {
+auto Window::size(Size size) -> Window & {
   auto &buffer = *(new cv::Mat(cv::Size(size.width, size.height), CV_8UC3,
                                color2scalar(Gray)));
-  if (buffer_ != NULL) {
+  if (buffer_ != nullptr) {
     auto &current = *(cv::Mat *)buffer_;
     if (current.cols > 0 && current.rows > 0 && size.width > 0 &&
         size.height > 0) {
@@ -245,30 +244,30 @@ Window &Window::size(Size size) {
   return *this;
 }
 
-Window &Window::offset(Offset offset) {
+auto Window::offset(Offset offset) -> Window & {
   offset_ = offset;
   cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
   cv::moveWindow(name_, offset.x, offset.y);
   return *this;
 }
 
-Window &Window::title(const std::string &title) {
+auto Window::title(const std::string &title) -> Window & {
   title_ = title;
   return *this;
 }
 
-Window &Window::fps(float fps) {
+auto Window::fps(float fps) -> Window & {
   fps_ = fps;
   return *this;
 }
 
-Window &Window::cursor(bool cursor) {
+auto Window::cursor(bool cursor) -> Window & {
   show_cursor_ = cursor;
   return *this;
 }
 
-Window &Window::ensure(Rect rect) {
-  if (buffer_ == NULL) {
+auto Window::ensure(Rect rect) -> Window & {
+  if (buffer_ == nullptr) {
     size({rect.x + rect.width, rect.y + rect.height});
   } else {
     auto &b = *(cv::Mat *)buffer_;
@@ -296,7 +295,7 @@ void Window::onmouse(int event, int x, int y, int flags) {
 }
 
 void Window::flush() {
-  if (dirty_ && buffer_ != NULL) {
+  if (dirty_ && buffer_ != nullptr) {
     auto b = (cv::Mat *)buffer_;
     if (b->cols > 0 && b->rows > 0) {
       cv::Mat mat;
@@ -325,7 +324,7 @@ void Window::flush() {
   flush_time_ = runtime();
 }
 
-View &Window::view(const std::string &name, Size size) {
+auto Window::view(const std::string &name, Size size) -> View & {
   if (views_.count(name) == 0) {
     views_.insert(
         std::map<std::string, View>::value_type(name, View(*this, name, size)));
@@ -353,14 +352,14 @@ void Window::hide(bool hidden) {
   }
 }
 
-Window &Window::current() {
-  if (shared_window == NULL) {
+auto Window::current() -> Window & {
+  if (shared_window == nullptr) {
     shared_window = new Window("");
   }
   return *(Window *)shared_window;
 }
 
-Window &Window::current(const std::string &title) {
+auto Window::current(const std::string &title) -> Window & {
   shared_window = new Window(title);
   return *(Window *)shared_window;
 }
@@ -373,11 +372,11 @@ void Util::sleep(float seconds) {
   cv::waitKey(std::max(1, (int)(seconds * 1000)));
 }
 
-char Util::key(float timeout) {
+auto Util::key(float timeout) -> char {
   return cv::waitKey(std::max(0, (int)(timeout * 1000)));
 }
 
-std::string Util::line(float timeout) {
+auto Util::line(float timeout) -> std::string {
   std::stringstream stream;
   auto ms = (timeout > 0 ? std::max(1, (int)(timeout * 1000)) : -1);
   while (ms != 0) {

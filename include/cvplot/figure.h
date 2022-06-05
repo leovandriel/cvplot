@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "color.h"
@@ -38,8 +39,8 @@ enum Type {
 
 class Series {
  public:
-  Series(const std::string &label, enum Type type, Color color)
-      : label_(label),
+  Series(std::string label, enum Type type, Color color)
+      : label_(std::move(label)),
         type_(type),
         color_(color),
         dims_(0),
@@ -47,43 +48,43 @@ class Series {
         legend_(true),
         dynamic_color_(false) {}
 
-  Series &type(enum Type type);
-  Series &color(Color color);
-  Series &dynamicColor(bool dynamic_color);
-  Series &legend(bool legend);
-  Series &add(const std::vector<std::pair<float, float>> &data);
-  Series &add(const std::vector<std::pair<float, Point2>> &data);
-  Series &add(const std::vector<std::pair<float, Point3>> &data);
-  Series &addValue(const std::vector<float> &values);
-  Series &addValue(const std::vector<Point2> &values);
-  Series &addValue(const std::vector<Point3> &values);
-  Series &add(float key, float value);
-  Series &add(float key, Point2 value);
-  Series &add(float key, Point3 value);
-  Series &addValue(float value);
-  Series &addValue(float value_a, float value_b);
-  Series &addValue(float value_a, float value_b, float value_c);
-  Series &set(const std::vector<std::pair<float, float>> &data);
-  Series &set(const std::vector<std::pair<float, Point2>> &data);
-  Series &set(const std::vector<std::pair<float, Point3>> &data);
-  Series &setValue(const std::vector<float> &values);
-  Series &setValue(const std::vector<Point2> &values);
-  Series &setValue(const std::vector<Point3> &values);
-  Series &set(float key, float value);
-  Series &set(float key, float value_a, float value_b);
-  Series &set(float key, float value_a, float value_b, float value_c);
-  Series &setValue(float value);
-  Series &setValue(float value_a, float value_b);
-  Series &setValue(float value_a, float value_b, float value_c);
-  Series &clear();
+  auto type(enum Type type) -> Series &;
+  auto color(Color color) -> Series &;
+  auto dynamicColor(bool dynamic_color) -> Series &;
+  auto legend(bool legend) -> Series &;
+  auto add(const std::vector<std::pair<float, float>> &data) -> Series &;
+  auto add(const std::vector<std::pair<float, Point2>> &data) -> Series &;
+  auto add(const std::vector<std::pair<float, Point3>> &data) -> Series &;
+  auto addValue(const std::vector<float> &values) -> Series &;
+  auto addValue(const std::vector<Point2> &values) -> Series &;
+  auto addValue(const std::vector<Point3> &values) -> Series &;
+  auto add(float key, float value) -> Series &;
+  auto add(float key, Point2 value) -> Series &;
+  auto add(float key, Point3 value) -> Series &;
+  auto addValue(float value) -> Series &;
+  auto addValue(float value_a, float value_b) -> Series &;
+  auto addValue(float value_a, float value_b, float value_c) -> Series &;
+  auto set(const std::vector<std::pair<float, float>> &data) -> Series &;
+  auto set(const std::vector<std::pair<float, Point2>> &data) -> Series &;
+  auto set(const std::vector<std::pair<float, Point3>> &data) -> Series &;
+  auto setValue(const std::vector<float> &values) -> Series &;
+  auto setValue(const std::vector<Point2> &values) -> Series &;
+  auto setValue(const std::vector<Point3> &values) -> Series &;
+  auto set(float key, float value) -> Series &;
+  auto set(float key, float value_a, float value_b) -> Series &;
+  auto set(float key, float value_a, float value_b, float value_c) -> Series &;
+  auto setValue(float value) -> Series &;
+  auto setValue(float value_a, float value_b) -> Series &;
+  auto setValue(float value_a, float value_b, float value_c) -> Series &;
+  auto clear() -> Series &;
 
-  const std::string &label() const;
-  bool legend() const;
-  Color color() const;
+  auto label() const -> const std::string &;
+  auto legend() const -> bool;
+  auto color() const -> Color;
   void draw(void *buffer, float x_min, float x_max, float y_min, float y_max,
             float x_axis, float xs, float xd, float ys, float yd, float y_axis,
             int unit, float offset) const;
-  bool collides() const;
+  auto collides() const -> bool;
   void dot(void *b, int x, int y, int r) const;
   void bounds(float &x_min, float &x_max, float &y_min, float &y_max,
               int &n_max, int &p_max) const;
@@ -91,7 +92,7 @@ class Series {
 
  protected:
   void ensureDimsDepth(int dims, int depth);
-  bool flipAxis() const;
+  auto flipAxis() const -> bool;
 
  protected:
   std::vector<int> entries_;
@@ -120,27 +121,27 @@ class Figure {
         grid_size_(60),
         grid_padding_(20) {}
 
-  Figure &clear();
-  Figure &origin(bool x, bool y);
-  Figure &square(bool square);
-  Figure &border(int size);
-  Figure &alpha(int alpha);
-  Figure &gridSize(int size);
-  Figure &backgroundColor(Color color);
-  Figure &axisColor(Color color);
-  Figure &subaxisColor(Color color);
-  Figure &textColor(Color color);
-  Color backgroundColor();
-  Color axisColor();
-  Color subaxisColor();
-  Color textColor();
+  auto clear() -> Figure &;
+  auto origin(bool x, bool y) -> Figure &;
+  auto square(bool square) -> Figure &;
+  auto border(int size) -> Figure &;
+  auto alpha(int alpha) -> Figure &;
+  auto gridSize(int size) -> Figure &;
+  auto backgroundColor(Color color) -> Figure &;
+  auto axisColor(Color color) -> Figure &;
+  auto subaxisColor(Color color) -> Figure &;
+  auto textColor(Color color) -> Figure &;
+  auto backgroundColor() -> Color;
+  auto axisColor() -> Color;
+  auto subaxisColor() -> Color;
+  auto textColor() -> Color;
 
   void draw(void *buffer, float x_min, float x_max, float y_min, float y_max,
             int n_max, int p_max) const;
-  int drawFit(void *buffer) const;
-  bool drawFile(const std::string &filename, Size size) const;
+  auto drawFit(void *buffer) const -> int;
+  auto drawFile(const std::string &filename, Size size) const -> bool;
   void show(bool flush = true) const;
-  Series &series(const std::string &label);
+  auto series(const std::string &label) -> Series &;
 
  protected:
   View &view_;
@@ -157,7 +158,7 @@ class Figure {
   int grid_padding_;
 };
 
-Figure &figure(const std::string &view);
+auto figure(const std::string &view) -> Figure &;
 
 }  // namespace cvplot
 

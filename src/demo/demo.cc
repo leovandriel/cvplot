@@ -4,7 +4,7 @@
 
 namespace demo {
 
-float randFloat() {
+auto randFloat() -> float {
   return std::rand() / (float)RAND_MAX;  // NOLINT
 }
 
@@ -75,13 +75,13 @@ void demo() {
     auto &figure = cvplot::figure(name);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back({randFloat() * 10.f, randFloat() * 10.f});
+      data.emplace_back(randFloat() * 10.f, randFloat() * 10.f);
     }
     figure.series("uniform").set(data).type(cvplot::Dots).color(cvplot::Orange);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back(
-          {exp(randFloat() * 3.33f) - 1, exp(randFloat() * 3.33f) - 1});
+      data.emplace_back(exp(randFloat() * 3.33f) - 1,
+                        exp(randFloat() * 3.33f) - 1);
     }
     figure.series("exponential")
         .set(data)
@@ -120,12 +120,12 @@ void demo() {
     figure.square(true);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back({cos(i * .0628f + 4) * 2, sin(i * .0628f + 4) * 2});
+      data.emplace_back(cos(i * .0628f + 4) * 2, sin(i * .0628f + 4) * 2);
     }
     figure.series("circle").add(data);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
-      data.push_back({cos(i * .2513f + 1), sin(i * .0628f + 4)});
+      data.emplace_back(cos(i * .2513f + 1), sin(i * .0628f + 4));
     }
     figure.series("lissajous").add(data);
     figure.show(false);
@@ -351,7 +351,7 @@ void transparency() {
 
 }  // namespace demo
 
-int main(int argc, char **argv) {
+auto main(int argc, char **argv) -> int {
   demo::example();
   demo::transparency();
   demo::demo();

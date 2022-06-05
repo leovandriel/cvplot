@@ -9,17 +9,18 @@ namespace {
 std::map<std::string, int> color_counter;
 }
 
-Color Color::alpha(uint8_t alpha) const { return Color(r, g, b, alpha); }
+auto Color::alpha(uint8_t alpha) const -> Color { return {r, g, b, alpha}; }
 
-Color Color::gamma(float gamma) const {
-  return Color(pow(r / 255.f, 1 / gamma) * 255, pow(g / 255.f, 1 / gamma) * 255,
-               pow(b / 255.f, 1 / gamma) * 255, a);
+auto Color::gamma(float gamma) const -> Color {
+  return {(uint8_t)(pow(r / 255.f, 1 / gamma) * 255),
+          (uint8_t)(pow(g / 255.f, 1 / gamma) * 255),
+          (uint8_t)(pow(b / 255.f, 1 / gamma) * 255), a};
 }
 
-Color Color::gray(uint8_t v) { return Color(v, v, v); }
+auto Color::gray(uint8_t v) -> Color { return {v, v, v}; }
 
-Color Color::index(uint8_t index, uint8_t density, float avoid,
-                   float range) {  // avoid greens by default
+auto Color::index(uint8_t index, uint8_t density, float avoid,
+                  float range) -> Color {  // avoid greens by default
   if (avoid > 0) {
     auto step = density / (6 - range);
     auto offset = (avoid + range / 2) * step;
@@ -30,7 +31,7 @@ Color Color::index(uint8_t index, uint8_t density, float avoid,
   return Color::cos(hue);
 }
 
-Color Color::hash(const std::string &seed) {
+auto Color::hash(const std::string &seed) -> Color {
   unsigned hash = 37;
   for (char c : seed) {
     hash = (hash * 54059) ^ (c * 76963);
@@ -38,41 +39,41 @@ Color Color::hash(const std::string &seed) {
   return Color::index(hash);
 }
 
-Color Color::uniq(const std::string &name) {
+auto Color::uniq(const std::string &name) -> Color {
   if (color_counter.count(name) == 0) {
     color_counter[name] = color_counter.size();
   }
   return Color::index(color_counter[name]);
 }
 
-Color Color::hue(float hue) {
+auto Color::hue(float hue) -> Color {
   Color color;
   auto i = (int)hue;
-  auto f = (hue - i) * 255;
+  auto f = (uint8_t)((hue - i) * 255);
   switch (i % 6) {
     case 0:
-      return Color(255, f, 0);
+      return {255, f, 0};
     case 1:
-      return Color(255 - f, 255, 0);
+      return {(uint8_t)(255 - f), 255, 0};
     case 2:
-      return Color(0, 255, f);
+      return {0, 255, f};
     case 3:
-      return Color(0, 255 - f, 255);
+      return {0, (uint8_t)(255 - f), 255};
     case 4:
-      return Color(f, 0, 255);
+      return {f, 0, 255};
     case 5:
-      return Color(255, 0, 255 - f);
+      return {255, 0, (uint8_t)(255 - f)};
   }
-  return Color();
+  return {};
 }
 
-Color Color::cos(float hue) {
-  return Color((std::cos(hue * 1.047f) + 1) * 127.9f,
-               (std::cos((hue - 2) * 1.047f) + 1) * 127.9f,
-               (std::cos((hue - 4) * 1.047f) + 1) * 127.9f);
+auto Color::cos(float hue) -> Color {
+  return {(uint8_t)((std::cos(hue * 1.047f) + 1) * 127.9f),
+          (uint8_t)((std::cos((hue - 2) * 1.047f) + 1) * 127.9f),
+          (uint8_t)((std::cos((hue - 4) * 1.047f) + 1) * 127.9f)};
 }
 
-float Color::hue() const {
+auto Color::hue() const -> float {
   auto min = std::min(std::min(r, g), b);
   auto max = std::max(std::max(r, g), b);
   if (min == max) {

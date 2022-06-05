@@ -13,17 +13,17 @@ struct Color {
       : Color(rgb[0], rgb[1], rgb[2], a) {}
   Color() : Color(0, 0, 0) {}
 
-  Color alpha(uint8_t alpha) const;
-  Color gamma(float gamma) const;
-  float hue() const;
+  auto alpha(uint8_t alpha) const -> Color;
+  auto gamma(float gamma) const -> Color;
+  auto hue() const -> float;
 
-  static Color gray(uint8_t v);
-  static Color hue(float hue);
-  static Color cos(float hue);
-  static Color index(uint8_t index, uint8_t density = 16, float avoid = 2.f,
-                     float range = 2.f);
-  static Color hash(const std::string &seed);
-  static Color uniq(const std::string &name);
+  static auto gray(uint8_t v) -> Color;
+  static auto hue(float hue) -> Color;
+  static auto cos(float hue) -> Color;
+  static auto index(uint8_t index, uint8_t density = 16, float avoid = 2.f,
+                    float range = 2.f) -> Color;
+  static auto hash(const std::string &seed) -> Color;
+  static auto uniq(const std::string &name) -> Color;
 };
 
 static const Color Red = Color::hue(0.f);
