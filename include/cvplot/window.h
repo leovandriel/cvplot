@@ -9,8 +9,6 @@
 
 namespace cvplot {
 
-extern int paleness;  // for that dated feel
-
 struct Rect {
   int x, y, width, height;
   Rect(int x, int y, int width, int height)

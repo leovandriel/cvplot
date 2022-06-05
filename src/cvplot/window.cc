@@ -9,9 +9,6 @@
 
 namespace cvplot {
 
-// NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-int paleness = 0;
-
 namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
 Window *shared_window = nullptr;

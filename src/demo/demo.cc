@@ -348,10 +348,9 @@ void transparency() {
   std::vector<std::pair<double, double>> data;
   std::vector<double> values;
 
-  cvplot::Window::current("cvplot transparency and mouse (dated look)")
+  cvplot::Window::current("cvplot transparency and mouse")
       .offset({30, 70})
       .cursor(true);
-  cvplot::paleness = 32;
 
   {
     const auto *name = "opaque";
@@ -385,8 +384,6 @@ void transparency() {
         .legend(false);
     figure.alpha(alpha).show(true);
   }
-
-  cvplot::paleness = 0;
 }
 
 }  // namespace demo
