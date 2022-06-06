@@ -1,11 +1,19 @@
 #include "cvplot/figure.h"
 
 #include <cmath>
-#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#if CV_MAJOR_VERSION >= 3
+#include <opencv2/imgcodecs.hpp>
+#endif
 
 #include "cvplot/window.h"
 #include "internal.h"
+
+#if CV_MAJOR_VERSION >= 3
+constexpr int LINE_AA = cv::LINE_AA;
+#else
+constexpr int LINE_AA = CV_AA;
+#endif
 
 namespace cvplot {
 
@@ -325,8 +333,7 @@ void Series::bounds(double &x_min, double &x_max, double &y_min, double &y_max,
 
 void Series::dot(void *b, int x, int y, int r) const {
   Trans trans(b);
-  cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1,
-             cv::LINE_AA);
+  cv::circle(trans.with(color_), {x, y}, r, color2scalar(color_), -1, LINE_AA);
 }
 
 // NOLINTNEXTLINE(readability-function-cognitive-complexity)
@@ -368,7 +375,7 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
             };
             cv::fillConvexPoly(trans.with(color_.a / 2),
                                static_cast<cv::Point *>(points), 4, color,
-                               cv::LINE_AA);
+                               LINE_AA);
           } else {
             has_last = true;
           }
@@ -398,7 +405,7 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
             };
             cv::fillConvexPoly(trans.with(color_.a / 2),
                                static_cast<cv::Point *>(points), 4, color,
-                               cv::LINE_AA);
+                               LINE_AA);
           } else {
             has_last = true;
           }
@@ -422,13 +429,13 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
             cv::line(trans.with(color_),
                      {static_cast<int>(last_x * xs + xd),
                       static_cast<int>(last_y * ys + yd)},
-                     point, color, 1, cv::LINE_AA);
+                     point, color, 1, LINE_AA);
           }
         } else {
           has_last = true;
         }
         if (type_ == DotLine || type_ == Dots) {
-          cv::circle(trans.with(color_), point, 2, color, 1, cv::LINE_AA);
+          cv::circle(trans.with(color_), point, 2, color, 1, LINE_AA);
         }
         last_x = x, last_y = y;
       }
@@ -449,14 +456,14 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
                          static_cast<int>(y_axis * ys + yd)},
                         {static_cast<int>(x * xs + xd) + u + o,
                          static_cast<int>(y * ys + yd)},
-                        color, -1, cv::LINE_AA);
+                        color, -1, LINE_AA);
         } else if (type_ == Vistogram) {
           cv::rectangle(trans.with(color_),
                         {static_cast<int>(x_axis * xs + xd),
                          static_cast<int>(x * ys + yd) - u + o},
                         {static_cast<int>(y * xs + xd),
                          static_cast<int>(x * ys + yd) + u + o},
-                        color, -1, cv::LINE_AA);
+                        color, -1, LINE_AA);
         }
       }
 
@@ -474,14 +481,14 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
                     static_cast<int>(y * ys + yd)},
                    {static_cast<int>(x_max * xs + xd),
                     static_cast<int>(y * ys + yd)},
-                   color, 1, cv::LINE_AA);
+                   color, 1, LINE_AA);
         } else if (type_ == Vertical) {
           cv::line(trans.with(color_),
                    {static_cast<int>(y * xs + xd),
                     static_cast<int>(y_min * ys + yd)},
                    {static_cast<int>(y * xs + xd),
                     static_cast<int>(y_max * ys + yd)},
-                   color, 1, cv::LINE_AA);
+                   color, 1, LINE_AA);
         }
       }
     } break;
@@ -505,7 +512,7 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
           cv::Point points[4] = {point_a, point_b, last_b, last_a};
           cv::fillConvexPoly(trans.with(color_),
                              static_cast<cv::Point *>(points), 4, color,
-                             cv::LINE_AA);
+                             LINE_AA);
         } else {
           has_last = true;
         }
@@ -523,7 +530,7 @@ void Series::draw(void *buffer, double x_min, double x_max, double y_min,
         cv::Point point(static_cast<int>(x * xs + xd),
                         static_cast<int>(y * ys + yd));
         cv::circle(trans.with(color_), point, static_cast<int>(r), color, -1,
-                   cv::LINE_AA);
+                   LINE_AA);
       }
     } break;
   }
@@ -610,10 +617,10 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
   // draw background and sub axis square
   cv::rectangle(trans.with(background_color_), {0, 0},
                 {buffer.cols, buffer.rows}, color2scalar(background_color_), -1,
-                cv::LINE_AA);
+                LINE_AA);
   cv::rectangle(trans.with(sub_axis_color_), {border_size_, border_size_},
                 {buffer.cols - border_size_, buffer.rows - border_size_},
-                color2scalar(sub_axis_color_), 1, cv::LINE_AA);
+                color2scalar(sub_axis_color_), 1, LINE_AA);
 
   // size of the plotting area
   auto w_plot = buffer.cols - 2 * border_size_;
@@ -674,14 +681,14 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
     cv::line(trans.with(sub_axis_color_),
              {static_cast<int>(x * xs + xd), border_size_},
              {static_cast<int>(x * xs + xd), buffer.rows - border_size_},
-             color2scalar(sub_axis_color_), 1, cv::LINE_AA);
+             color2scalar(sub_axis_color_), 1, LINE_AA);
   }
   for (int i = ceil(y_min / y_grid), e = floor(y_max / y_grid); i <= e; i++) {
     auto y = i * y_grid;
     cv::line(trans.with(sub_axis_color_),
              {border_size_, static_cast<int>(y * ys + yd)},
              {buffer.cols - border_size_, static_cast<int>(y * ys + yd)},
-             color2scalar(sub_axis_color_), 1, cv::LINE_AA);
+             color2scalar(sub_axis_color_), 1, LINE_AA);
   }
   if (std::abs(x_grid * xs) < 30) {
     x_grid *= std::ceil(30. / std::abs(x_grid * xs));
@@ -720,11 +727,11 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
   cv::line(trans.with(axis_color_),
            {border_size_, static_cast<int>(y_axis * ys + yd)},
            {buffer.cols - border_size_, static_cast<int>(y_axis * ys + yd)},
-           color2scalar(axis_color_), 1, cv::LINE_AA);
+           color2scalar(axis_color_), 1, LINE_AA);
   cv::line(trans.with(axis_color_),
            {static_cast<int>(x_axis * xs + xd), border_size_},
            {static_cast<int>(x_axis * xs + xd), buffer.rows - border_size_},
-           color2scalar(axis_color_), 1, cv::LINE_AA);
+           color2scalar(axis_color_), 1, LINE_AA);
 
   // draw plot
   auto index = 0;
@@ -762,7 +769,7 @@ void Figure::draw(void *b, double x_min, double x_max, double y_min,
                 (shadow ? 1 : 2));
     cv::circle(trans.with(background_color_),
                {buffer.cols - border_size_ - 10 + 1, org.y - 3 + 1}, 3,
-               color2scalar(background_color_), -1, cv::LINE_AA);
+               color2scalar(background_color_), -1, LINE_AA);
     cv::putText(trans.with(text_color_), name, org, cv::FONT_HERSHEY_SIMPLEX,
                 0.4, color2scalar(text_color_), 1.);
     s.dot(&trans.with(s.color()), buffer.cols - border_size_ - 10, org.y - 3,
@@ -793,14 +800,16 @@ auto Figure::drawFit(void *buffer) const -> int {
 }
 
 auto Figure::drawFile(const std::string &filename, Size size) const -> bool {
+#if CV_MAJOR_VERSION >= 3
   cv::Mat mat(cv::Size(size.width, size.height), CV_8UC3);
   int n_max = drawFit(&mat);
   if (n_max != 0) {
     std::vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(9);
-    return imwrite(filename, mat, compression_params);
+    return cv::imwrite(filename, mat, compression_params);
   }
+#endif
   return false;
 }
 

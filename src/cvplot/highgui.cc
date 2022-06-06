@@ -18,7 +18,7 @@ void destroyWindow(const std::string &view) {
 }
 
 auto getMouseWheelDelta(int flags) -> int {
-#if CV_MAJOR_VERSION > 2
+#if CV_MAJOR_VERSION >= 3
   return cv::getMouseWheelDelta(flags);
 #else
   return -1;
@@ -28,6 +28,15 @@ auto getMouseWheelDelta(int flags) -> int {
 auto getTrackbarPos(const std::string &trackbarname, const std::string &winname)
     -> int {
   return cv::getTrackbarPos(trackbarname, winname);
+}
+
+auto getWindowImageRect(const std::string &winname) -> Rect {
+#if CV_MAJOR_VERSION >= 3
+  auto rect = cv::getWindowImageRect(winname);
+  return {rect.x, rect.y, rect.width, rect.height};
+#else
+  return {-1, -1, -1, -1};
+#endif
 }
 
 auto getWindowProperty(const std::string &winname, int prop_id) -> double {
@@ -48,12 +57,55 @@ void namedWindow(const std::string &view, int /*flags*/) {
   Window::current().view(view);
 }
 
+auto pollKey() -> int {
+#if CV_MAJOR_VERSION >= 4
+  return cv::pollKey();
+#else
+  return -1;
+#endif
+}
+
 void resizeWindow(const std::string &view, int width, int height) {
   Window::current().view(view).size({width, height});
 }
 
 void resizeWindow(const std::string &view, const Size &size) {
   Window::current().view(view).size({size.width, size.height});
+}
+
+auto selectROI(const std::string &windowName, void *img, bool showCrosshair,
+               bool fromCenter) -> Rect {
+#if CV_MAJOR_VERSION >= 3
+  auto rect = cv::selectROI(windowName, *static_cast<cv::Mat *>(img),
+                            showCrosshair, fromCenter);
+  return {rect.x, rect.y, rect.width, rect.height};
+#else
+  return {-1, -1, -1, -1};
+#endif
+}
+
+auto selectROI(void *img, bool showCrosshair, bool fromCenter) -> Rect {
+#if CV_MAJOR_VERSION >= 3
+  auto rect =
+      cv::selectROI(*static_cast<cv::Mat *>(img), showCrosshair, fromCenter);
+  return {rect.x, rect.y, rect.width, rect.height};
+#else
+  return {-1, -1, -1, -1};
+#endif
+}
+
+void selectROIs(const std::string &windowName, void *img,
+                std::vector<Rect> &boundingBoxes, bool showCrosshair,
+                bool fromCenter) {
+#if CV_MAJOR_VERSION >= 3
+  std::vector<cv::Rect> boxes;
+  boxes.reserve(boundingBoxes.size());
+  for (auto b : boundingBoxes) {
+    boxes.emplace_back(b.x, b.y, b.width, b.height);
+  }
+  cv::selectROIs(windowName, *static_cast<cv::Mat *>(img), boxes, showCrosshair,
+                 fromCenter);
+#endif
 }
 
 void setMouseCallback(const std::string &view, MouseCallback onMouse,
@@ -63,14 +115,14 @@ void setMouseCallback(const std::string &view, MouseCallback onMouse,
 
 void setTrackbarMax(const std::string &trackbarname, const std::string &winname,
                     int maxval) {
-#if CV_MAJOR_VERSION > 2
+#if CV_MAJOR_VERSION >= 3
   cv::setTrackbarMax(trackbarname, winname, maxval);
 #endif
 }
 
 void setTrackbarMin(const std::string &trackbarname, const std::string &winname,
                     int minval) {
-#if CV_MAJOR_VERSION > 2
+#if CV_MAJOR_VERSION >= 3
   cv::setTrackbarMin(trackbarname, winname, minval);
 #endif
 }
@@ -90,6 +142,8 @@ void setWindowTitle(const std::string &view, const std::string &title) {
 }
 
 auto startWindowThread() -> int { return cv::startWindowThread(); }
+
+void updateWindow(const std::string &name) { cv::updateWindow(name); }
 
 auto waitKey(int delay) -> int { return Util::key(delay); }
 
