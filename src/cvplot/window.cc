@@ -393,4 +393,8 @@ auto Util::line(double timeout) -> std::string {
   return stream.str();
 }
 
+auto window(const std::string &name) -> Window & {
+  return Window::current(name);
+}
+
 }  // namespace cvplot

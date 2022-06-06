@@ -133,6 +133,8 @@ class Util {
   static auto line(double timeout = 0) -> std::string;
 };
 
+auto window(const std::string &name) -> Window &;
+
 }  // namespace cvplot
 
 #endif  // CVPLOT_WINDOW_H
