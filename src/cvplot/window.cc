@@ -210,6 +210,7 @@ Window::Window(std::string title)
       title_(std::move(title)),
       cursor_(-10, -10),
       name_("cvplot_" + std::to_string(clock())) {
+  cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
   cv::setMouseCallback(name_, mouse_callback, this);
 }
 
@@ -309,7 +310,6 @@ void Window::flush() {
                  color2scalar(Black), 1);
         b = &mat;
       }
-      cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
 #if CV_MAJOR_VERSION >= 3
       cv::setWindowTitle(name_, title_);
 #endif
