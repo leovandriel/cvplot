@@ -304,7 +304,7 @@ void Window::flush() {
         b = &mat;
       }
       cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
-#if CV_MAJOR_VERSION > 2
+#if CV_MAJOR_VERSION >= 3
       cv::setWindowTitle(name_, title_);
 #endif
       cv::imshow(name_, *b);

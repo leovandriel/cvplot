@@ -313,7 +313,7 @@ void mouse_callback(int event, int x, int y, int flags, void *param) {
   if (event == cv::EVENT_MBUTTONDBLCLK) {
     stream << "mbuttondblclk";
   }
-#if CV_MAJOR_VERSION > 2
+#if CV_MAJOR_VERSION >= 3
   if (event == cv::EVENT_MOUSEWHEEL) {
     stream << "mousewheel";
   }
