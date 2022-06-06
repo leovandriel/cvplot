@@ -50,7 +50,6 @@ class Trans {
 
   void flush() {
     if (interim_) {
-      // std::cerr << "blending " << alpha_ << std::endl;
       auto weight = alpha_ / 255.;
       cv::addWeighted(*interim_, weight, original_, 1 - weight, 0, original_);
       delete interim_;

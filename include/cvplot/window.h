@@ -91,6 +91,7 @@ class View {
 class Window {
  public:
   Window(std::string title = "");
+  ~Window();
   auto resize(Rect rect) -> Window &;
   auto size(Size size) -> Window &;
   auto offset(Offset offset) -> Window &;
