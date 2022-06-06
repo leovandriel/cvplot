@@ -210,6 +210,7 @@ Window::Window(std::string title)
       title_(std::move(title)),
       cursor_(-10, -10),
       name_("cvplot_" + std::to_string(clock())) {
+  cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
   cv::setMouseCallback(name_, mouse_callback, this);
 }
 
@@ -244,18 +245,12 @@ auto Window::size(Size size) -> Window & {
 
 auto Window::offset(Offset offset) -> Window & {
   offset_ = offset;
-  cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
   cv::moveWindow(name_, offset.x, offset.y);
   return *this;
 }
 
 auto Window::title(const std::string &title) -> Window & {
   title_ = title;
-  return *this;
-}
-
-auto Window::fps(double fps) -> Window & {
-  fps_ = fps;
   return *this;
 }
 
@@ -309,7 +304,6 @@ void Window::flush() {
                  color2scalar(Black), 1);
         b = &mat;
       }
-      cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
 #if CV_MAJOR_VERSION >= 3
       cv::setWindowTitle(name_, title_);
 #endif
@@ -391,6 +385,10 @@ auto Util::line(double timeout) -> std::string {
     }
   }
   return stream.str();
+}
+
+auto window(const std::string &name) -> Window & {
+  return Window::current(name);
 }
 
 }  // namespace cvplot

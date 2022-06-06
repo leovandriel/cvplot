@@ -9,40 +9,79 @@ auto uniform() -> double {
   return std::rand() / static_cast<double>(RAND_MAX);
 }
 
-void example() {
+void basic() {
+  cvplot::window("mywindow");
   cvplot::figure("myplot").series("myline").addValue({1., 3., 2., 5., 4.});
   cvplot::figure("myplot").show();
 }
 
-void demo_highgui() {
-  std::vector<std::pair<double, double>> data;
-  std::vector<double> values;
+void highgui() {
+  cvplot::Window::current("cvplot highgui").offset({300, 0});
 
-  cvplot::Window::current("cvplot demo").offset({60, 100});
+  const auto *name = "highgui";
+  cvplot::setWindowTitle(name, "line and histogram");
+  cvplot::moveWindow(name, 0, 0);
+  cvplot::resizeWindow(name, 300, 300);
+  auto &figure = cvplot::figure(name);
+  figure.series("line")
+      .setValue({1., 2., 3., 4., 5.})
+      .type(cvplot::DotLine)
+      .color(cvplot::Blue);
+  figure.series("histogram")
+      .setValue({1., 2., 3., 4., 5.})
+      .type(cvplot::Histogram)
+      .color(cvplot::Red);
+  figure.show(true);
+}
+
+void mouse_callback(int event, int x, int y, int flags, void *param);
+
+auto transparency() -> std::unique_ptr<cvplot::Window> {
+  const std::string title = "cvplot transparency and mouse";
+  std::unique_ptr<cvplot::Window> window_ptr(new cvplot::Window(title));
+
+  auto &window = (*window_ptr).offset({600, 0}).cursor(true);
 
   {
-    const auto *name = "simple";
-    cvplot::setWindowTitle(name, "line and histogram");
-    cvplot::moveWindow(name, 0, 0);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
-    figure.series("line")
-        .setValue({1., 2., 3., 4., 5.})
-        .type(cvplot::DotLine)
-        .color(cvplot::Blue);
+    auto &view = window.view("opaque", {300, 300});
+    view.mouse(mouse_callback).frameColor(cvplot::Sky);
+    auto figure = cvplot::Figure(view);
     figure.series("histogram")
         .setValue({1., 2., 3., 4., 5.})
         .type(cvplot::Histogram)
-        .color(cvplot::Red);
+        .color(cvplot::Red)
+        .legend(false);
     figure.show(false);
   }
 
   {
-    const auto *name = "math";
-    cvplot::setWindowTitle(name, "math curves");
-    cvplot::moveWindow(name, 300, 0);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("transparent", {300, 300});
+    view.mouse(mouse_callback)
+        .frameColor(cvplot::Sky)
+        .alpha(200)
+        .offset({100, 100});
+    auto figure = cvplot::Figure(view);
+    figure.alpha(200);
+    figure.series("histogram")
+        .setValue({5., 4., 3., 2., 1.})
+        .type(cvplot::Histogram)
+        .color(cvplot::Blue.alpha(200))
+        .legend(false);
+    figure.show(true);
+  }
+
+  return window_ptr;
+}
+
+void figures() {
+  std::vector<std::pair<double, double>> data;
+  std::vector<double> values;
+
+  auto window = cvplot::Window("cvplot demo").offset({50, 50});
+
+  {
+    auto &view = window.view("math curves", {300, 300}).offset({0, 0});
+    auto figure = cvplot::Figure(view);
     values.clear();
     for (auto i = 0; i <= 10; i++) {
       values.push_back((i - 4) * (i - 4) - 6);
@@ -69,11 +108,8 @@ void demo_highgui() {
   }
 
   {
-    const auto *name = "scatter";
-    cvplot::setWindowTitle(name, "scatter plots");
-    cvplot::moveWindow(name, 600, 0);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("scatter plots", {300, 300}).offset({300, 0});
+    auto figure = cvplot::Figure(view);
     data.clear();
     for (auto i = 0; i <= 100; i++) {
       data.emplace_back(uniform() * 10., uniform() * 10.);
@@ -91,11 +127,37 @@ void demo_highgui() {
   }
 
   {
-    const auto *name = "histograms";
-    cvplot::setWindowTitle(name, "multiple histograms");
-    cvplot::moveWindow(name, 0, 300);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("auto color", {300, 300}).offset({600, 0});
+    auto figure = cvplot::Figure(view);
+    figure.series("color")
+        .dynamicColor(true)
+        .type(cvplot::Vistogram)
+        .legend(false);
+    for (auto i = 0; i < 16; i++) {
+      figure.series("color").addValue(6, cvplot::Color::index(i).hue());
+    }
+    figure.show(false);
+  }
+
+  {
+    auto &view = window.view("filled line", {300, 300}).offset({900, 0});
+    auto figure = cvplot::Figure(view);
+    figure.gridSize(20);
+    figure.series("fossil").type(cvplot::FillLine).color(cvplot::Orange);
+    figure.series("electric")
+        .type(cvplot::FillLine)
+        .color(cvplot::Green.gamma(.5));
+    for (auto i = 0; i < 16; i++) {
+      figure.series("fossil").addValue(10 - i + 10. * uniform());
+      figure.series("electric").addValue(i - 10 + 10. * uniform());
+    }
+    figure.show(false);
+  }
+
+  {
+    auto &view =
+        window.view("multiple histograms", {300, 300}).offset({0, 300});
+    auto figure = cvplot::Figure(view);
     figure.series("1")
         .setValue({1., 2., 3., 4., 5.})
         .type(cvplot::Histogram)
@@ -112,87 +174,8 @@ void demo_highgui() {
   }
 
   {
-    const auto *name = "parametric";
-    cvplot::setWindowTitle(name, "parametric plots");
-    cvplot::moveWindow(name, 0, 600);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
-    figure.square(true);
-    data.clear();
-    for (auto i = 0; i <= 100; i++) {
-      data.emplace_back(cos(i * .0628 + 4) * 2, sin(i * .0628 + 4) * 2);
-    }
-    figure.series("circle").add(data);
-    data.clear();
-    for (auto i = 0; i <= 100; i++) {
-      data.emplace_back(cos(i * .2513 + 1), sin(i * .0628 + 4));
-    }
-    figure.series("lissajous").add(data);
-    figure.show(false);
-  }
-
-  {
-    const auto *name = "no-axis";
-    cvplot::setWindowTitle(name, "hidden axis");
-    cvplot::moveWindow(name, 600, 600);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
-    figure.origin(false, false);
-    figure.series("histogram")
-        .setValue({4., 5., 7., 6.})
-        .type(cvplot::Vistogram)
-        .color(cvplot::Blue);
-    figure.series("min")
-        .setValue(4.)
-        .type(cvplot::Vertical)
-        .color(cvplot::Pink);
-    figure.series("max")
-        .setValue(7.)
-        .type(cvplot::Vertical)
-        .color(cvplot::Purple);
-    figure.show(false);
-  }
-
-  {
-    const auto *name = "colors";
-    cvplot::setWindowTitle(name, "auto color");
-    cvplot::moveWindow(name, 900, 0);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
-    figure.series("color")
-        .dynamicColor(true)
-        .type(cvplot::Vistogram)
-        .legend(false);
-    for (auto i = 0; i < 16; i++) {
-      figure.series("color").addValue(6, cvplot::Color::index(i).hue());
-    }
-    figure.show(false);
-  }
-
-  {
-    const auto *name = "fill";
-    cvplot::setWindowTitle(name, "filled line");
-    cvplot::moveWindow(name, 900, 0);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
-    figure.gridSize(20);
-    figure.series("fossil").type(cvplot::FillLine).color(cvplot::Orange);
-    figure.series("electric")
-        .type(cvplot::FillLine)
-        .color(cvplot::Green.gamma(.5));
-    for (auto i = 0; i < 16; i++) {
-      figure.series("fossil").addValue(10 - i + 10. * uniform());
-      figure.series("electric").addValue(i - 10 + 10. * uniform());
-    }
-    figure.show(false);
-  }
-
-  {
-    const auto *name = "range";
-    cvplot::setWindowTitle(name, "range plot");
-    cvplot::moveWindow(name, 900, 300);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("range plot", {300, 300}).offset({900, 300});
+    auto figure = cvplot::Figure(view);
     values.clear();
     figure.series("apples").type(cvplot::RangeLine).color(cvplot::Orange);
     figure.series("pears").type(cvplot::RangeLine).color(cvplot::Sky);
@@ -210,11 +193,26 @@ void demo_highgui() {
   }
 
   {
-    const auto *name = "balls";
-    cvplot::setWindowTitle(name, "transparent circles");
-    cvplot::moveWindow(name, 300, 600);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("parametric plots", {300, 300}).offset({0, 600});
+    auto figure = cvplot::Figure(view);
+    figure.square(true);
+    data.clear();
+    for (auto i = 0; i <= 100; i++) {
+      data.emplace_back(cos(i * .0628 + 4) * 2, sin(i * .0628 + 4) * 2);
+    }
+    figure.series("circle").add(data);
+    data.clear();
+    for (auto i = 0; i <= 100; i++) {
+      data.emplace_back(cos(i * .2513 + 1), sin(i * .0628 + 4));
+    }
+    figure.series("lissajous").add(data);
+    figure.show(false);
+  }
+
+  {
+    auto &view =
+        window.view("transparent circles", {300, 300}).offset({300, 600});
+    auto figure = cvplot::Figure(view);
     figure.series("purple")
         .type(cvplot::Circle)
         .color(cvplot::Purple.alpha(192));
@@ -229,11 +227,27 @@ void demo_highgui() {
   }
 
   {
-    const auto *name = "image";
-    cvplot::setWindowTitle(name, "image and text");
-    cvplot::moveWindow(name, 900, 600);
-    cvplot::resizeWindow(name, 300, 300);
-    auto &view = cvplot::Window::current().view(name);
+    auto &view = window.view("hidden axis", {300, 300}).offset({600, 600});
+    auto figure = cvplot::Figure(view);
+    figure.origin(false, false);
+    figure.series("histogram")
+        .setValue({4., 5., 7., 6.})
+        .type(cvplot::Vistogram)
+        .color(cvplot::Blue);
+    figure.series("min")
+        .setValue(4.)
+        .type(cvplot::Vertical)
+        .color(cvplot::Pink);
+    figure.series("max")
+        .setValue(7.)
+        .type(cvplot::Vertical)
+        .color(cvplot::Purple);
+    figure.show(false);
+  }
+
+  {
+    auto &view = window.view("image and text", {300, 300}).offset({900, 600});
+    auto figure = cvplot::Figure(view);
     auto image = cv::imread("res/demo.jpg");
     if (image.data != nullptr) {
       cv::copyMakeBorder(image, image, 100, 100, 0, 0, cv::BORDER_REPLICATE);
@@ -244,12 +258,8 @@ void demo_highgui() {
   }
 
   {
-    const auto *name = "dynamic";
-    cvplot::setWindowTitle(name, "dynamic plotting");
-    cvplot::moveWindow(name, 300, 300);
-    cvplot::resizeWindow(name, 600, 300);
-    auto &view = cvplot::Window::current().view(name);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("dynamic plotting", {600, 300}).offset({300, 300});
+    auto figure = cvplot::Figure(view);
     figure.square(true);
     figure.origin(false, false);
     auto x = 0.;
@@ -345,51 +355,15 @@ void mouse_callback(int event, int x, int y, int flags, void *param) {
   view.drawText(stream.str(), {10, 25}, cvplot::Black);
 }
 
-auto transparency() -> std::unique_ptr<cvplot::Window> {
-  const std::string title = "cvplot transparency and mouse";
-  std::unique_ptr<cvplot::Window> window_ptr(new cvplot::Window(title));
-
-  auto &window = (*window_ptr).offset({30, 70}).cursor(true);
-
-  {
-    auto &view = window.view("opaque", {300, 300});
-    view.mouse(mouse_callback).frameColor(cvplot::Sky);
-    auto figure = cvplot::Figure(view);
-    figure.series("histogram")
-        .setValue({1., 2., 3., 4., 5.})
-        .type(cvplot::Histogram)
-        .color(cvplot::Red)
-        .legend(false);
-    figure.show(false);
-  }
-
-  {
-    auto &view = window.view("transparent", {300, 300});
-    view.mouse(mouse_callback)
-        .frameColor(cvplot::Sky)
-        .alpha(200)
-        .offset({100, 100});
-    auto figure = cvplot::Figure(view);
-    figure.alpha(200);
-    figure.series("histogram")
-        .setValue({5., 4., 3., 2., 1.})
-        .type(cvplot::Histogram)
-        .color(cvplot::Blue.alpha(200))
-        .legend(false);
-    figure.show(true);
-  }
-
-  return window_ptr;
-}
-
 }  // namespace demo
 
 auto main(int /*argc*/, char ** /*argv*/) -> int {
-  demo::example();
-  auto window2 = demo::transparency();
-  demo::demo_highgui();
+  demo::basic();
+  demo::highgui();
+  auto window = demo::transparency();
+  demo::figures();
   std::cout << "Demo completed. Ctrl+C to exit." << std::endl;
   cvplot::waitKey();
-  window2.release();
+  window.release();
   return 0;
 }
