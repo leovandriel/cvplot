@@ -96,7 +96,6 @@ class Window {
   auto size(Size size) -> Window &;
   auto offset(Offset offset) -> Window &;
   auto title(const std::string &title) -> Window &;
-  auto fps(double fps) -> Window &;
   auto ensure(Rect rect) -> Window &;
   auto cursor(bool cursor) -> Window &;
   auto buffer() -> void *;
@@ -120,7 +119,6 @@ class Window {
   std::string name_;
   std::map<std::string, View> views_;
   bool dirty_{false};
-  double fps_{1};
   bool hidden_{false};
   bool show_cursor_{false};
   Offset cursor_;

@@ -245,18 +245,12 @@ auto Window::size(Size size) -> Window & {
 
 auto Window::offset(Offset offset) -> Window & {
   offset_ = offset;
-  cv::namedWindow(name_, cv::WINDOW_AUTOSIZE);
   cv::moveWindow(name_, offset.x, offset.y);
   return *this;
 }
 
 auto Window::title(const std::string &title) -> Window & {
   title_ = title;
-  return *this;
-}
-
-auto Window::fps(double fps) -> Window & {
-  fps_ = fps;
   return *this;
 }
 

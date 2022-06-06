@@ -77,7 +77,6 @@ void figures() {
   std::vector<std::pair<double, double>> data;
   std::vector<double> values;
 
-  const std::string title = "cvplot transparency and mouse";
   auto window = cvplot::Window("cvplot demo").offset({50, 50});
 
   {
