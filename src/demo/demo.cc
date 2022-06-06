@@ -5,7 +5,8 @@
 namespace demo {
 
 auto uniform() -> double {
-  return std::rand() / (double)RAND_MAX;  // NOLINT
+  // NOLINTNEXTLINE
+  return std::rand() / static_cast<double>(RAND_MAX);
 }
 
 void example() {
@@ -13,7 +14,7 @@ void example() {
   cvplot::figure("myplot").show();
 }
 
-void demo() {
+void demo_highgui() {
   std::vector<std::pair<double, double>> data;
   std::vector<double> values;
 
@@ -344,22 +345,16 @@ void mouse_callback(int event, int x, int y, int flags, void *param) {
   view.drawText(stream.str(), {10, 25}, cvplot::Black);
 }
 
-void transparency() {
-  std::vector<std::pair<double, double>> data;
-  std::vector<double> values;
+auto transparency() -> std::unique_ptr<cvplot::Window> {
+  const std::string title = "cvplot transparency and mouse";
+  std::unique_ptr<cvplot::Window> window_ptr(new cvplot::Window(title));
 
-  cvplot::Window::current("cvplot transparency and mouse")
-      .offset({30, 70})
-      .cursor(true);
+  auto &window = (*window_ptr).offset({30, 70}).cursor(true);
 
   {
-    const auto *name = "opaque";
-    cvplot::setWindowTitle(name, "opaque");
-    cvplot::moveWindow(name, 0, 0);
-    cvplot::resizeWindow(name, 300, 300);
-    cvplot::setMouseCallback(name, mouse_callback);
-    cvplot::Window::current().view(name).frameColor(cvplot::Sky);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("opaque", {300, 300});
+    view.mouse(mouse_callback).frameColor(cvplot::Sky);
+    auto figure = cvplot::Figure(view);
     figure.series("histogram")
         .setValue({1., 2., 3., 4., 5.})
         .type(cvplot::Histogram)
@@ -369,31 +364,32 @@ void transparency() {
   }
 
   {
-    const auto *name = "transparent";
-    auto alpha = 200;
-    cvplot::setWindowTitle(name, "transparent");
-    cvplot::moveWindow(name, 100, 100);
-    cvplot::resizeWindow(name, 300, 300);
-    cvplot::setMouseCallback(name, mouse_callback);
-    cvplot::Window::current().view(name).frameColor(cvplot::Sky).alpha(alpha);
-    auto &figure = cvplot::figure(name);
+    auto &view = window.view("transparent", {300, 300});
+    view.mouse(mouse_callback)
+        .frameColor(cvplot::Sky)
+        .alpha(200)
+        .offset({100, 100});
+    auto figure = cvplot::Figure(view);
+    figure.alpha(200);
     figure.series("histogram")
         .setValue({5., 4., 3., 2., 1.})
         .type(cvplot::Histogram)
-        .color(cvplot::Blue.alpha(alpha))
+        .color(cvplot::Blue.alpha(200))
         .legend(false);
-    figure.alpha(alpha).show(true);
+    figure.show(true);
   }
+
+  return window_ptr;
 }
 
 }  // namespace demo
 
 auto main(int /*argc*/, char ** /*argv*/) -> int {
   demo::example();
-  demo::transparency();
-  demo::demo();
-  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-vararg)
-  printf("Demo completed. Ctrl+C to exit.\n");
+  auto window2 = demo::transparency();
+  demo::demo_highgui();
+  std::cout << "Demo completed. Ctrl+C to exit." << std::endl;
   cvplot::waitKey();
+  window2.release();
   return 0;
 }
