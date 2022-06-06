@@ -11,11 +11,13 @@ namespace cvplot {
 
 namespace {
 // NOLINTNEXTLINE(cppcoreguidelines-avoid-non-const-global-variables)
-Window *shared_window = nullptr;
+std::unique_ptr<Window> shared_window_;
 }  // namespace
 
 void mouse_callback(int event, int x, int y, int flags, void *window) {
-  (static_cast<Window *>(window))->onmouse(event, x, y, flags);
+  if (window != nullptr) {
+    (static_cast<Window *>(window))->onmouse(event, x, y, flags);
+  }
 }
 
 // View
@@ -207,7 +209,11 @@ Window::Window(std::string title)
     : offset_(0, 0),
       title_(std::move(title)),
       cursor_(-10, -10),
-      name_("cvplot_" + std::to_string(clock())) {}
+      name_("cvplot_" + std::to_string(clock())) {
+  cv::setMouseCallback(name_, mouse_callback, this);
+}
+
+Window::~Window() { cv::setMouseCallback(name_, mouse_callback, nullptr); }
 
 auto Window::buffer() -> void * { return buffer_; }
 
@@ -308,7 +314,6 @@ void Window::flush() {
       cv::setWindowTitle(name_, title_);
 #endif
       cv::imshow(name_, *b);
-      cv::setMouseCallback(name_, mouse_callback, this);
       Util::sleep();
     }
   }
@@ -338,20 +343,20 @@ void Window::hide(bool hidden) {
 }
 
 auto Window::current() -> Window & {
-  if (shared_window == nullptr) {
-    // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-    shared_window = new Window("");
+  if (shared_window_ == nullptr) {
+    shared_window_ = std::unique_ptr<Window>(new Window(""));
   }
-  return *shared_window;
+  return *shared_window_;
 }
 
 auto Window::current(const std::string &title) -> Window & {
-  // NOLINTNEXTLINE(cppcoreguidelines-owning-memory)
-  shared_window = new Window(title);
-  return *shared_window;
+  shared_window_ = std::unique_ptr<Window>(new Window(title));
+  return *shared_window_;
 }
 
-void Window::current(Window &window) { shared_window = &window; }
+void Window::current(Window &window) {
+  shared_window_ = std::unique_ptr<Window>(&window);
+}
 
 // Util
 
